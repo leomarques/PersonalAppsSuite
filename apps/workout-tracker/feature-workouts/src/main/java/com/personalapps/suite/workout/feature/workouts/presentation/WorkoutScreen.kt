@@ -23,7 +23,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -40,9 +39,11 @@ import com.personalapps.suite.shared.designsystem.PersonalButton
 import com.personalapps.suite.shared.designsystem.PersonalCard
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
 import com.personalapps.suite.shared.uicomponents.PersonalTextField
-import com.personalapps.suite.workout.feature.exercises.domain.model.Exercise
-import com.personalapps.suite.workout.feature.workouts.domain.model.WorkoutSession
-import com.personalapps.suite.workout.feature.workouts.domain.model.WorkoutSet
+import com.personalapps.suite.workout.feature.api.model.Exercise
+import com.personalapps.suite.workout.feature.api.model.WorkoutSession
+import com.personalapps.suite.workout.feature.api.model.WorkoutSet
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun WorkoutScreen(
@@ -51,9 +52,18 @@ fun WorkoutScreen(
     onNavigateToExercises: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val sessions by viewModel.sessionsState.collectAsState()
-    val sets by viewModel.setsState.collectAsState()
-    val exercises by viewModel.exercisesState.collectAsState()
+    val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is WorkoutEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                is WorkoutEffect.WorkoutCreated -> snackbarHostState.showSnackbar("Workout session logged successfully")
+                is WorkoutEffect.WorkoutDeleted -> snackbarHostState.showSnackbar("Workout session deleted")
+            }
+        }
+    }
 
     var showLogDialog by remember { mutableStateOf(false) }
 
@@ -70,6 +80,7 @@ fun WorkoutScreen(
                 }
             }
         },
+        snackbarHostState = snackbarHostState,
         modifier = modifier
     ) { padding ->
         Column(
@@ -95,19 +106,19 @@ fun WorkoutScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (sessions.isEmpty()) {
+            if (state.sessions.isEmpty()) {
                 EmptyScreen(message = "No logged workouts yet. Start a session using the '+' button below!")
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    items(sessions) { session ->
-                        val sessionSets = sets.filter { it.workoutSessionId == session.id }
+                    items(state.sessions) { session ->
+                        val sessionSets = state.sets.filter { it.workoutSessionId == session.id }
                         WorkoutSessionItemCard(
                             session = session,
                             sessionSets = sessionSets,
-                            exercises = exercises,
+                            exercises = state.exercises,
                             onDelete = { viewModel.deleteSession(session) }
                         )
                     }
@@ -118,7 +129,7 @@ fun WorkoutScreen(
 
     if (showLogDialog) {
         LogWorkoutDialog(
-            exercises = exercises,
+            exercises = state.exercises,
             onDismiss = { showLogDialog = false },
             onConfirm = { sessionName, setsList ->
                 viewModel.createWorkoutSession(sessionName, setsList)

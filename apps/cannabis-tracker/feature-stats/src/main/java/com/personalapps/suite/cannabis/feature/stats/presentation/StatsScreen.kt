@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -46,13 +48,21 @@ fun StatsScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val logs by viewModel.logsState.collectAsState()
-    val sessions by viewModel.sessionsState.collectAsState()
+    val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is StatsEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+            }
+        }
+    }
 
     // Calculate core statistics (using domain models: CannabisLog, CannabisSession)
-    val totalLogs = logs.size
-    val totalSessions = sessions.size
-    val totalAmountGrams = remember(logs) { logs.sumOf { it.amountGrams.toDouble() }.toFloat() }
+    val totalLogs = state.logs.size
+    val totalSessions = state.sessions.size
+    val totalAmountGrams = remember(state.logs) { state.logs.sumOf { it.amountGrams.toDouble() }.toFloat() }
     val avgConsumption = remember(totalAmountGrams, totalLogs) {
         if (totalLogs == 0) 0f else totalAmountGrams / totalLogs
     }
@@ -69,11 +79,11 @@ fun StatsScreen(
     )
 
     // Calculate method shares
-    val methodShares = remember(logs, totalAmountGrams) {
+    val methodShares = remember(state.logs, totalAmountGrams) {
         if (totalAmountGrams == 0f) {
             emptyList()
         } else {
-            logs.groupBy { it.method }
+            state.logs.groupBy { it.method }
                 .mapValues { entry -> entry.value.sumOf { it.amountGrams.toDouble() }.toFloat() }
                 .entries
                 .sortedByDescending { it.value }
@@ -92,9 +102,10 @@ fun StatsScreen(
     PersonalScaffold(
         title = "Personal Stats",
         onBackClick = onBackClick,
+        snackbarHostState = snackbarHostState,
         modifier = modifier
     ) { padding ->
-        if (logs.isEmpty()) {
+        if (state.logs.isEmpty()) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()

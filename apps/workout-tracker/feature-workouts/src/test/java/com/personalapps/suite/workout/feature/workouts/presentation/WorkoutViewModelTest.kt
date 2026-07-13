@@ -1,11 +1,12 @@
 package com.personalapps.suite.workout.feature.workouts.presentation
 
 import com.personalapps.suite.shared.testing.MainDispatcherRule
-import com.personalapps.suite.workout.feature.exercises.domain.model.Exercise
-import com.personalapps.suite.workout.feature.exercises.domain.repository.ExerciseRepository
-import com.personalapps.suite.workout.feature.workouts.domain.model.WorkoutSession
-import com.personalapps.suite.workout.feature.workouts.domain.model.WorkoutSet
-import com.personalapps.suite.workout.feature.workouts.domain.repository.WorkoutRepository
+import com.personalapps.suite.workout.feature.api.model.Exercise
+import com.personalapps.suite.workout.feature.api.repository.ExerciseRepository
+import com.personalapps.suite.workout.feature.api.model.WorkoutSession
+import com.personalapps.suite.workout.feature.api.model.WorkoutSet
+import com.personalapps.suite.workout.feature.api.repository.WorkoutRepository
+import com.personalapps.suite.workout.feature.workouts.domain.usecase.CreateWorkoutSessionUseCase
 import java.time.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -82,18 +83,19 @@ class WorkoutViewModelTest {
 
     private val workoutRepository = FakeWorkoutRepository()
     private val exerciseRepository = FakeExerciseRepository()
+    private lateinit var createWorkoutSessionUseCase: CreateWorkoutSessionUseCase
     private lateinit var viewModel: WorkoutViewModel
 
     @Before
     fun setUp() {
-        viewModel = WorkoutViewModel(workoutRepository, exerciseRepository)
+        createWorkoutSessionUseCase = CreateWorkoutSessionUseCase(workoutRepository)
+        viewModel = WorkoutViewModel(workoutRepository, exerciseRepository, createWorkoutSessionUseCase)
     }
 
     @Test
     fun createWorkoutSession_savesSessionAndSets() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
-            viewModel.sessionsState.collect {}
-            viewModel.setsState.collect {}
+            viewModel.uiState.collect {}
         }
 
         val setsList = listOf(
@@ -117,8 +119,7 @@ class WorkoutViewModelTest {
     @Test
     fun deleteSession_removesSessionAndCascadeSets() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
-            viewModel.sessionsState.collect {}
-            viewModel.setsState.collect {}
+            viewModel.uiState.collect {}
         }
 
         val setsList = listOf(

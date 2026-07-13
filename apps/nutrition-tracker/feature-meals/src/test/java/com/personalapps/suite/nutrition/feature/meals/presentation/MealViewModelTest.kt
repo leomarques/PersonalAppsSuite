@@ -1,10 +1,11 @@
 package com.personalapps.suite.nutrition.feature.meals.presentation
 
-import com.personalapps.suite.nutrition.feature.food.domain.model.Food
-import com.personalapps.suite.nutrition.feature.food.domain.repository.FoodRepository
-import com.personalapps.suite.nutrition.feature.meals.domain.model.Meal
-import com.personalapps.suite.nutrition.feature.meals.domain.model.LoggedFoodPortion
-import com.personalapps.suite.nutrition.feature.meals.domain.repository.MealRepository
+import com.personalapps.suite.nutrition.feature.api.model.Food
+import com.personalapps.suite.nutrition.feature.api.repository.FoodRepository
+import com.personalapps.suite.nutrition.feature.api.model.Meal
+import com.personalapps.suite.nutrition.feature.api.model.LoggedFoodPortion
+import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
+import com.personalapps.suite.nutrition.feature.meals.domain.usecase.LogMealUseCase
 import com.personalapps.suite.shared.testing.MainDispatcherRule
 import java.time.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -69,17 +70,19 @@ class MealViewModelTest {
 
     private val foodRepository = FakeFoodRepository()
     private val mealRepository = FakeMealRepository()
+    private lateinit var logMealUseCase: LogMealUseCase
     private lateinit var viewModel: MealViewModel
 
     @Before
     fun setUp() {
-        viewModel = MealViewModel(mealRepository, foodRepository)
+        logMealUseCase = LogMealUseCase(mealRepository)
+        viewModel = MealViewModel(mealRepository, foodRepository, logMealUseCase)
     }
 
     @Test
     fun addCustomFood_insertsIntoFoodRepository() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
-            viewModel.foodsState.collect {}
+            viewModel.uiState.collect {}
         }
 
         viewModel.addCustomFood("Apple", 52, 0.3f, 13.8f, 0.2f)
@@ -94,7 +97,7 @@ class MealViewModelTest {
     @Test
     fun logSingleFoodPortion_insertsMealIntoRepository() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
-            viewModel.mealsState.collect {}
+            viewModel.uiState.collect {}
         }
 
         val apple = Food(id = 1, name = "Apple", calories = 52, protein = 0.3f, carbs = 13.8f, fat = 0.2f)

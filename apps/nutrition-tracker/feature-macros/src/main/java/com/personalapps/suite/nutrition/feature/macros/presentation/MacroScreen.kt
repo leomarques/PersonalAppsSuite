@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,15 +29,25 @@ fun MacroScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val currentGoal by viewModel.macroGoal.collectAsState()
+    val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is MacroEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                is MacroEffect.GoalSaved -> snackbarHostState.showSnackbar("Macro targets saved successfully")
+            }
+        }
+    }
 
     var caloriesStr by remember { mutableStateOf("") }
     var proteinStr by remember { mutableStateOf("") }
     var carbsStr by remember { mutableStateOf("") }
     var fatStr by remember { mutableStateOf("") }
 
-    LaunchedEffect(currentGoal) {
-        currentGoal?.let {
+    LaunchedEffect(state.goal) {
+        state.goal?.let {
             caloriesStr = it.calories.toString()
             proteinStr = it.protein.toString()
             carbsStr = it.carbs.toString()
@@ -52,6 +63,7 @@ fun MacroScreen(
     PersonalScaffold(
         title = "Macro Targets",
         onBackClick = onBackClick,
+        snackbarHostState = snackbarHostState,
         modifier = modifier
     ) { padding ->
         Column(

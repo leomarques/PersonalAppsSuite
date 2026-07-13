@@ -23,6 +23,7 @@ dependencies {
     implementation(project(":shared:backup"))
 
     // Features
+    implementation(project(":apps:workout-tracker:feature-api"))
     implementation(project(":apps:workout-tracker:feature-exercises"))
     implementation(project(":apps:workout-tracker:feature-workouts"))
     implementation(project(":apps:workout-tracker:feature-progress"))

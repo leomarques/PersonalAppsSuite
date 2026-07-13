@@ -3,9 +3,9 @@ package com.personalapps.suite.nutrition.feature.meals.data.repository
 import com.personalapps.suite.nutrition.feature.meals.data.dao.MealDao
 import com.personalapps.suite.nutrition.feature.meals.data.entities.LoggedFoodPortionEntity
 import com.personalapps.suite.nutrition.feature.meals.data.entities.MealEntity
-import com.personalapps.suite.nutrition.feature.meals.domain.model.Meal
-import com.personalapps.suite.nutrition.feature.meals.domain.model.LoggedFoodPortion
-import com.personalapps.suite.nutrition.feature.meals.domain.repository.MealRepository
+import com.personalapps.suite.nutrition.feature.api.model.Meal
+import com.personalapps.suite.nutrition.feature.api.model.LoggedFoodPortion
+import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
 import java.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map

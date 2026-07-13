@@ -2,8 +2,8 @@ package com.personalapps.suite.nutrition.feature.macros.data.repository
 
 import com.personalapps.suite.nutrition.feature.macros.data.dao.MacroGoalDao
 import com.personalapps.suite.nutrition.feature.macros.data.entities.MacroGoalEntity
-import com.personalapps.suite.nutrition.feature.macros.domain.model.MacroGoal
-import com.personalapps.suite.nutrition.feature.macros.domain.repository.MacroGoalRepository
+import com.personalapps.suite.nutrition.feature.api.model.MacroGoal
+import com.personalapps.suite.nutrition.feature.api.repository.MacroGoalRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

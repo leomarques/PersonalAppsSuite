@@ -30,7 +30,9 @@ import com.personalapps.suite.shared.designsystem.PersonalCard
 import com.personalapps.suite.shared.uicomponents.PersonalDropdownMenu
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
 import com.personalapps.suite.shared.uicomponents.PersonalTextField
-import com.personalapps.suite.shared.uicomponents.components.SessionCard
+import com.personalapps.suite.shared.uicomponents.SessionCard
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
 
 @Composable
 fun SessionsScreen(
@@ -38,8 +40,20 @@ fun SessionsScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val activeSession by viewModel.activeSessionState.collectAsState()
-    val allLogs by viewModel.logsState.collectAsState()
+    val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is SessionsEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                is SessionsEffect.SessionStarted -> snackbarHostState.showSnackbar("Session started")
+                is SessionsEffect.SessionEnded -> snackbarHostState.showSnackbar("Session ended")
+                is SessionsEffect.UsageLogged -> snackbarHostState.showSnackbar("Usage recorded")
+                is SessionsEffect.SessionDeleted -> snackbarHostState.showSnackbar("Session deleted")
+            }
+        }
+    }
 
     var sessionTitleInput by remember { mutableStateOf("") }
     var strainName by remember { mutableStateOf("") }
@@ -52,6 +66,7 @@ fun SessionsScreen(
     PersonalScaffold(
         title = "Cannabis Tracker",
         onBackClick = onBackClick,
+        snackbarHostState = snackbarHostState,
         modifier = modifier
     ) { padding ->
         LazyColumn(
@@ -62,7 +77,7 @@ fun SessionsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             item {
-                if (activeSession == null) {
+                if (state.activeSession == null) {
                     PersonalCard(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
@@ -90,7 +105,7 @@ fun SessionsScreen(
                         }
                     }
                 } else {
-                    val currentSession = activeSession!!
+                    val currentSession = state.activeSession!!
                     SessionCard(
                         title = "Active Session: ${currentSession.title}",
                         startTime = currentSession.startTime,
@@ -103,7 +118,7 @@ fun SessionsScreen(
                 PersonalCard(modifier = Modifier.fillMaxWidth()) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = if (activeSession != null) "Log Usage (In Session)" else "Quick Log (Out of Session)",
+                            text = if (state.activeSession != null) "Log Usage (In Session)" else "Quick Log (Out of Session)",
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -150,7 +165,7 @@ fun SessionsScreen(
                                 val amount = amountStr.toFloatOrNull() ?: 0f
                                 if (strainName.isNotBlank() && amount > 0f) {
                                     viewModel.logUsage(
-                                        sessionId = activeSession?.id,
+                                        sessionId = state.activeSession?.id,
                                         strainName = strainName,
                                         method = method,
                                         amountGrams = amount,
@@ -166,9 +181,9 @@ fun SessionsScreen(
                 }
             }
 
-            val currentSessionId = activeSession?.id
+            val currentSessionId = state.activeSession?.id
             if (currentSessionId != null) {
-                val sessionLogs = allLogs.filter { it.sessionId == currentSessionId }
+                val sessionLogs = state.logs.filter { it.sessionId == currentSessionId }
                 if (sessionLogs.isNotEmpty()) {
                     item {
                         Text(

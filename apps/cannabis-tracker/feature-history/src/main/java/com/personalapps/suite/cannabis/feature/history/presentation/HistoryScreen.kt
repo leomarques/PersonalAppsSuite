@@ -17,7 +17,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -40,14 +42,25 @@ fun HistoryScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val logs by viewModel.logsState.collectAsState()
+    val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is HistoryEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                is HistoryEffect.LogDeleted -> snackbarHostState.showSnackbar("Consumption entry deleted")
+            }
+        }
+    }
+
     var searchQuery by remember { mutableStateOf("") }
 
-    val filteredLogs = remember(logs, searchQuery) {
+    val filteredLogs = remember(state.logs, searchQuery) {
         if (searchQuery.isBlank()) {
-            logs
+            state.logs
         } else {
-            logs.filter {
+            state.logs.filter {
                 it.strainName.contains(searchQuery, ignoreCase = true) ||
                         it.method.contains(searchQuery, ignoreCase = true)
             }
@@ -57,6 +70,7 @@ fun HistoryScreen(
     PersonalScaffold(
         title = "Consumption Logs",
         onBackClick = onBackClick,
+        snackbarHostState = snackbarHostState,
         modifier = modifier
     ) { padding ->
         Column(

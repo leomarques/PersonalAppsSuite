@@ -15,6 +15,7 @@ import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -35,7 +36,10 @@ import com.personalapps.suite.shared.designsystem.EmptyScreen
 import com.personalapps.suite.shared.designsystem.PersonalCard
 import com.personalapps.suite.shared.uicomponents.PersonalDropdownMenu
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
-import com.personalapps.suite.workout.feature.exercises.domain.model.Exercise
+import com.personalapps.suite.workout.feature.api.model.Exercise
+import com.personalapps.suite.workout.feature.progress.domain.usecase.ExerciseProgressPoint
+import com.personalapps.suite.workout.feature.progress.domain.usecase.GetProgressPointsUseCase
+
 
 @Composable
 fun ProgressScreen(
@@ -43,28 +47,36 @@ fun ProgressScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val exercises by viewModel.exercisesState.collectAsState()
-    val sessions by viewModel.sessionsState.collectAsState()
-    val sets by viewModel.setsState.collectAsState()
+    val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is ProgressEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+            }
+        }
+    }
 
     var selectedExercise by remember { mutableStateOf<Exercise?>(null) }
     var selectedMetricIndex by remember { mutableStateOf(0) } // 0 = Max Load, 1 = Volume
 
-    LaunchedEffect(exercises) {
-        if (selectedExercise == null && exercises.isNotEmpty()) {
-            selectedExercise = exercises.first()
+    LaunchedEffect(state.exercises) {
+        if (selectedExercise == null && state.exercises.isNotEmpty()) {
+            selectedExercise = state.exercises.first()
         }
     }
 
-    val progressPoints = remember(selectedExercise, sessions, sets) {
+    val progressPoints = remember(selectedExercise, state.sessions, state.sets) {
         selectedExercise?.let { exercise ->
-            viewModel.getProgressPoints(exercise.id, sessions, sets)
+            viewModel.getProgressPoints(exercise.id, state.sessions, state.sets)
         } ?: emptyList()
     }
 
     PersonalScaffold(
         title = "Progress Dashboard",
         onBackClick = onBackClick,
+        snackbarHostState = snackbarHostState,
         modifier = modifier
     ) { padding ->
         Column(
@@ -73,7 +85,7 @@ fun ProgressScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            if (exercises.isEmpty()) {
+            if (state.exercises.isEmpty()) {
                 EmptyScreen(message = "Create exercises and log sessions first to view performance evolution!")
             } else {
                 Text(
@@ -85,7 +97,7 @@ fun ProgressScreen(
 
                 selectedExercise?.let { exercise ->
                     PersonalDropdownMenu(
-                        options = exercises,
+                        options = state.exercises,
                         selectedOption = exercise,
                         onOptionSelected = { selectedExercise = it },
                         label = "Select Exercise",

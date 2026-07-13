@@ -1,7 +1,7 @@
 package com.personalapps.suite.nutrition.feature.macros.di
 
 import com.personalapps.suite.nutrition.feature.macros.data.repository.MacroGoalRepositoryImpl
-import com.personalapps.suite.nutrition.feature.macros.domain.repository.MacroGoalRepository
+import com.personalapps.suite.nutrition.feature.api.repository.MacroGoalRepository
 import com.personalapps.suite.nutrition.feature.macros.presentation.MacroViewModel
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module

@@ -4,6 +4,7 @@ import com.personalapps.suite.shared.testing.MainDispatcherRule
 import com.personalapps.suite.cannabis.feature.api.model.CannabisLog
 import com.personalapps.suite.cannabis.feature.api.model.CannabisSession
 import com.personalapps.suite.cannabis.feature.api.repository.SessionsRepository
+import com.personalapps.suite.cannabis.feature.sessions.domain.usecase.StartSessionUseCase
 import java.time.Instant
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -86,29 +87,28 @@ class SessionsViewModelTest {
     val mainDispatcherRule = MainDispatcherRule()
 
     private val repository = FakeSessionsRepository()
+    private lateinit var startSessionUseCase: StartSessionUseCase
     private lateinit var viewModel: SessionsViewModel
 
     @Before
     fun setUp() {
-        viewModel = SessionsViewModel(repository)
+        startSessionUseCase = StartSessionUseCase(repository)
+        viewModel = SessionsViewModel(repository, startSessionUseCase)
     }
 
     @Test
     fun startSession_createsActiveSession() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
-            viewModel.sessionsState.collect {}
-        }
-        backgroundScope.launch {
-            viewModel.activeSessionState.collect {}
+            viewModel.uiState.collect {}
         }
         runCurrent()
 
-        assertNull(viewModel.activeSessionState.value)
+        assertNull(viewModel.uiState.value.activeSession)
 
         viewModel.startSession("Evening Relax")
         runCurrent()
 
-        val active = viewModel.activeSessionState.value
+        val active = viewModel.uiState.value.activeSession
         assertNotNull(active)
         assertEquals("Evening Relax", active?.title)
         assertNull(active?.endTime)
@@ -117,21 +117,18 @@ class SessionsViewModelTest {
     @Test
     fun endActiveSession_setsEndTime() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
-            viewModel.sessionsState.collect {}
-        }
-        backgroundScope.launch {
-            viewModel.activeSessionState.collect {}
+            viewModel.uiState.collect {}
         }
         runCurrent()
 
         viewModel.startSession("Chill")
         runCurrent()
 
-        val active = viewModel.activeSessionState.value!!
+        val active = viewModel.uiState.value.activeSession!!
         viewModel.endActiveSession(active)
         runCurrent()
 
-        assertNull(viewModel.activeSessionState.value)
+        assertNull(viewModel.uiState.value.activeSession)
 
         val allSessions = repository.getAllSessions().first()
         assertEquals(1, allSessions.size)
@@ -141,7 +138,7 @@ class SessionsViewModelTest {
     @Test
     fun logUsage_addsLogEntry() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
-            viewModel.logsState.collect {}
+            viewModel.uiState.collect {}
         }
 
         viewModel.logUsage(null, "Blue Dream", "Vape", 0.2f, "feeling creative")

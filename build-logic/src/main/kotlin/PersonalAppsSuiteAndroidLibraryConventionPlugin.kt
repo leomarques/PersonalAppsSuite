@@ -17,9 +17,9 @@ class PersonalAppsSuiteAndroidLibraryConventionPlugin : Plugin<Project> {
             }
 
             extensions.configure<LibraryExtension> {
-                compileSdk = 36
+                compileSdk = AndroidConfig.COMPILE_SDK
                 defaultConfig {
-                    minSdk = 24
+                    minSdk = AndroidConfig.MIN_SDK
                 }
                 compileOptions {
                     sourceCompatibility = JavaVersion.VERSION_17

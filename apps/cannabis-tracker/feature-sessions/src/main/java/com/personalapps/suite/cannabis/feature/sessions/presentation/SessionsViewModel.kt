@@ -1,44 +1,74 @@
 package com.personalapps.suite.cannabis.feature.sessions.presentation
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.personalapps.suite.cannabis.feature.api.model.CannabisLog
 import com.personalapps.suite.cannabis.feature.api.model.CannabisSession
 import com.personalapps.suite.cannabis.feature.api.repository.SessionsRepository
 import com.personalapps.suite.cannabis.feature.sessions.domain.usecase.StartSessionUseCase
+import com.personalapps.suite.shared.common.Result
+import com.personalapps.suite.shared.uicomponents.base.BaseViewModel
 import java.time.Instant
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+
+data class SessionsUiState(
+    val sessions: List<CannabisSession> = emptyList(),
+    val logs: List<CannabisLog> = emptyList(),
+    val activeSession: CannabisSession? = null,
+    val isLoading: Boolean = true
+)
+
+sealed interface SessionsEffect {
+    data class ShowError(val message: String) : SessionsEffect
+    data object SessionStarted : SessionsEffect
+    data object SessionEnded : SessionsEffect
+    data object UsageLogged : SessionsEffect
+    data object SessionDeleted : SessionsEffect
+}
 
 class SessionsViewModel(
     private val repository: SessionsRepository,
     private val startSessionUseCase: StartSessionUseCase
-) : ViewModel() {
+) : BaseViewModel<SessionsUiState, SessionsEffect>(SessionsUiState()) {
 
-    val sessionsState: StateFlow<List<CannabisSession>> = repository.getAllSessions()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    val logsState: StateFlow<List<CannabisLog>> = repository.getAllLogs()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    val activeSessionState: StateFlow<CannabisSession?> = sessionsState
-        .map { list -> list.find { it.endTime == null } }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+    init {
+        viewModelScope.launch {
+            repository.getAllSessions().collect { sessions ->
+                updateState {
+                    copy(
+                        sessions = sessions,
+                        activeSession = sessions.find { it.endTime == null },
+                        isLoading = false
+                    )
+                }
+            }
+        }
+        viewModelScope.launch {
+            repository.getAllLogs().collect { logs ->
+                updateState { copy(logs = logs) }
+            }
+        }
+    }
 
     fun startSession(title: String) {
         viewModelScope.launch {
-            startSessionUseCase(title)
+            when (val result = startSessionUseCase(title)) {
+                is Result.Success -> sendEffect(SessionsEffect.SessionStarted)
+                is Result.Error -> sendEffect(SessionsEffect.ShowError(result.exception.message ?: "Failed to start session"))
+                is Result.Loading -> { /* no-op */ }
+            }
         }
     }
 
     fun endActiveSession(session: CannabisSession) {
         viewModelScope.launch {
-            repository.insertSession(
-                session.copy(endTime = Instant.now())
-            )
+            try {
+                repository.insertSession(
+                    session.copy(endTime = Instant.now())
+                )
+                sendEffect(SessionsEffect.SessionEnded)
+            } catch (e: Exception) {
+                sendEffect(SessionsEffect.ShowError(e.message ?: "Failed to end session"))
+            }
         }
     }
 
@@ -51,22 +81,32 @@ class SessionsViewModel(
     ) {
         if (strainName.isBlank() || method.isBlank() || amountGrams <= 0f) return
         viewModelScope.launch {
-            repository.insertLog(
-                CannabisLog(
-                    sessionId = sessionId,
-                    strainName = strainName,
-                    method = method,
-                    amountGrams = amountGrams,
-                    timestamp = Instant.now(),
-                    notes = notes
+            try {
+                repository.insertLog(
+                    CannabisLog(
+                        sessionId = sessionId,
+                        strainName = strainName,
+                        method = method,
+                        amountGrams = amountGrams,
+                        timestamp = Instant.now(),
+                        notes = notes
+                    )
                 )
-            )
+                sendEffect(SessionsEffect.UsageLogged)
+            } catch (e: Exception) {
+                sendEffect(SessionsEffect.ShowError(e.message ?: "Failed to log usage"))
+            }
         }
     }
 
     fun deleteSession(session: CannabisSession) {
         viewModelScope.launch {
-            repository.deleteSession(session)
+            try {
+                repository.deleteSession(session)
+                sendEffect(SessionsEffect.SessionDeleted)
+            } catch (e: Exception) {
+                sendEffect(SessionsEffect.ShowError(e.message ?: "Failed to delete session"))
+            }
         }
     }
 }

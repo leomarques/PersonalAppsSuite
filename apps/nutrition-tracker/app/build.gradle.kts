@@ -23,6 +23,7 @@ dependencies {
     implementation(project(":shared:backup"))
 
     // Features
+    implementation(project(":apps:nutrition-tracker:feature-api"))
     implementation(project(":apps:nutrition-tracker:feature-food"))
     implementation(project(":apps:nutrition-tracker:feature-meals"))
     implementation(project(":apps:nutrition-tracker:feature-macros"))

@@ -1,19 +1,34 @@
 package com.personalapps.suite.cannabis.feature.stats.presentation
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.personalapps.suite.cannabis.feature.api.model.CannabisLog
 import com.personalapps.suite.cannabis.feature.api.model.CannabisSession
 import com.personalapps.suite.cannabis.feature.api.repository.SessionsRepository
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import com.personalapps.suite.shared.uicomponents.base.BaseViewModel
+import kotlinx.coroutines.launch
 
-class StatsViewModel(private val repository: SessionsRepository) : ViewModel() {
+data class StatsUiState(
+    val logs: List<CannabisLog> = emptyList(),
+    val sessions: List<CannabisSession> = emptyList(),
+    val isLoading: Boolean = true
+)
 
-    val logsState: StateFlow<List<CannabisLog>> = repository.getAllLogs()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+sealed interface StatsEffect {
+    data class ShowError(val message: String) : StatsEffect
+}
 
-    val sessionsState: StateFlow<List<CannabisSession>> = repository.getAllSessions()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+class StatsViewModel(private val repository: SessionsRepository) : BaseViewModel<StatsUiState, StatsEffect>(StatsUiState()) {
+
+    init {
+        viewModelScope.launch {
+            repository.getAllLogs().collect { logs ->
+                updateState { copy(logs = logs, isLoading = false) }
+            }
+        }
+        viewModelScope.launch {
+            repository.getAllSessions().collect { sessions ->
+                updateState { copy(sessions = sessions) }
+            }
+        }
+    }
 }

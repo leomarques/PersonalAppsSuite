@@ -2,8 +2,8 @@ package com.personalapps.suite.nutrition.feature.food.data.repository
 
 import com.personalapps.suite.nutrition.feature.food.data.dao.FoodDao
 import com.personalapps.suite.nutrition.feature.food.data.entities.FoodEntity
-import com.personalapps.suite.nutrition.feature.food.domain.model.Food
-import com.personalapps.suite.nutrition.feature.food.domain.repository.FoodRepository
+import com.personalapps.suite.nutrition.feature.api.model.Food
+import com.personalapps.suite.nutrition.feature.api.repository.FoodRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

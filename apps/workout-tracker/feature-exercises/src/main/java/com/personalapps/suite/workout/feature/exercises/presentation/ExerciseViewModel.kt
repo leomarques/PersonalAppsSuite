@@ -1,34 +1,57 @@
 package com.personalapps.suite.workout.feature.exercises.presentation
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.personalapps.suite.workout.feature.exercises.domain.model.Exercise
-import com.personalapps.suite.workout.feature.exercises.domain.repository.ExerciseRepository
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
+import com.personalapps.suite.workout.feature.api.model.Exercise
+import com.personalapps.suite.workout.feature.api.repository.ExerciseRepository
+import com.personalapps.suite.shared.uicomponents.base.BaseViewModel
 import kotlinx.coroutines.launch
 
-class ExerciseViewModel(private val repository: ExerciseRepository) : ViewModel() {
+data class ExerciseUiState(
+    val exercises: List<Exercise> = emptyList(),
+    val isLoading: Boolean = true
+)
 
-    val exercisesState: StateFlow<List<Exercise>> = repository.getAllExercises()
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+sealed interface ExerciseEffect {
+    data class ShowError(val message: String) : ExerciseEffect
+    data object ExerciseAdded : ExerciseEffect
+    data object ExerciseDeleted : ExerciseEffect
+}
+
+class ExerciseViewModel(private val repository: ExerciseRepository) : BaseViewModel<ExerciseUiState, ExerciseEffect>(ExerciseUiState()) {
+
+    init {
+        viewModelScope.launch {
+            repository.getAllExercises().collect { exercises ->
+                updateState { copy(exercises = exercises, isLoading = false) }
+            }
+        }
+    }
 
     fun addExercise(name: String, category: String) {
         if (name.isBlank() || category.isBlank()) return
         viewModelScope.launch {
-            repository.insertExercise(
-                Exercise(
-                    name = name,
-                    category = category
+            try {
+                repository.insertExercise(
+                    Exercise(
+                        name = name,
+                        category = category
+                    )
                 )
-            )
+                sendEffect(ExerciseEffect.ExerciseAdded)
+            } catch (e: Exception) {
+                sendEffect(ExerciseEffect.ShowError(e.message ?: "Failed to add exercise"))
+            }
         }
     }
 
     fun deleteExercise(exercise: Exercise) {
         viewModelScope.launch {
-            repository.deleteExercise(exercise)
+            try {
+                repository.deleteExercise(exercise)
+                sendEffect(ExerciseEffect.ExerciseDeleted)
+            } catch (e: Exception) {
+                sendEffect(ExerciseEffect.ShowError(e.message ?: "Failed to delete exercise"))
+            }
         }
     }
 }

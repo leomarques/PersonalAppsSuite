@@ -2,8 +2,8 @@ package com.personalapps.suite.workout.feature.exercises.data.repository
 
 import com.personalapps.suite.workout.feature.exercises.data.dao.ExerciseDao
 import com.personalapps.suite.workout.feature.exercises.data.entities.ExerciseEntity
-import com.personalapps.suite.workout.feature.exercises.domain.model.Exercise
-import com.personalapps.suite.workout.feature.exercises.domain.repository.ExerciseRepository
+import com.personalapps.suite.workout.feature.api.model.Exercise
+import com.personalapps.suite.workout.feature.api.repository.ExerciseRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 

@@ -17,6 +17,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,7 +28,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.personalapps.suite.nutrition.feature.food.domain.model.Food
+import com.personalapps.suite.nutrition.feature.api.model.Food
 import com.personalapps.suite.shared.designsystem.EmptyScreen
 import com.personalapps.suite.shared.designsystem.PersonalButton
 import com.personalapps.suite.shared.designsystem.PersonalCard
@@ -40,23 +42,36 @@ fun MealScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val foods by viewModel.foodsState.collectAsState()
+    val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is MealEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                is MealEffect.MealLogged -> snackbarHostState.showSnackbar("Meal logged successfully")
+                is MealEffect.MealDeleted -> snackbarHostState.showSnackbar("Meal deleted")
+                is MealEffect.FoodAdded -> snackbarHostState.showSnackbar("Custom food added to database")
+            }
+        }
+    }
 
     var searchQuery by remember { mutableStateOf("") }
     var showAddFoodDialog by remember { mutableStateOf(false) }
     var selectedFoodToLog by remember { mutableStateOf<Food?>(null) }
 
-    val filteredFoods = remember(foods, searchQuery) {
+    val filteredFoods = remember(state.foods, searchQuery) {
         if (searchQuery.isBlank()) {
-            foods
+            state.foods
         } else {
-            foods.filter { it.name.contains(searchQuery, ignoreCase = true) }
+            state.foods.filter { it.name.contains(searchQuery, ignoreCase = true) }
         }
     }
 
     PersonalScaffold(
         title = "Add Entry",
         onBackClick = onBackClick,
+        snackbarHostState = snackbarHostState,
         modifier = modifier
     ) { padding ->
         Column(

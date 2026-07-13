@@ -17,7 +17,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -35,7 +37,16 @@ fun HistoryScreen(
     onNavigateToConfig: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val state by viewModel.dashboardState.collectAsState()
+    val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is HistoryEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+            }
+        }
+    }
 
     val totalCalories = remember(state.meals) {
         state.meals.sumOf { meal -> meal.loggedFoods.sumOf { it.calories } }
@@ -65,6 +76,7 @@ fun HistoryScreen(
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Log Meal")
             }
         },
+        snackbarHostState = snackbarHostState,
         modifier = modifier
     ) { padding ->
         Column(

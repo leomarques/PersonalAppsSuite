@@ -101,7 +101,6 @@ fun MainNavigation() {
     )
 
     AppScaffold(
-        title = "Cannabis Tracker",
         navItems = navItems
     ) { modifier ->
         NavDisplay(

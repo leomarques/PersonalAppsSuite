@@ -20,6 +20,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,7 +37,7 @@ import com.personalapps.suite.shared.designsystem.PersonalCard
 import com.personalapps.suite.shared.uicomponents.PersonalDropdownMenu
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
 import com.personalapps.suite.shared.uicomponents.PersonalTextField
-import com.personalapps.suite.workout.feature.exercises.domain.model.Exercise
+import com.personalapps.suite.workout.feature.api.model.Exercise
 
 @Composable
 fun ExerciseScreen(
@@ -43,22 +45,34 @@ fun ExerciseScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val exercises by viewModel.exercisesState.collectAsState()
+    val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is ExerciseEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                is ExerciseEffect.ExerciseAdded -> snackbarHostState.showSnackbar("Exercise added successfully")
+                is ExerciseEffect.ExerciseDeleted -> snackbarHostState.showSnackbar("Exercise deleted")
+            }
+        }
+    }
 
     var searchQuery by remember { mutableStateOf("") }
     var showAddDialog by remember { mutableStateOf(false) }
 
-    val filteredExercises = remember(exercises, searchQuery) {
+    val filteredExercises = remember(state.exercises, searchQuery) {
         if (searchQuery.isBlank()) {
-            exercises
+            state.exercises
         } else {
-            exercises.filter { it.name.contains(searchQuery, ignoreCase = true) }
+            state.exercises.filter { it.name.contains(searchQuery, ignoreCase = true) }
         }
     }
 
     PersonalScaffold(
         title = "Exercises Library",
         onBackClick = onBackClick,
+        snackbarHostState = snackbarHostState,
         modifier = modifier
     ) { padding ->
         Column(

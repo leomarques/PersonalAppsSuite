@@ -32,5 +32,9 @@ gradlePlugin {
             id = "personalappssuite.room"
             implementationClass = "PersonalAppsSuiteRoomConventionPlugin"
         }
+        register("feature") {
+            id = "personalappssuite.feature"
+            implementationClass = "PersonalAppsSuiteFeatureConventionPlugin"
+        }
     }
 }

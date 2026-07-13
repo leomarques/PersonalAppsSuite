@@ -44,6 +44,7 @@ include(":shared:testing")
 
 // Nutrition Tracker App Modules
 include(":apps:nutrition-tracker:app")
+include(":apps:nutrition-tracker:feature-api")
 include(":apps:nutrition-tracker:feature-food")
 include(":apps:nutrition-tracker:feature-meals")
 include(":apps:nutrition-tracker:feature-macros")
@@ -51,6 +52,7 @@ include(":apps:nutrition-tracker:feature-history")
 
 // Workout Tracker App Modules
 include(":apps:workout-tracker:app")
+include(":apps:workout-tracker:feature-api")
 include(":apps:workout-tracker:feature-exercises")
 include(":apps:workout-tracker:feature-workouts")
 include(":apps:workout-tracker:feature-progress")

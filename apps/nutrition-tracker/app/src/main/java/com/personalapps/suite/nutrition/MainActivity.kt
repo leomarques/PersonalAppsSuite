@@ -5,18 +5,12 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation3.runtime.NavBackStack
@@ -34,6 +28,8 @@ import com.personalapps.suite.nutrition.feature.meals.navigation.mealEntries
 import com.personalapps.suite.nutrition.feature.meals.presentation.MealViewModel
 import com.personalapps.suite.shared.designsystem.PersonalAppsSuiteTheme
 import com.personalapps.suite.shared.navigation.Destination
+import com.personalapps.suite.shared.uicomponents.AppScaffold
+import com.personalapps.suite.shared.uicomponents.NavItem
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
@@ -62,45 +58,45 @@ fun MainNavigation() {
     val mealViewModel: MealViewModel = koinViewModel()
     val macroViewModel: MacroViewModel = koinViewModel()
 
-    Scaffold(
-        bottomBar = {
-            NavigationBar {
-                NavigationBarItem(
-                    selected = backStack.lastOrNull() == DashboardRoute,
-                    onClick = {
-                        if (backStack.lastOrNull() != DashboardRoute) {
-                            backStack.clear()
-                            backStack.add(DashboardRoute)
-                        }
-                    },
-                    icon = { Icon(Icons.Default.Home, contentDescription = "Dashboard") },
-                    label = { Text("Dashboard") }
-                )
-                NavigationBarItem(
-                    selected = backStack.lastOrNull() == LogMealRoute,
-                    onClick = {
-                        if (backStack.lastOrNull() != LogMealRoute) {
-                            backStack.clear()
-                            backStack.add(LogMealRoute)
-                        }
-                    },
-                    icon = { Icon(Icons.Default.Edit, contentDescription = "Add Entry") },
-                    label = { Text("Add Entry") }
-                )
-                NavigationBarItem(
-                    selected = backStack.lastOrNull() == SetGoalsRoute,
-                    onClick = {
-                        if (backStack.lastOrNull() != SetGoalsRoute) {
-                            backStack.clear()
-                            backStack.add(SetGoalsRoute)
-                        }
-                    },
-                    icon = { Icon(Icons.Default.DateRange, contentDescription = "Goals") },
-                    label = { Text("Goals") }
-                )
+    val navItems = listOf(
+        NavItem(
+            label = "Dashboard",
+            icon = Icons.Default.Home,
+            isSelected = backStack.lastOrNull() == DashboardRoute,
+            onClick = {
+                if (backStack.lastOrNull() != DashboardRoute) {
+                    backStack.clear()
+                    backStack.add(DashboardRoute)
+                }
             }
-        }
-    ) { innerPadding ->
+        ),
+        NavItem(
+            label = "Add Entry",
+            icon = Icons.Default.Edit,
+            isSelected = backStack.lastOrNull() == LogMealRoute,
+            onClick = {
+                if (backStack.lastOrNull() != LogMealRoute) {
+                    backStack.clear()
+                    backStack.add(LogMealRoute)
+                }
+            }
+        ),
+        NavItem(
+            label = "Goals",
+            icon = Icons.Default.DateRange,
+            isSelected = backStack.lastOrNull() == SetGoalsRoute,
+            onClick = {
+                if (backStack.lastOrNull() != SetGoalsRoute) {
+                    backStack.clear()
+                    backStack.add(SetGoalsRoute)
+                }
+            }
+        )
+    )
+
+    AppScaffold(
+        navItems = navItems
+    ) { modifier ->
         NavDisplay(
             backStack = backStack,
             onBack = { backStack.removeLastOrNull() },
@@ -110,17 +106,17 @@ fun MainNavigation() {
                     onNavigateToFood = { backStack.add(LogMealRoute) },
                     onNavigateToLogMeal = { backStack.add(LogMealRoute) },
                     onNavigateToConfig = { backStack.add(SetGoalsRoute) },
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = modifier
                 )
                 mealEntries(
                     viewModel = mealViewModel,
                     onBackClick = { backStack.removeLastOrNull() },
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = modifier
                 )
                 macroEntries(
                     viewModel = macroViewModel,
                     onBackClick = { backStack.removeLastOrNull() },
-                    modifier = Modifier.padding(innerPadding)
+                    modifier = modifier
                 )
             }
         )

@@ -17,10 +17,10 @@ class PersonalAppsSuiteAndroidApplicationConventionPlugin : Plugin<Project> {
             }
 
             extensions.configure<ApplicationExtension> {
-                compileSdk = 36
+                compileSdk = AndroidConfig.COMPILE_SDK
                 defaultConfig {
-                    minSdk = 24
-                    targetSdk = 36
+                    minSdk = AndroidConfig.MIN_SDK
+                    targetSdk = AndroidConfig.TARGET_SDK
                     versionCode = 1
                     versionName = "1.0"
                 }

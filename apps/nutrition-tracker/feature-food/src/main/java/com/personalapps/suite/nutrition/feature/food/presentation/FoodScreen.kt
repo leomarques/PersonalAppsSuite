@@ -19,6 +19,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,7 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.personalapps.suite.nutrition.feature.food.domain.model.Food
+import com.personalapps.suite.nutrition.feature.api.model.Food
 import com.personalapps.suite.shared.designsystem.EmptyScreen
 import com.personalapps.suite.shared.designsystem.PersonalButton
 import com.personalapps.suite.shared.designsystem.PersonalCard
@@ -40,7 +42,18 @@ fun FoodScreen(
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val foods by viewModel.foodsState.collectAsState()
+    val state by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is FoodEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                is FoodEffect.FoodAdded -> snackbarHostState.showSnackbar("Food added")
+                is FoodEffect.FoodDeleted -> snackbarHostState.showSnackbar("Food deleted")
+            }
+        }
+    }
 
     var showAddForm by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
@@ -52,6 +65,7 @@ fun FoodScreen(
     PersonalScaffold(
         title = "Food Database",
         onBackClick = onBackClick,
+        snackbarHostState = snackbarHostState,
         modifier = modifier
     ) { padding ->
         Column(
@@ -142,14 +156,14 @@ fun FoodScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
 
-            if (foods.isEmpty()) {
+            if (state.foods.isEmpty()) {
                 EmptyScreen(message = "Tap 'Add Custom Food' to build your local nutrition database.")
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(foods) { food ->
+                    items(state.foods) { food ->
                         FoodListItem(food = food, onDelete = { viewModel.deleteFood(food) })
                     }
                 }

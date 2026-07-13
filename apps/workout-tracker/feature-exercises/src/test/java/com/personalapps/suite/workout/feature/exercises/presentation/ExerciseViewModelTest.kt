@@ -1,8 +1,8 @@
 package com.personalapps.suite.workout.feature.exercises.presentation
 
 import com.personalapps.suite.shared.testing.MainDispatcherRule
-import com.personalapps.suite.workout.feature.exercises.domain.model.Exercise
-import com.personalapps.suite.workout.feature.exercises.domain.repository.ExerciseRepository
+import com.personalapps.suite.workout.feature.api.model.Exercise
+import com.personalapps.suite.workout.feature.api.repository.ExerciseRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -52,13 +52,13 @@ class ExerciseViewModelTest {
     @Test
     fun addExercise_insertsIntoRepository() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
-            viewModel.exercisesState.collect {}
+            viewModel.uiState.collect {}
         }
 
         viewModel.addExercise("Bench Press", "Chest")
         runCurrent()
 
-        val list = viewModel.exercisesState.value
+        val list = viewModel.uiState.value.exercises
         assertEquals(1, list.size)
         assertEquals("Bench Press", list.first().name)
         assertEquals("Chest", list.first().category)
@@ -67,7 +67,7 @@ class ExerciseViewModelTest {
     @Test
     fun deleteExercise_removesFromRepository() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
-            viewModel.exercisesState.collect {}
+            viewModel.uiState.collect {}
         }
 
         viewModel.addExercise("Bench Press", "Chest")
@@ -77,7 +77,7 @@ class ExerciseViewModelTest {
         viewModel.deleteExercise(added)
         runCurrent()
 
-        val list = viewModel.exercisesState.value
+        val list = viewModel.uiState.value.exercises
         assertEquals(0, list.size)
     }
 }

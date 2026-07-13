@@ -1,7 +1,7 @@
 package com.personalapps.suite.nutrition.feature.food.presentation
 
-import com.personalapps.suite.nutrition.feature.food.domain.model.Food
-import com.personalapps.suite.nutrition.feature.food.domain.repository.FoodRepository
+import com.personalapps.suite.nutrition.feature.api.model.Food
+import com.personalapps.suite.nutrition.feature.api.repository.FoodRepository
 import com.personalapps.suite.shared.testing.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -52,13 +52,13 @@ class FoodViewModelTest {
     @Test
     fun addFood_insertsIntoRepository() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
-            viewModel.foodsState.collect {}
+            viewModel.uiState.collect {}
         }
 
         viewModel.addFood("Banana", 89, 1.1f, 22.8f, 0.3f)
         runCurrent()
 
-        val foods = viewModel.foodsState.value
+        val foods = viewModel.uiState.value.foods
         assertEquals(1, foods.size)
         assertEquals("Banana", foods.first().name)
         assertEquals(89, foods.first().calories)
@@ -67,7 +67,7 @@ class FoodViewModelTest {
     @Test
     fun deleteFood_removesFromRepository() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
-            viewModel.foodsState.collect {}
+            viewModel.uiState.collect {}
         }
 
         viewModel.addFood("Banana", 89, 1.1f, 22.8f, 0.3f)
@@ -78,7 +78,7 @@ class FoodViewModelTest {
         viewModel.deleteFood(addedFood)
         runCurrent()
 
-        val foods = viewModel.foodsState.value
+        val foods = viewModel.uiState.value.foods
         assertEquals(0, foods.size)
     }
 }
