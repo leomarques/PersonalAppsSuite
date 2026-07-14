@@ -17,6 +17,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -24,13 +26,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.personalapps.suite.nutrition.feature.api.model.Food
 import com.personalapps.suite.shared.designsystem.EmptyScreen
-import com.personalapps.suite.shared.designsystem.PersonalButton
 import com.personalapps.suite.shared.designsystem.PersonalCard
 import com.personalapps.suite.shared.uicomponents.PersonalDropdownMenu
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
@@ -71,6 +79,14 @@ fun MealScreen(
     PersonalScaffold(
         title = "Add Entry",
         onBackClick = onBackClick,
+        actions = {
+            IconButton(onClick = { showAddFoodDialog = true }) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "New Food"
+                )
+            }
+        },
         snackbarHostState = snackbarHostState,
         modifier = modifier
     ) { padding ->
@@ -80,22 +96,29 @@ fun MealScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
+            PersonalTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
+                label = "Search foods...",
+                leadingIcon = {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = "Search"
+                    )
+                },
+                trailingIcon = if (searchQuery.isNotEmpty()) {
+                    {
+                        IconButton(onClick = { searchQuery = "" }) {
+                            Icon(
+                                imageVector = Icons.Default.Clear,
+                                contentDescription = "Clear Search"
+                            )
+                        }
+                    }
+                } else null,
+                shape = RoundedCornerShape(28.dp),
                 modifier = Modifier.fillMaxWidth()
-            ) {
-                PersonalTextField(
-                    value = searchQuery,
-                    onValueChange = { searchQuery = it },
-                    label = "Search foods...",
-                    modifier = Modifier.weight(1f)
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                PersonalButton(
-                    text = "New Food",
-                    onClick = { showAddFoodDialog = true }
-                )
-            }
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -107,7 +130,7 @@ fun MealScreen(
 
             if (filteredFoods.isEmpty()) {
                 val msg = if (searchQuery.isBlank()) {
-                    "Your food database is empty. Create a custom food item using the 'New Food' button to start logging!"
+                    "Your food database is empty. Create a custom food item using the add icon in the top bar to start logging!"
                 } else {
                     "No matching foods found."
                 }
@@ -144,8 +167,8 @@ fun MealScreen(
         LogPortionDialog(
             food = food,
             onDismiss = { selectedFoodToLog = null },
-            onConfirm = { amountGrams, mealType ->
-                viewModel.logSingleFoodPortion(food, amountGrams, mealType)
+            onConfirm = { amountGrams ->
+                viewModel.logSingleFoodPortion(food, amountGrams)
                 selectedFoodToLog = null
             }
         )
@@ -159,25 +182,67 @@ fun FoodListItem(
     modifier: Modifier = Modifier
 ) {
     PersonalCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth()
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(12.dp)
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
         ) {
+            Column(
+                modifier = Modifier.weight(1f)
+            ) {
+                Text(
+                    text = food.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = "P: ${food.protein}g",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.secondary,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "•",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                    Text(
+                        text = "C: ${food.carbs}g",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.tertiary,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "•",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+                    Text(
+                        text = "F: ${food.fat}g",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        text = "(per 100g)",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.outline
+                    )
+                }
+            }
             Text(
-                text = food.name,
+                text = "${food.calories} kcal",
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "${food.calories} kcal  •  P: ${food.protein}g  •  C: ${food.carbs}g  •  F: ${food.fat}g (per 100g)",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 8.dp)
             )
         }
     }
@@ -233,11 +298,10 @@ fun AddFoodDialog(
 fun LogPortionDialog(
     food: Food,
     onDismiss: () -> Unit,
-    onConfirm: (amountGrams: Float, mealType: String) -> Unit
+    onConfirm: (amountGrams: Float) -> Unit
 ) {
-    var amountStr by remember { mutableStateOf("100") }
-    var mealType by remember { mutableStateOf("Breakfast") }
-    val mealTypes = listOf("Breakfast", "Lunch", "Dinner", "Snack")
+    var amountStr by remember { mutableStateOf("1") }
+    var logUnit by remember { mutableStateOf("Servings") } // "Grams" or "Servings"
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -245,29 +309,68 @@ fun LogPortionDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    text = "Nutritional values per 100g:\n${food.calories} kcal  •  Protein: ${food.protein}g  •  Carbs: ${food.carbs}g  •  Fat: ${food.fat}g",
+                    text = "Per 100g: ${food.calories} kcal  •  P: ${food.protein}g  •  C: ${food.carbs}g  •  F: ${food.fat}g",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                PersonalDropdownMenu(
-                    options = mealTypes,
-                    selectedOption = mealType,
-                    onOptionSelected = { mealType = it },
-                    label = "Meal Type"
-                )
+                
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    if (logUnit == "Servings") {
+                        Button(
+                            onClick = {},
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Servings")
+                        }
+                    } else {
+                        OutlinedButton(
+                            onClick = {
+                                logUnit = "Servings"
+                                amountStr = "1"
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Servings")
+                        }
+                    }
+
+                    if (logUnit == "Grams") {
+                        Button(
+                            onClick = {},
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Grams (g)")
+                        }
+                    } else {
+                        OutlinedButton(
+                            onClick = {
+                                logUnit = "Grams"
+                                amountStr = "100"
+                            },
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Text("Grams (g)")
+                        }
+                    }
+                }
+
                 PersonalTextField(
                     value = amountStr,
                     onValueChange = { amountStr = it },
-                    label = "Amount (grams)"
+                    label = if (logUnit == "Grams") "Amount (grams)" else "Number of servings (1 serving = 100g)"
                 )
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    val amount = amountStr.toFloatOrNull() ?: 100f
-                    if (amount > 0f) {
-                        onConfirm(amount, mealType)
+                    val amountValue = amountStr.toFloatOrNull() ?: 0f
+                    if (amountValue > 0f) {
+                        val amountGrams = if (logUnit == "Servings") amountValue * 100f else amountValue
+                        onConfirm(amountGrams)
                     }
                 }
             ) {

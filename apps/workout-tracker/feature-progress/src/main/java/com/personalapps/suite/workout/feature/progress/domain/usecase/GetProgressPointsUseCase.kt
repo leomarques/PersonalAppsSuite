@@ -15,22 +15,14 @@ class GetProgressPointsUseCase {
     
     operator fun invoke(
         exerciseId: Long,
-        sessions: List<WorkoutSession>,
-        sets: List<WorkoutSet>
+        sessions: List<WorkoutSession>
     ): List<ExerciseProgressPoint> {
-        val exerciseSets = sets.filter { it.exerciseId == exerciseId }
-        val sessionsMap = sessions.associateBy { it.id }
-
-        return exerciseSets
-            .mapNotNull { set ->
-                val session = sessionsMap[set.workoutSessionId] ?: return@mapNotNull null
-                set to session
-            }
-            .groupBy { it.second.id }
-            .map { (_, pairs) ->
-                val session = pairs.first().second
-                val maxLoad = pairs.maxOf { it.first.loadKg }
-                val volume = pairs.sumOf { (it.first.loadKg * it.first.reps).toDouble() }.toFloat()
+        return sessions
+            .mapNotNull { session ->
+                val exerciseSets = session.sets.filter { it.exerciseId == exerciseId }
+                if (exerciseSets.isEmpty()) return@mapNotNull null
+                val maxLoad = exerciseSets.maxOf { it.loadKg }
+                val volume = exerciseSets.sumOf { (it.loadKg * it.reps).toDouble() }.toFloat()
                 ExerciseProgressPoint(
                     dateMillis = session.timestamp.toEpochMilli(),
                     formattedDate = DateUtils.formatDateOnly(session.timestamp),

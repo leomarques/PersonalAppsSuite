@@ -18,15 +18,20 @@ class GetProgressPointsUseCaseTest {
     @Test
     fun invoke_aggregatesSetsBySession() {
         val exerciseId = 1L
-        val sessions = listOf(
-            WorkoutSession(id = 1L, name = "Legs", timestamp = Instant.parse("2026-07-01T10:00:00Z"))
-        )
         val sets = listOf(
             WorkoutSet(id = 1L, workoutSessionId = 1L, exerciseId = 1L, reps = 10, loadKg = 100f),
             WorkoutSet(id = 2L, workoutSessionId = 1L, exerciseId = 1L, reps = 8, loadKg = 110f)
         )
+        val sessions = listOf(
+            WorkoutSession(
+                id = 1L,
+                name = "Legs",
+                timestamp = Instant.parse("2026-07-01T10:00:00Z"),
+                sets = sets
+            )
+        )
 
-        val points = useCase(exerciseId, sessions, sets)
+        val points = useCase(exerciseId, sessions)
         assertEquals(1, points.size)
         assertEquals(110f, points.first().maxLoadKg)
         // Volume: (100 * 10) + (110 * 8) = 1000 + 880 = 1880f

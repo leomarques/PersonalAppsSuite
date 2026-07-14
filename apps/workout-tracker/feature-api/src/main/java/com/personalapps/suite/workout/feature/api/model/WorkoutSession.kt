@@ -5,5 +5,6 @@ import java.time.Instant
 data class WorkoutSession(
     val id: Long = 0,
     val name: String,
-    val timestamp: Instant
+    val timestamp: Instant,
+    val sets: List<WorkoutSet> = emptyList()
 )

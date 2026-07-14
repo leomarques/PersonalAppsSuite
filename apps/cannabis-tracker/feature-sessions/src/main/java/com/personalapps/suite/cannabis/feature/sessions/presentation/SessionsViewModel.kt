@@ -12,7 +12,6 @@ import kotlinx.coroutines.launch
 
 data class SessionsUiState(
     val sessions: List<CannabisSession> = emptyList(),
-    val logs: List<CannabisLog> = emptyList(),
     val activeSession: CannabisSession? = null,
     val isLoading: Boolean = true
 )
@@ -40,11 +39,6 @@ class SessionsViewModel(
                         isLoading = false
                     )
                 }
-            }
-        }
-        viewModelScope.launch {
-            repository.getAllLogs().collect { logs ->
-                updateState { copy(logs = logs) }
             }
         }
     }

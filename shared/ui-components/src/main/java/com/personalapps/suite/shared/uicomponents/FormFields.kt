@@ -19,6 +19,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.ui.graphics.Shape
+
 @Composable
 fun PersonalTextField(
     value: String,
@@ -26,7 +29,10 @@ fun PersonalTextField(
     label: String,
     modifier: Modifier = Modifier,
     isError: Boolean = false,
-    errorMessage: String? = null
+    errorMessage: String? = null,
+    leadingIcon: @Composable (() -> Unit)? = null,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    shape: Shape = OutlinedTextFieldDefaults.shape
 ) {
     Column(modifier = modifier) {
         OutlinedTextField(
@@ -34,6 +40,9 @@ fun PersonalTextField(
             onValueChange = onValueChange,
             label = { Text(label) },
             isError = isError,
+            leadingIcon = leadingIcon,
+            trailingIcon = trailingIcon,
+            shape = shape,
             modifier = Modifier.fillMaxWidth()
         )
         if (isError && errorMessage != null) {

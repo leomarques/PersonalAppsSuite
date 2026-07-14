@@ -85,10 +85,10 @@ class MealViewModel(
         }
     }
 
-    fun logSingleFoodPortion(food: Food, amountGrams: Float, mealType: String) {
+    fun logSingleFoodPortion(food: Food, amountGrams: Float) {
         if (amountGrams <= 0f) return
         viewModelScope.launch {
-            when (val result = logMealUseCase.logSingleFoodPortion(food, amountGrams, mealType)) {
+            when (val result = logMealUseCase.logSingleFoodPortion(food, amountGrams)) {
                 is Result.Success -> sendEffect(MealEffect.MealLogged)
                 is Result.Error -> sendEffect(MealEffect.ShowError(result.exception.message ?: "Failed to log portion"))
                 is Result.Loading -> { /* no-op */ }

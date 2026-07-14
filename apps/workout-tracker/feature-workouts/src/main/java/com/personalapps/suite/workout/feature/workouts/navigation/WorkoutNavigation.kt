@@ -5,9 +5,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import com.personalapps.suite.shared.navigation.Destination
 import com.personalapps.suite.workout.feature.workouts.presentation.WorkoutScreen
 import com.personalapps.suite.workout.feature.workouts.presentation.WorkoutViewModel
-import kotlinx.serialization.Serializable
-
-@Serializable data object DashboardRoute : Destination
+import com.personalapps.suite.workout.feature.api.navigation.DashboardRoute
 
 fun EntryProviderScope<Destination>.workoutEntries(
     viewModel: WorkoutViewModel,

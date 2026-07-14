@@ -58,10 +58,17 @@ class ProgressViewModelTest {
     @Test
     fun getProgressPoints_invokesUseCase() {
         val exerciseId = 1L
-        val sessions = listOf(WorkoutSession(id = 1L, name = "Workout", timestamp = Instant.now()))
         val sets = listOf(WorkoutSet(id = 1L, workoutSessionId = 1L, exerciseId = 1L, reps = 10, loadKg = 50f))
+        val sessions = listOf(
+            WorkoutSession(
+                id = 1L,
+                name = "Workout",
+                timestamp = Instant.now(),
+                sets = sets
+            )
+        )
 
-        val points = viewModel.getProgressPoints(exerciseId, sessions, sets)
+        val points = viewModel.getProgressPoints(exerciseId, sessions)
         assertEquals(1, points.size)
         assertEquals(50f, points.first().maxLoadKg)
     }

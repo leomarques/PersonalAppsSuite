@@ -40,7 +40,7 @@ class LogMealUseCaseTest {
     @Test
     fun logSingleFoodPortion_calculatesMacrosAndInserts() = runTest {
         val food = Food(id = 1, name = "Apple", calories = 52, protein = 0.3f, carbs = 13.8f, fat = 0.2f)
-        val result = useCase.logSingleFoodPortion(food, 150f, "Lunch")
+        val result = useCase.logSingleFoodPortion(food, 150f)
 
         assertTrue(result is Result.Success)
         val insertedId = (result as Result.Success).data

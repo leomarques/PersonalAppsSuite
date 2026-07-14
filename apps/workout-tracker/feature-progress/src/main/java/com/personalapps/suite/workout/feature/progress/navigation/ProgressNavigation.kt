@@ -5,9 +5,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import com.personalapps.suite.shared.navigation.Destination
 import com.personalapps.suite.workout.feature.progress.presentation.ProgressScreen
 import com.personalapps.suite.workout.feature.progress.presentation.ProgressViewModel
-import kotlinx.serialization.Serializable
-
-@Serializable data object ProgressRoute : Destination
+import com.personalapps.suite.workout.feature.api.navigation.ProgressRoute
 
 fun EntryProviderScope<Destination>.progressEntries(
     viewModel: ProgressViewModel,

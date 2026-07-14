@@ -67,9 +67,9 @@ fun ProgressScreen(
         }
     }
 
-    val progressPoints = remember(selectedExercise, state.sessions, state.sets) {
+    val progressPoints = remember(selectedExercise, state.sessions) {
         selectedExercise?.let { exercise ->
-            viewModel.getProgressPoints(exercise.id, state.sessions, state.sets)
+            viewModel.getProgressPoints(exercise.id, state.sessions)
         } ?: emptyList()
     }
 

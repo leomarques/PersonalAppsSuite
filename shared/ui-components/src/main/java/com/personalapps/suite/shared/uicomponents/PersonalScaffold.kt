@@ -1,6 +1,7 @@
 package com.personalapps.suite.shared.uicomponents
 
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -23,6 +24,7 @@ fun PersonalScaffold(
     title: String? = null,
     modifier: Modifier = Modifier,
     onBackClick: (() -> Unit)? = null,
+    actions: @Composable RowScope.() -> Unit = {},
     bottomBar: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     snackbarHostState: SnackbarHostState? = null,
@@ -44,6 +46,7 @@ fun PersonalScaffold(
                             }
                         }
                     },
+                    actions = actions,
                     colors = TopAppBarDefaults.topAppBarColors(
                         containerColor = MaterialTheme.colorScheme.primaryContainer,
                         titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer,

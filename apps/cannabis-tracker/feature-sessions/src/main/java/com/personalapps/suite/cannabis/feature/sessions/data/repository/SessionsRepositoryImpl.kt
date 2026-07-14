@@ -7,6 +7,7 @@ import com.personalapps.suite.cannabis.feature.api.model.CannabisLog
 import com.personalapps.suite.cannabis.feature.api.model.CannabisSession
 import com.personalapps.suite.cannabis.feature.api.repository.SessionsRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 
 fun CannabisSessionEntity.toDomain() = CannabisSession(
@@ -44,8 +45,19 @@ fun CannabisLog.toEntity() = CannabisLogEntity(
 )
 
 class SessionsRepositoryImpl(private val sessionsDao: SessionsDao) : SessionsRepository {
-    override fun getAllSessions(): Flow<List<CannabisSession>> =
-        sessionsDao.getAllSessions().map { list -> list.map { it.toDomain() } }
+    override fun getAllSessions(): Flow<List<CannabisSession>> {
+        return combine(
+            sessionsDao.getAllSessions(),
+            sessionsDao.getAllLogs()
+        ) { sessions, logs ->
+            sessions.map { sessionEntity ->
+                val sessionLogs = logs
+                    .filter { it.sessionId == sessionEntity.id }
+                    .map { it.toDomain() }
+                sessionEntity.toDomain().copy(logs = sessionLogs)
+            }
+        }
+    }
 
     override fun getAllLogs(): Flow<List<CannabisLog>> =
         sessionsDao.getAllLogs().map { list -> list.map { it.toDomain() } }

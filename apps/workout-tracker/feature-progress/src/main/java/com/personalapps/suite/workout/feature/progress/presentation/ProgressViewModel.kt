@@ -14,7 +14,6 @@ import kotlinx.coroutines.launch
 data class ProgressUiState(
     val exercises: List<Exercise> = emptyList(),
     val sessions: List<WorkoutSession> = emptyList(),
-    val sets: List<WorkoutSet> = emptyList(),
     val isLoading: Boolean = true
 )
 
@@ -39,18 +38,12 @@ class ProgressViewModel(
                 updateState { copy(sessions = sessions) }
             }
         }
-        viewModelScope.launch {
-            workoutRepository.getAllSets().collect { sets ->
-                updateState { copy(sets = sets) }
-            }
-        }
     }
 
     fun getProgressPoints(
         exerciseId: Long,
-        sessions: List<WorkoutSession>,
-        sets: List<WorkoutSet>
+        sessions: List<WorkoutSession>
     ): List<ExerciseProgressPoint> {
-        return getProgressPointsUseCase(exerciseId, sessions, sets)
+        return getProgressPointsUseCase(exerciseId, sessions)
     }
 }

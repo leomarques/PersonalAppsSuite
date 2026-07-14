@@ -181,9 +181,9 @@ fun SessionsScreen(
                 }
             }
 
-            val currentSessionId = state.activeSession?.id
-            if (currentSessionId != null) {
-                val sessionLogs = state.logs.filter { it.sessionId == currentSessionId }
+            val activeSession = state.activeSession
+            if (activeSession != null) {
+                val sessionLogs = activeSession.logs
                 if (sessionLogs.isNotEmpty()) {
                     item {
                         Text(

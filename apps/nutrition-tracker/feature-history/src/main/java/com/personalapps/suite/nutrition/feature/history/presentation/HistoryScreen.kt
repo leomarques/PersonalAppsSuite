@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.personalapps.suite.shared.designsystem.PersonalCard
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
@@ -165,20 +166,64 @@ fun HistoryScreen(
                 ) {
                     items(state.meals) { meal ->
                         val kcal = meal.loggedFoods.sumOf { it.calories }
+                        val protein = meal.loggedFoods.sumOf { it.protein.toDouble() }.toFloat()
+                        val carbs = meal.loggedFoods.sumOf { it.carbs.toDouble() }.toFloat()
+                        val fat = meal.loggedFoods.sumOf { it.fat.toDouble() }.toFloat()
+                        
                         PersonalCard(modifier = Modifier.fillMaxWidth()) {
                             Row(
                                 horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Column {
-                                    Text(text = meal.name, style = MaterialTheme.typography.titleSmall)
+                                Column(modifier = Modifier.weight(1f)) {
                                     Text(
                                         text = meal.loggedFoods.joinToString(", ") { it.name },
-                                        style = MaterialTheme.typography.bodySmall,
-                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Bold
                                     )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Text(
+                                            text = "P: ${"%.1f".format(protein)}g",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.secondary,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                        Text(
+                                            text = "•",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.outlineVariant
+                                        )
+                                        Text(
+                                            text = "C: ${"%.1f".format(carbs)}g",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.tertiary,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                        Text(
+                                            text = "•",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.outlineVariant
+                                        )
+                                        Text(
+                                            text = "F: ${"%.1f".format(fat)}g",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.error,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                    }
                                 }
-                                Text(text = "$kcal kcal", style = MaterialTheme.typography.titleSmall, color = MaterialTheme.colorScheme.primary)
+                                Text(
+                                    text = "$kcal kcal",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(start = 8.dp)
+                                )
                             }
                         }
                     }

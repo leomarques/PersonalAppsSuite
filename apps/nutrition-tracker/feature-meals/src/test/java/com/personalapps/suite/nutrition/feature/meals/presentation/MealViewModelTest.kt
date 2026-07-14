@@ -102,12 +102,12 @@ class MealViewModelTest {
 
         val apple = Food(id = 1, name = "Apple", calories = 52, protein = 0.3f, carbs = 13.8f, fat = 0.2f)
 
-        viewModel.logSingleFoodPortion(apple, 150f, "Lunch")
+        viewModel.logSingleFoodPortion(apple, 150f)
         runCurrent()
 
         val loggedMeals = mealRepository.getAllMeals().first()
         assertEquals(1, loggedMeals.size)
-        assertEquals("Lunch", loggedMeals.first().name)
+        assertEquals("Apple", loggedMeals.first().name)
 
         val portions = loggedMeals.first().loggedFoods
         assertEquals(1, portions.size)

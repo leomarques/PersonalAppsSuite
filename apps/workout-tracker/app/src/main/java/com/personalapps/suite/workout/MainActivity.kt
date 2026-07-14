@@ -21,13 +21,13 @@ import com.personalapps.suite.shared.designsystem.PersonalAppsSuiteTheme
 import com.personalapps.suite.shared.navigation.Destination
 import com.personalapps.suite.shared.uicomponents.AppScaffold
 import com.personalapps.suite.shared.uicomponents.NavItem
-import com.personalapps.suite.workout.feature.exercises.navigation.ExercisesRoute
+import com.personalapps.suite.workout.feature.api.navigation.DashboardRoute
+import com.personalapps.suite.workout.feature.api.navigation.ExercisesRoute
+import com.personalapps.suite.workout.feature.api.navigation.ProgressRoute
 import com.personalapps.suite.workout.feature.exercises.navigation.exerciseEntries
 import com.personalapps.suite.workout.feature.exercises.presentation.ExerciseViewModel
-import com.personalapps.suite.workout.feature.progress.navigation.ProgressRoute
 import com.personalapps.suite.workout.feature.progress.navigation.progressEntries
 import com.personalapps.suite.workout.feature.progress.presentation.ProgressViewModel
-import com.personalapps.suite.workout.feature.workouts.navigation.DashboardRoute
 import com.personalapps.suite.workout.feature.workouts.navigation.workoutEntries
 import com.personalapps.suite.workout.feature.workouts.presentation.WorkoutViewModel
 import org.koin.androidx.compose.koinViewModel

@@ -26,9 +26,9 @@ class LogMealUseCase(private val mealRepository: MealRepository) {
         }
     }
 
-    suspend fun logSingleFoodPortion(food: Food, amountGrams: Float, mealType: String): Result<Long> {
-        if (amountGrams <= 0f || mealType.isBlank()) {
-            return Result.Error(IllegalArgumentException("Invalid food amount or meal type"))
+    suspend fun logSingleFoodPortion(food: Food, amountGrams: Float): Result<Long> {
+        if (amountGrams <= 0f) {
+            return Result.Error(IllegalArgumentException("Invalid food amount"))
         }
         return try {
             val factor = amountGrams / 100f
@@ -41,7 +41,7 @@ class LogMealUseCase(private val mealRepository: MealRepository) {
                 amountGrams = amountGrams
             )
             val meal = Meal(
-                name = mealType,
+                name = food.name,
                 timestamp = Instant.now(),
                 loggedFoods = listOf(portion)
             )

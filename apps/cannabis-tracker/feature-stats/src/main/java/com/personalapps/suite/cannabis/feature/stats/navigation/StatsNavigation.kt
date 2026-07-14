@@ -5,9 +5,7 @@ import androidx.navigation3.runtime.EntryProviderScope
 import com.personalapps.suite.cannabis.feature.stats.presentation.StatsScreen
 import com.personalapps.suite.cannabis.feature.stats.presentation.StatsViewModel
 import com.personalapps.suite.shared.navigation.Destination
-import kotlinx.serialization.Serializable
-
-@Serializable data object StatsRoute : Destination
+import com.personalapps.suite.cannabis.feature.api.navigation.StatsRoute
 
 fun EntryProviderScope<Destination>.statsEntries(
     viewModel: StatsViewModel,

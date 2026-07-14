@@ -6,5 +6,6 @@ data class CannabisSession(
     val id: Long = 0,
     val title: String,
     val startTime: Instant,
-    val endTime: Instant? = null
+    val endTime: Instant? = null,
+    val logs: List<CannabisLog> = emptyList()
 )

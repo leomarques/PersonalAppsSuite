@@ -27,13 +27,13 @@ import com.personalapps.suite.shared.designsystem.PersonalAppsSuiteTheme
 import com.personalapps.suite.shared.navigation.Destination
 import com.personalapps.suite.shared.uicomponents.AppScaffold
 import com.personalapps.suite.shared.uicomponents.NavItem
-import com.personalapps.suite.cannabis.feature.history.navigation.HistoryRoute
+import com.personalapps.suite.cannabis.feature.api.navigation.SessionsRoute
+import com.personalapps.suite.cannabis.feature.api.navigation.HistoryRoute
+import com.personalapps.suite.cannabis.feature.api.navigation.StatsRoute
 import com.personalapps.suite.cannabis.feature.history.navigation.historyEntries
 import com.personalapps.suite.cannabis.feature.history.presentation.HistoryViewModel
-import com.personalapps.suite.cannabis.feature.sessions.navigation.SessionsRoute
 import com.personalapps.suite.cannabis.feature.sessions.navigation.sessionsEntries
 import com.personalapps.suite.cannabis.feature.sessions.presentation.SessionsViewModel
-import com.personalapps.suite.cannabis.feature.stats.navigation.StatsRoute
 import com.personalapps.suite.cannabis.feature.stats.navigation.statsEntries
 import com.personalapps.suite.cannabis.feature.stats.presentation.StatsViewModel
 import org.koin.androidx.compose.koinViewModel

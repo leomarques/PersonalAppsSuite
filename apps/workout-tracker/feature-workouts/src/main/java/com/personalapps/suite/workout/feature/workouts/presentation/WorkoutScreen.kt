@@ -114,10 +114,8 @@ fun WorkoutScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     items(state.sessions) { session ->
-                        val sessionSets = state.sets.filter { it.workoutSessionId == session.id }
                         WorkoutSessionItemCard(
                             session = session,
-                            sessionSets = sessionSets,
                             exercises = state.exercises,
                             onDelete = { viewModel.deleteSession(session) }
                         )
@@ -142,7 +140,6 @@ fun WorkoutScreen(
 @Composable
 fun WorkoutSessionItemCard(
     session: WorkoutSession,
-    sessionSets: List<WorkoutSet>,
     exercises: List<Exercise>,
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
@@ -175,9 +172,9 @@ fun WorkoutSessionItemCard(
                 }
             }
 
-            if (sessionSets.isNotEmpty()) {
+            if (session.sets.isNotEmpty()) {
                 Spacer(modifier = Modifier.height(8.dp))
-                val groupedSets = sessionSets.groupBy { it.exerciseId }
+                val groupedSets = session.sets.groupBy { it.exerciseId }
                 groupedSets.forEach { (exerciseId, exerciseSets) ->
                     val exerciseName = exercises.find { it.id == exerciseId }?.name ?: "Unknown Exercise"
                     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {

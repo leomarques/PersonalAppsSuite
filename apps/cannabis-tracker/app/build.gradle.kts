@@ -23,6 +23,7 @@ dependencies {
     implementation(project(":shared:backup"))
 
     // Features
+    implementation(project(":apps:cannabis-tracker:feature-api"))
     implementation(project(":apps:cannabis-tracker:feature-sessions"))
     implementation(project(":apps:cannabis-tracker:feature-history"))
     implementation(project(":apps:cannabis-tracker:feature-stats"))
