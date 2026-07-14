@@ -42,6 +42,7 @@ import com.personalapps.suite.shared.uicomponents.NutrientListItem
 import com.personalapps.suite.shared.uicomponents.NutrientRow
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
 import com.personalapps.suite.shared.uicomponents.PersonalTextField
+import com.personalapps.suite.shared.uicomponents.SwipeToDeleteContainer
 
 @Composable
 fun MealScreen(
@@ -67,7 +68,6 @@ fun MealScreen(
     var searchQuery by remember { mutableStateOf("") }
     var showAddFoodDialog by remember { mutableStateOf(false) }
     var selectedFoodToLog by remember { mutableStateOf<Food?>(null) }
-    var foodToDelete by remember { mutableStateOf<Food?>(null) }
 
     val filteredFoods = remember(state.foods, searchQuery) {
         if (searchQuery.isBlank()) {
@@ -142,11 +142,16 @@ fun MealScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     items(filteredFoods) { food ->
-                        FoodListItem(
-                            food = food,
-                            onClick = { selectedFoodToLog = food },
-                            onDelete = { foodToDelete = food }
-                        )
+                        SwipeToDeleteContainer(
+                            onDelete = { viewModel.deleteFood(food) },
+                            confirmTitle = "Delete Food",
+                            confirmMessage = "Are you sure you want to delete '${food.name}' from the library?"
+                        ) {
+                            FoodListItem(
+                                food = food,
+                                onClick = { selectedFoodToLog = food }
+                            )
+                        }
                     }
                 }
             }
@@ -160,28 +165,6 @@ fun MealScreen(
             onSave = { name, calories, protein, carbs, fat ->
                 viewModel.addCustomFood(name, calories, protein, carbs, fat)
                 showAddFoodDialog = false
-            }
-        )
-    }
-
-    // Delete Food Confirmation Dialog
-    if (foodToDelete != null) {
-        AlertDialog(
-            onDismissRequest = { foodToDelete = null },
-            title = { Text("Delete Food") },
-            text = { Text("Are you sure you want to delete '${foodToDelete?.name}' from the library?") },
-            confirmButton = {
-                TextButton(onClick = {
-                    foodToDelete?.let { viewModel.deleteFood(it) }
-                    foodToDelete = null
-                }) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { foodToDelete = null }) {
-                    Text("Cancel")
-                }
             }
         )
     }
@@ -203,7 +186,6 @@ fun MealScreen(
 fun FoodListItem(
     food: Food,
     onClick: () -> Unit,
-    onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     NutrientListItem(
@@ -214,15 +196,6 @@ fun FoodListItem(
         calories = food.calories,
         trailingSubtitle = "(per 100g)",
         onClick = onClick,
-        trailingContent = {
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete food",
-                    tint = MaterialTheme.colorScheme.error
-                )
-            }
-        },
         modifier = modifier
     )
 }

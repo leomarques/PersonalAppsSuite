@@ -35,6 +35,7 @@ import com.personalapps.suite.shared.designsystem.PersonalButton
 import com.personalapps.suite.shared.uicomponents.NutrientListItem
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
 import com.personalapps.suite.shared.uicomponents.PersonalTextField
+import com.personalapps.suite.shared.uicomponents.SwipeToDeleteContainer
 
 @Composable
 fun FoodScreen(
@@ -44,7 +45,6 @@ fun FoodScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    var foodToDelete by remember { mutableStateOf<Food?>(null) }
 
     LaunchedEffect(key1 = true) {
         viewModel.effect.collect { effect ->
@@ -54,27 +54,6 @@ fun FoodScreen(
                 is FoodEffect.FoodDeleted -> snackbarHostState.showSnackbar("Food deleted")
             }
         }
-    }
-
-    if (foodToDelete != null) {
-        AlertDialog(
-            onDismissRequest = { foodToDelete = null },
-            title = { Text("Delete Food") },
-            text = { Text("Are you sure you want to delete '${foodToDelete?.name}' from the database?") },
-            confirmButton = {
-                TextButton(onClick = {
-                    foodToDelete?.let { viewModel.deleteFood(it) }
-                    foodToDelete = null
-                }) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { foodToDelete = null }) {
-                    Text("Cancel")
-                }
-            }
-        )
     }
 
     var showAddForm by remember { mutableStateOf(false) }
@@ -194,10 +173,13 @@ fun FoodScreen(
                         items = state.foods,
                         key = { it.name }
                     ) { food ->
-                        FoodListItem(
-                            food = food,
-                            onDelete = { foodToDelete = food }
-                        )
+                        SwipeToDeleteContainer(
+                            onDelete = { viewModel.deleteFood(food) },
+                            confirmTitle = "Delete Food",
+                            confirmMessage = "Are you sure you want to delete '${food.name}' from the database?"
+                        ) {
+                            FoodListItem(food = food)
+                        }
                     }
                 }
             }
@@ -208,7 +190,6 @@ fun FoodScreen(
 @Composable
 fun FoodListItem(
     food: Food,
-    onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     NutrientListItem(
@@ -217,15 +198,6 @@ fun FoodListItem(
         carbs = food.carbs,
         fat = food.fat,
         leadingSubtitle = "${food.calories} kcal",
-        trailingContent = {
-            IconButton(onClick = onDelete) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete food",
-                    tint = MaterialTheme.colorScheme.error
-                )
-            }
-        },
         modifier = modifier
     )
 }
