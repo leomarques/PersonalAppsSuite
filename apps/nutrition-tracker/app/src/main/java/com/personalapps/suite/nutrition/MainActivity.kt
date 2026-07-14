@@ -58,44 +58,8 @@ fun MainNavigation() {
     val mealViewModel: MealViewModel = koinViewModel()
     val macroViewModel: MacroViewModel = koinViewModel()
 
-    val navItems = listOf(
-        NavItem(
-            label = "Dashboard",
-            icon = Icons.Default.Home,
-            isSelected = backStack.lastOrNull() == DashboardRoute,
-            onClick = {
-                if (backStack.lastOrNull() != DashboardRoute) {
-                    backStack.clear()
-                    backStack.add(DashboardRoute)
-                }
-            }
-        ),
-        NavItem(
-            label = "Add Entry",
-            icon = Icons.Default.Edit,
-            isSelected = backStack.lastOrNull() == LogMealRoute,
-            onClick = {
-                if (backStack.lastOrNull() != LogMealRoute) {
-                    backStack.clear()
-                    backStack.add(LogMealRoute)
-                }
-            }
-        ),
-        NavItem(
-            label = "Goals",
-            icon = Icons.Default.DateRange,
-            isSelected = backStack.lastOrNull() == SetGoalsRoute,
-            onClick = {
-                if (backStack.lastOrNull() != SetGoalsRoute) {
-                    backStack.clear()
-                    backStack.add(SetGoalsRoute)
-                }
-            }
-        )
-    )
-
     AppScaffold(
-        navItems = navItems
+        navItems = emptyList()
     ) { modifier ->
         NavDisplay(
             backStack = backStack,
