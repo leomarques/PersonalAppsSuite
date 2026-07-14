@@ -59,6 +59,7 @@ val nutritionModule = module {
     single { get<NutritionDatabase>().foodDao() }
     single { get<NutritionDatabase>().mealDao() }
     single { get<NutritionDatabase>().macroGoalDao() }
+    single { get<NutritionDatabase>().historyDao() }
 
     // Feature Modules
     includes(foodModule, mealModule, macroModule, historyModule)

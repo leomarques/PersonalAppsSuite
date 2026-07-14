@@ -1,5 +1,6 @@
 plugins {
     id("personalappssuite.feature")
+    id("personalappssuite.room")
 }
 
 android {

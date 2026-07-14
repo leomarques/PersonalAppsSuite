@@ -13,6 +13,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +44,7 @@ fun FoodScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    var foodToDelete by remember { mutableStateOf<Food?>(null) }
 
     LaunchedEffect(key1 = true) {
         viewModel.effect.collect { effect ->
@@ -52,6 +54,27 @@ fun FoodScreen(
                 is FoodEffect.FoodDeleted -> snackbarHostState.showSnackbar("Food deleted")
             }
         }
+    }
+
+    if (foodToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { foodToDelete = null },
+            title = { Text("Delete Food") },
+            text = { Text("Are you sure you want to delete '${foodToDelete?.name}' from the database?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    foodToDelete?.let { viewModel.deleteFood(it) }
+                    foodToDelete = null
+                }) {
+                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { foodToDelete = null }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     var showAddForm by remember { mutableStateOf(false) }
@@ -167,8 +190,14 @@ fun FoodScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    items(state.foods) { food ->
-                        FoodListItem(food = food, onDelete = { viewModel.deleteFood(food) })
+                    items(
+                        items = state.foods,
+                        key = { it.name }
+                    ) { food ->
+                        FoodListItem(
+                            food = food,
+                            onDelete = { foodToDelete = food }
+                        )
                     }
                 }
             }

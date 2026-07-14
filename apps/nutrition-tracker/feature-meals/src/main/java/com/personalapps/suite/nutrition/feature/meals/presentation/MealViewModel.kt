@@ -22,6 +22,7 @@ sealed interface MealEffect {
     data object MealLogged : MealEffect
     data object MealDeleted : MealEffect
     data object FoodAdded : MealEffect
+    data object FoodDeleted : MealEffect
 }
 
 class MealViewModel(
@@ -92,6 +93,17 @@ class MealViewModel(
                 is Result.Success -> sendEffect(MealEffect.MealLogged)
                 is Result.Error -> sendEffect(MealEffect.ShowError(result.exception.message ?: "Failed to log portion"))
                 is Result.Loading -> { /* no-op */ }
+            }
+        }
+    }
+
+    fun deleteFood(food: Food) {
+        viewModelScope.launch {
+            try {
+                foodRepository.deleteFood(food)
+                sendEffect(MealEffect.FoodDeleted)
+            } catch (e: Exception) {
+                sendEffect(MealEffect.ShowError(e.message ?: "Failed to delete food"))
             }
         }
     }

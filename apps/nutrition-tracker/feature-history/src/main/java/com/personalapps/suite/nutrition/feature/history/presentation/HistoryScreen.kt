@@ -12,19 +12,25 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -36,24 +42,48 @@ import com.personalapps.suite.shared.designsystem.proteinColor
 import com.personalapps.suite.shared.designsystem.carbsColor
 import com.personalapps.suite.shared.designsystem.fatColor
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
+import com.personalapps.suite.shared.uicomponents.SwipeToDeleteContainer
 
 @Composable
 fun HistoryScreen(
     viewModel: HistoryViewModel,
-    onNavigateToFood: () -> Unit,
     onNavigateToLogMeal: () -> Unit,
     onNavigateToConfig: () -> Unit,
+    onNavigateToHistory: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    var showConfirmDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(key1 = true) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is HistoryEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                is HistoryEffect.DayStarted -> snackbarHostState.showSnackbar("Day saved to history!")
             }
         }
+    }
+
+    if (showConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = { showConfirmDialog = false },
+            title = { Text("Start New Day") },
+            text = { Text("This will save your current totals to history and clear today's meals. Are you sure?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    viewModel.startNewDay()
+                    showConfirmDialog = false
+                }) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showConfirmDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 
     val totalCalories = remember(state.meals) {
@@ -80,6 +110,20 @@ fun HistoryScreen(
     PersonalScaffold(
         title = "Nutrition Dashboard",
         actions = {
+            if (state.meals.isNotEmpty()) {
+                IconButton(onClick = { showConfirmDialog = true }) {
+                    Icon(
+                        imageVector = Icons.Default.Refresh,
+                        contentDescription = "Start New Day"
+                    )
+                }
+            }
+            IconButton(onClick = onNavigateToHistory) {
+                Icon(
+                    imageVector = Icons.Default.DateRange,
+                    contentDescription = "History"
+                )
+            }
             IconButton(onClick = onNavigateToConfig) {
                 Icon(
                     imageVector = Icons.Default.Settings,
@@ -180,8 +224,17 @@ fun HistoryScreen(
                     modifier = Modifier.fillMaxWidth().weight(1f)
                 ) {
                     state.meals.forEach { meal ->
-                        items(meal.loggedFoods) { portion ->
-                            LoggedFoodItem(portion = portion)
+                        items(
+                            items = meal.loggedFoods,
+                            key = { "${meal.id}-${it.name}" }
+                        ) { portion ->
+                            SwipeToDeleteContainer(
+                                onDelete = { viewModel.deleteMeal(meal) },
+                                confirmTitle = "Delete Meal",
+                                confirmMessage = "Are you sure you want to delete '${portion.name}'?"
+                            ) {
+                                LoggedFoodItem(portion = portion)
+                            }
                         }
                     }
                 }

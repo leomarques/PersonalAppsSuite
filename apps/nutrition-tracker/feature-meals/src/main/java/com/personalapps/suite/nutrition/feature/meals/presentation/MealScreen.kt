@@ -26,8 +26,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -45,6 +47,7 @@ import com.personalapps.suite.shared.uicomponents.PersonalTextField
 fun MealScreen(
     viewModel: MealViewModel,
     onBackClick: () -> Unit,
+    onNavigateToFoodDatabase: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -57,6 +60,7 @@ fun MealScreen(
                 is MealEffect.MealLogged -> snackbarHostState.showSnackbar("Meal logged successfully")
                 is MealEffect.MealDeleted -> snackbarHostState.showSnackbar("Meal deleted")
                 is MealEffect.FoodAdded -> snackbarHostState.showSnackbar("Custom food added to database")
+                is MealEffect.FoodDeleted -> snackbarHostState.showSnackbar("Food deleted from library")
             }
         }
     }
@@ -64,6 +68,7 @@ fun MealScreen(
     var searchQuery by remember { mutableStateOf("") }
     var showAddFoodDialog by remember { mutableStateOf(false) }
     var selectedFoodToLog by remember { mutableStateOf<Food?>(null) }
+    var foodToDelete by remember { mutableStateOf<Food?>(null) }
 
     val filteredFoods = remember(state.foods, searchQuery) {
         if (searchQuery.isBlank()) {
@@ -77,6 +82,12 @@ fun MealScreen(
         title = "Add Entry",
         onBackClick = onBackClick,
         actions = {
+            IconButton(onClick = onNavigateToFoodDatabase) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.List,
+                    contentDescription = "Food Database"
+                )
+            }
             IconButton(onClick = { showAddFoodDialog = true }) {
                 Icon(
                     imageVector = Icons.Default.Add,
@@ -140,7 +151,8 @@ fun MealScreen(
                     items(filteredFoods) { food ->
                         FoodListItem(
                             food = food,
-                            onClick = { selectedFoodToLog = food }
+                            onClick = { selectedFoodToLog = food },
+                            onDelete = { foodToDelete = food }
                         )
                     }
                 }
@@ -155,6 +167,28 @@ fun MealScreen(
             onSave = { name, calories, protein, carbs, fat ->
                 viewModel.addCustomFood(name, calories, protein, carbs, fat)
                 showAddFoodDialog = false
+            }
+        )
+    }
+
+    // Delete Food Confirmation Dialog
+    if (foodToDelete != null) {
+        AlertDialog(
+            onDismissRequest = { foodToDelete = null },
+            title = { Text("Delete Food") },
+            text = { Text("Are you sure you want to delete '${foodToDelete?.name}' from the library?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    foodToDelete?.let { viewModel.deleteFood(it) }
+                    foodToDelete = null
+                }) {
+                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { foodToDelete = null }) {
+                    Text("Cancel")
+                }
             }
         )
     }
@@ -176,6 +210,7 @@ fun MealScreen(
 fun FoodListItem(
     food: Food,
     onClick: () -> Unit,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     NutrientListItem(
@@ -186,6 +221,15 @@ fun FoodListItem(
         calories = food.calories,
         trailingSubtitle = "(per 100g)",
         onClick = onClick,
+        trailingContent = {
+            IconButton(onClick = onDelete) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete food",
+                    tint = MaterialTheme.colorScheme.error
+                )
+            }
+        },
         modifier = modifier
     )
 }

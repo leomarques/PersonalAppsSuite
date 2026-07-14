@@ -9,13 +9,16 @@ import com.personalapps.suite.nutrition.feature.meals.data.dao.MealDao
 import com.personalapps.suite.nutrition.feature.meals.data.entities.MealEntity
 import com.personalapps.suite.nutrition.feature.macros.data.dao.MacroGoalDao
 import com.personalapps.suite.nutrition.feature.macros.data.entities.MacroGoalEntity
+import com.personalapps.suite.nutrition.feature.history.data.dao.HistoryDao
+import com.personalapps.suite.nutrition.feature.history.data.entities.HistoryEntryEntity
 import com.personalapps.suite.shared.databaseutils.Converters
 
 @Database(
     entities = [
         FoodEntity::class,
         MealEntity::class,
-        MacroGoalEntity::class
+        MacroGoalEntity::class,
+        HistoryEntryEntity::class
     ],
     version = 1,
     exportSchema = false
@@ -25,4 +28,5 @@ abstract class NutritionDatabase : RoomDatabase() {
     abstract fun foodDao(): FoodDao
     abstract fun mealDao(): MealDao
     abstract fun macroGoalDao(): MacroGoalDao
+    abstract fun historyDao(): HistoryDao
 }

@@ -17,7 +17,11 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
+import com.personalapps.suite.nutrition.feature.food.navigation.FoodDatabaseRoute
+import com.personalapps.suite.nutrition.feature.food.navigation.foodEntries
+import com.personalapps.suite.nutrition.feature.food.presentation.FoodViewModel
 import com.personalapps.suite.nutrition.feature.history.navigation.DashboardRoute
+import com.personalapps.suite.nutrition.feature.history.navigation.HistoryListRoute
 import com.personalapps.suite.nutrition.feature.history.navigation.historyEntries
 import com.personalapps.suite.nutrition.feature.history.presentation.HistoryViewModel
 import com.personalapps.suite.nutrition.feature.macros.navigation.SetGoalsRoute
@@ -57,6 +61,7 @@ fun MainNavigation() {
     val historyViewModel: HistoryViewModel = koinViewModel()
     val mealViewModel: MealViewModel = koinViewModel()
     val macroViewModel: MacroViewModel = koinViewModel()
+    val foodViewModel: FoodViewModel = koinViewModel()
 
     AppScaffold(
         navItems = emptyList()
@@ -67,18 +72,25 @@ fun MainNavigation() {
             entryProvider = entryProvider {
                 historyEntries(
                     viewModel = historyViewModel,
-                    onNavigateToFood = { backStack.add(LogMealRoute) },
                     onNavigateToLogMeal = { backStack.add(LogMealRoute) },
                     onNavigateToConfig = { backStack.add(SetGoalsRoute) },
+                    onNavigateToHistory = { backStack.add(HistoryListRoute) },
+                    onBackClick = { backStack.removeLastOrNull() },
                     modifier = modifier
                 )
                 mealEntries(
                     viewModel = mealViewModel,
                     onBackClick = { backStack.removeLastOrNull() },
+                    onNavigateToFoodDatabase = { backStack.add(FoodDatabaseRoute) },
                     modifier = modifier
                 )
                 macroEntries(
                     viewModel = macroViewModel,
+                    onBackClick = { backStack.removeLastOrNull() },
+                    modifier = modifier
+                )
+                foodEntries(
+                    viewModel = foodViewModel,
                     onBackClick = { backStack.removeLastOrNull() },
                     modifier = modifier
                 )

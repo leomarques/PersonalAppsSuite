@@ -2,6 +2,7 @@ package com.personalapps.suite.shared.databaseutils
 
 import androidx.room.TypeConverter
 import java.time.Instant
+import java.time.LocalDate
 
 class Converters {
     @TypeConverter
@@ -12,5 +13,15 @@ class Converters {
     @TypeConverter
     fun dateToTimestamp(date: Instant?): Long? {
         return date?.toEpochMilli()
+    }
+
+    @TypeConverter
+    fun fromLocalDate(value: String?): LocalDate? {
+        return value?.let { LocalDate.parse(it) }
+    }
+
+    @TypeConverter
+    fun localDateToString(date: LocalDate?): String? {
+        return date?.toString()
     }
 }

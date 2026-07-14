@@ -12,12 +12,14 @@ import kotlinx.serialization.Serializable
 fun EntryProviderScope<Destination>.mealEntries(
     viewModel: MealViewModel,
     onBackClick: () -> Unit,
+    onNavigateToFoodDatabase: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     entry<LogMealRoute> {
         MealScreen(
             viewModel = viewModel,
             onBackClick = onBackClick,
+            onNavigateToFoodDatabase = onNavigateToFoodDatabase,
             modifier = modifier
         )
     }
