@@ -1,13 +1,20 @@
 package com.personalapps.suite.nutrition.di
 
+import android.content.ContentValues
+import androidx.room.OnConflictStrategy
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.personalapps.suite.nutrition.data.NutritionDatabase
+import com.personalapps.suite.nutrition.feature.food.data.entities.FoodEntity
 import com.personalapps.suite.nutrition.feature.food.di.foodModule
 import com.personalapps.suite.nutrition.feature.history.di.historyModule
 import com.personalapps.suite.nutrition.feature.macros.di.macroModule
 import com.personalapps.suite.nutrition.feature.meals.di.mealModule
+import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
+import java.util.concurrent.Executors
 
 val nutritionModule = module {
     // Database
@@ -16,7 +23,36 @@ val nutritionModule = module {
             androidContext(),
             NutritionDatabase::class.java,
             "nutrition.db"
-        ).fallbackToDestructiveMigration().build()
+        ).addCallback(object : RoomDatabase.Callback() {
+            override fun onCreate(db: SupportSQLiteDatabase) {
+                super.onCreate(db)
+                Executors.newSingleThreadExecutor().execute {
+                    try {
+                        val context = androidContext()
+                        val jsonString = context.assets.open("initial_foods.json").bufferedReader().use { it.readText() }
+                        val foods = Json.decodeFromString<List<FoodEntity>>(jsonString)
+                        db.beginTransaction()
+                        try {
+                            foods.forEach { food ->
+                                val values = ContentValues().apply {
+                                    put("name", food.name)
+                                    put("calories", food.calories)
+                                    put("protein", food.protein)
+                                    put("carbs", food.carbs)
+                                    put("fat", food.fat)
+                                }
+                                db.insert("foods", OnConflictStrategy.REPLACE, values)
+                            }
+                            db.setTransactionSuccessful()
+                        } finally {
+                            db.endTransaction()
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        }).fallbackToDestructiveMigration().build()
     }
 
     // DAOs

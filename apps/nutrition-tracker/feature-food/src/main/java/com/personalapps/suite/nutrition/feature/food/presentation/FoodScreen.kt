@@ -26,13 +26,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.personalapps.suite.nutrition.feature.api.model.Food
 import com.personalapps.suite.shared.designsystem.EmptyScreen
 import com.personalapps.suite.shared.designsystem.PersonalButton
-import com.personalapps.suite.shared.designsystem.PersonalCard
+import com.personalapps.suite.shared.uicomponents.NutrientListItem
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
 import com.personalapps.suite.shared.uicomponents.PersonalTextField
 
@@ -75,8 +74,13 @@ fun FoodScreen(
                 .padding(16.dp)
         ) {
             if (showAddForm) {
-                PersonalCard(modifier = Modifier.fillMaxWidth()) {
-                    Column(modifier = Modifier.fillMaxWidth()) {
+                androidx.compose.material3.Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = androidx.compose.material3.CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                    )
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                         Text(
                             text = "Add New Food",
                             style = MaterialTheme.typography.titleMedium,
@@ -178,20 +182,13 @@ fun FoodListItem(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    PersonalCard(modifier = modifier.fillMaxWidth()) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(text = food.name, style = MaterialTheme.typography.titleMedium)
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "${food.calories} kcal  •  P: ${food.protein}g  •  C: ${food.carbs}g  •  F: ${food.fat}g",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-                )
-            }
+    NutrientListItem(
+        title = food.name,
+        protein = food.protein,
+        carbs = food.carbs,
+        fat = food.fat,
+        leadingSubtitle = "${food.calories} kcal",
+        trailingContent = {
             IconButton(onClick = onDelete) {
                 Icon(
                     imageVector = Icons.Default.Delete,
@@ -199,6 +196,7 @@ fun FoodListItem(
                     tint = MaterialTheme.colorScheme.error
                 )
             }
-        }
-    }
+        },
+        modifier = modifier
+    )
 }

@@ -27,9 +27,14 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.personalapps.suite.nutrition.feature.api.model.LoggedFoodPortion
 import com.personalapps.suite.shared.designsystem.PersonalCard
+import com.personalapps.suite.shared.designsystem.proteinColor
+import com.personalapps.suite.shared.designsystem.carbsColor
+import com.personalapps.suite.shared.designsystem.fatColor
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
 
 @Composable
@@ -135,7 +140,7 @@ fun HistoryScreen(
                         current = totalProtein,
                         target = targetProtein,
                         unit = "g",
-                        color = MaterialTheme.colorScheme.secondary
+                        color = proteinColor
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -144,7 +149,7 @@ fun HistoryScreen(
                         current = totalCarbs,
                         target = targetCarbs,
                         unit = "g",
-                        color = MaterialTheme.colorScheme.tertiary
+                        color = carbsColor
                     )
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -153,7 +158,7 @@ fun HistoryScreen(
                         current = totalFat,
                         target = targetFat,
                         unit = "g",
-                        color = MaterialTheme.colorScheme.error
+                        color = fatColor
                     )
                 }
             }
@@ -167,80 +172,99 @@ fun HistoryScreen(
                 Text(
                     text = "No meals logged today yet.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth().weight(1f)
                 ) {
-                    items(state.meals) { meal ->
-                        val kcal = meal.loggedFoods.sumOf { it.calories }
-                        val protein = meal.loggedFoods.sumOf { it.protein.toDouble() }.toFloat()
-                        val carbs = meal.loggedFoods.sumOf { it.carbs.toDouble() }.toFloat()
-                        val fat = meal.loggedFoods.sumOf { it.fat.toDouble() }.toFloat()
-                        
-                        PersonalCard(modifier = Modifier.fillMaxWidth()) {
-                            Row(
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Column(modifier = Modifier.weight(1f)) {
-                                    Text(
-                                        text = meal.loggedFoods.joinToString(", ") { it.name },
-                                        style = MaterialTheme.typography.titleSmall,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                    Spacer(modifier = Modifier.height(4.dp))
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                                        verticalAlignment = Alignment.CenterVertically
-                                    ) {
-                                        Text(
-                                            text = "P: ${"%.1f".format(protein)}g",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.secondary,
-                                            fontWeight = FontWeight.Medium
-                                        )
-                                        Text(
-                                            text = "•",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.outlineVariant
-                                        )
-                                        Text(
-                                            text = "C: ${"%.1f".format(carbs)}g",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.tertiary,
-                                            fontWeight = FontWeight.Medium
-                                        )
-                                        Text(
-                                            text = "•",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.outlineVariant
-                                        )
-                                        Text(
-                                            text = "F: ${"%.1f".format(fat)}g",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.error,
-                                            fontWeight = FontWeight.Medium
-                                        )
-                                    }
-                                }
-                                Text(
-                                    text = "$kcal kcal",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.padding(start = 8.dp)
-                                )
-                            }
+                    state.meals.forEach { meal ->
+                        items(meal.loggedFoods) { portion ->
+                            LoggedFoodItem(portion = portion)
                         }
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+fun LoggedFoodItem(
+    portion: LoggedFoodPortion,
+    modifier: Modifier = Modifier
+) {
+    val amountText = if (portion.amountGrams % 100f == 0f) {
+        "${(portion.amountGrams / 100f).toInt()} servings"
+    } else {
+        "${portion.amountGrams.toInt()}g"
+    }
+
+    PersonalCard(modifier = modifier.fillMaxWidth()) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = portion.name,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.weight(1f, fill = false)
+                    )
+                    Text(
+                        text = amountText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontWeight = FontWeight.Medium
+                    )
+                }
+                Spacer(modifier = Modifier.height(2.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    NutrientText(label = "P", value = portion.protein, color = proteinColor)
+                    Bullet()
+                    NutrientText(label = "C", value = portion.carbs, color = carbsColor)
+                    Bullet()
+                    NutrientText(label = "F", value = portion.fat, color = fatColor)
+                }
+            }
+            Text(
+                text = "${portion.calories} kcal",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 8.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun NutrientText(label: String, value: Float, color: Color) {
+    val formattedValue = if (value % 1 == 0f) value.toInt().toString() else "%.1f".format(value)
+    Text(
+        text = "$label: ${formattedValue}g",
+        style = MaterialTheme.typography.bodySmall,
+        color = color,
+        fontWeight = FontWeight.Medium
+    )
+}
+
+@Composable
+private fun Bullet() {
+    Text(
+        text = "•",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.outlineVariant
+    )
 }
 
 @Composable
