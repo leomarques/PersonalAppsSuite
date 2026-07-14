@@ -47,7 +47,6 @@ import com.personalapps.suite.shared.uicomponents.PersonalTextField
 fun MealScreen(
     viewModel: MealViewModel,
     onBackClick: () -> Unit,
-    onNavigateToFoodDatabase: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val state by viewModel.uiState.collectAsState()
@@ -82,12 +81,6 @@ fun MealScreen(
         title = "Add Entry",
         onBackClick = onBackClick,
         actions = {
-            IconButton(onClick = onNavigateToFoodDatabase) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.List,
-                    contentDescription = "Food Database"
-                )
-            }
             IconButton(onClick = { showAddFoodDialog = true }) {
                 Icon(
                     imageVector = Icons.Default.Add,

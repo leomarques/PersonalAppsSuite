@@ -81,7 +81,6 @@ fun MainNavigation() {
                 mealEntries(
                     viewModel = mealViewModel,
                     onBackClick = { backStack.removeLastOrNull() },
-                    onNavigateToFoodDatabase = { backStack.add(FoodDatabaseRoute) },
                     modifier = modifier
                 )
                 macroEntries(
