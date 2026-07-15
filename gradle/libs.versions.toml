@@ -17,7 +17,6 @@ ksp = "2.3.6"
 room = "2.8.4"
 koinBom = "4.2.2"
 datastore = "1.2.1"
-desugar_jdk_libs = "2.1.5"
 
 [libraries]
 androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "androidxCore" }
@@ -63,9 +62,6 @@ koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose" }
 
 # Serialization
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version = "1.8.0" }
-
-# Desugaring
-android-desugarJdkLibs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "androidGradlePlugin" }
