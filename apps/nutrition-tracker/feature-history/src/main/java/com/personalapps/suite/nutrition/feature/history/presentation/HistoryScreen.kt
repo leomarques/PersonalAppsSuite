@@ -34,9 +34,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.personalapps.suite.nutrition.feature.api.model.LoggedFoodPortion
+import com.personalapps.suite.nutrition.feature.history.R
 import com.personalapps.suite.shared.designsystem.PersonalCard
 import com.personalapps.suite.shared.designsystem.proteinColor
 import com.personalapps.suite.shared.designsystem.carbsColor
@@ -108,7 +110,7 @@ fun HistoryScreen(
     val targetFat = state.goal?.fat ?: 70f
 
     PersonalScaffold(
-        title = "Nutrition Dashboard",
+        title = stringResource(R.string.title),
         actions = {
             if (state.meals.isNotEmpty()) {
                 IconButton(onClick = { showConfirmDialog = true }) {
@@ -162,7 +164,9 @@ fun HistoryScreen(
                         progress = {
                             if (targetCalories > 0) (totalCalories.toFloat() / targetCalories.toFloat()).coerceIn(0f, 1f) else 0f
                         },
-                        modifier = Modifier.fillMaxWidth().height(8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(8.dp),
                         color = MaterialTheme.colorScheme.primary,
                         trackColor = MaterialTheme.colorScheme.primaryContainer
                     )
@@ -221,7 +225,9 @@ fun HistoryScreen(
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth().weight(1f)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
                 ) {
                     state.meals.forEach { meal ->
                         items(
@@ -326,7 +332,7 @@ fun MacroProgressRow(
     current: Float,
     target: Float,
     unit: String,
-    color: androidx.compose.ui.graphics.Color,
+    color: Color,
     modifier: Modifier = Modifier
 ) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -345,7 +351,9 @@ fun MacroProgressRow(
             progress = {
                 if (target > 0f) (current / target).coerceIn(0f, 1f) else 0f
             },
-            modifier = Modifier.fillMaxWidth().height(6.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(6.dp),
             color = color,
             trackColor = color.copy(alpha = 0.2f)
         )
