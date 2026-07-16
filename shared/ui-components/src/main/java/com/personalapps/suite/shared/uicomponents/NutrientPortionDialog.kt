@@ -4,8 +4,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -14,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
@@ -32,9 +38,15 @@ fun NutrientPortionDialog(
     var logUnit by remember { mutableStateOf("Servings") }
     var amountStr by remember { 
         mutableStateOf(
-            if (logUnit == "Servings") (initialAmountGrams / 100f).let { if (it % 1 == 0f) it.toInt().toString() else "%.1f".format(it) }
-            else initialAmountGrams.let { if (it % 1 == 0f) it.toInt().toString() else "%.1f".format(it) }
+            if (logUnit == "Servings") (initialAmountGrams / 100f).let { if (it % 1 == 0f) it.toInt().toString() else "%.1f".format(it).replace(',', '.') }
+            else initialAmountGrams.let { if (it % 1 == 0f) it.toInt().toString() else "%.1f".format(it).replace(',', '.') }
         )
+    }
+
+    val updateAmount: (Float) -> Unit = { delta ->
+        val current = amountStr.replace(',', '.').toFloatOrNull() ?: 0f
+        val newValue = (current + delta).coerceAtLeast(0f)
+        amountStr = if (newValue % 1 == 0f) newValue.toInt().toString() else "%.1f".format(newValue).replace(',', '.')
     }
 
     AlertDialog(
@@ -63,8 +75,10 @@ fun NutrientPortionDialog(
                     } else {
                         OutlinedButton(
                             onClick = {
+                                val currentGrams = if (logUnit == "Servings") (amountStr.replace(',', '.').toFloatOrNull() ?: 0f) * 100f else amountStr.replace(',', '.').toFloatOrNull() ?: 0f
                                 logUnit = "Servings"
-                                amountStr = "1"
+                                val servings = currentGrams / 100f
+                                amountStr = if (servings % 1 == 0f) servings.toInt().toString() else "%.1f".format(servings).replace(',', '.')
                             },
                             modifier = Modifier.weight(1f)
                         ) {
@@ -82,8 +96,9 @@ fun NutrientPortionDialog(
                     } else {
                         OutlinedButton(
                             onClick = {
+                                val currentGrams = if (logUnit == "Servings") (amountStr.replace(',', '.').toFloatOrNull() ?: 0f) * 100f else amountStr.replace(',', '.').toFloatOrNull() ?: 0f
                                 logUnit = "Grams"
-                                amountStr = "100"
+                                amountStr = if (currentGrams % 1 == 0f) currentGrams.toInt().toString() else "%.1f".format(currentGrams).replace(',', '.')
                             },
                             modifier = Modifier.weight(1f)
                         ) {
@@ -92,17 +107,42 @@ fun NutrientPortionDialog(
                     }
                 }
 
-                PersonalTextField(
-                    value = amountStr,
-                    onValueChange = { amountStr = it },
-                    label = if (logUnit == "Grams") "Amount (grams)" else "Number of servings (1 serving = 100g)"
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    IconButton(
+                        onClick = { updateAmount(if (logUnit == "Servings") -0.5f else -50f) }
+                    ) {
+                        Text(
+                            text = "−", // Using Unicode minus sign
+                            style = MaterialTheme.typography.headlineMedium
+                        )
+                    }
+
+                    PersonalTextField(
+                        value = amountStr,
+                        onValueChange = { amountStr = it },
+                        label = if (logUnit == "Grams") "Amount (grams)" else "Servings (100g)",
+                        modifier = Modifier.weight(1f)
+                    )
+
+                    IconButton(
+                        onClick = { updateAmount(if (logUnit == "Servings") 0.5f else 50f) }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Increase"
+                        )
+                    }
+                }
             }
         },
         confirmButton = {
             TextButton(
                 onClick = {
-                    val amountValue = amountStr.toFloatOrNull() ?: 0f
+                    val amountValue = amountStr.replace(',', '.').toFloatOrNull() ?: 0f
                     if (amountValue > 0f) {
                         val amountGrams = if (logUnit == "Servings") amountValue * 100f else amountValue
                         onConfirm(amountGrams)
