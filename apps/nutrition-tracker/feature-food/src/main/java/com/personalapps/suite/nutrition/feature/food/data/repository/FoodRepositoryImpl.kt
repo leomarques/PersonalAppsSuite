@@ -13,6 +13,9 @@ fun Food.toEntity() = FoodEntity(id = id, name = name, calories = calories, prot
 class FoodRepositoryImpl(private val foodDao: FoodDao) : FoodRepository {
     override fun getAllFoods(): Flow<List<Food>> = foodDao.getAllFoods().map { list -> list.map { it.toDomain() } }
     override suspend fun insertFood(food: Food): Long = foodDao.insertFood(food.toEntity())
+    override suspend fun updateFood(food: Food) {
+        foodDao.updateFood(food.toEntity())
+    }
     override suspend fun deleteFood(food: Food) {
         foodDao.deleteFood(food.toEntity())
     }

@@ -11,16 +11,11 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -35,7 +30,7 @@ import com.personalapps.suite.shared.designsystem.PersonalButton
 import com.personalapps.suite.shared.uicomponents.NutrientListItem
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
 import com.personalapps.suite.shared.uicomponents.PersonalTextField
-import com.personalapps.suite.shared.uicomponents.SwipeToDeleteContainer
+import com.personalapps.suite.shared.uicomponents.SwipeActionContainer
 
 @Composable
 fun FoodScreen(
@@ -51,12 +46,14 @@ fun FoodScreen(
             when (effect) {
                 is FoodEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
                 is FoodEffect.FoodAdded -> snackbarHostState.showSnackbar("Food added")
+                is FoodEffect.FoodUpdated -> snackbarHostState.showSnackbar("Food updated")
                 is FoodEffect.FoodDeleted -> snackbarHostState.showSnackbar("Food deleted")
             }
         }
     }
 
     var showAddForm by remember { mutableStateOf(false) }
+    var editingFood by remember { mutableStateOf<Food?>(null) }
     var name by remember { mutableStateOf("") }
     var caloriesStr by remember { mutableStateOf("") }
     var proteinStr by remember { mutableStateOf("") }
@@ -75,7 +72,7 @@ fun FoodScreen(
                 .padding(padding)
                 .padding(16.dp)
         ) {
-            if (showAddForm) {
+            if (showAddForm || editingFood != null) {
                 androidx.compose.material3.Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = androidx.compose.material3.CardDefaults.cardColors(
@@ -84,7 +81,7 @@ fun FoodScreen(
                 ) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                         Text(
-                            text = "Add New Food",
+                            text = if (editingFood != null) "Edit Food" else "Add New Food",
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
@@ -127,7 +124,15 @@ fun FoodScreen(
                             horizontalArrangement = Arrangement.End,
                             modifier = Modifier.fillMaxWidth()
                         ) {
-                            TextButton(onClick = { showAddForm = false }) {
+                            TextButton(onClick = {
+                                showAddForm = false
+                                editingFood = null
+                                name = ""
+                                caloriesStr = ""
+                                proteinStr = ""
+                                carbsStr = ""
+                                fatStr = ""
+                            }) {
                                 Text("Cancel")
                             }
                             Spacer(modifier = Modifier.width(8.dp))
@@ -139,13 +144,18 @@ fun FoodScreen(
                                     val carbs = carbsStr.toFloatOrNull() ?: 0f
                                     val fat = fatStr.toFloatOrNull() ?: 0f
                                     if (name.isNotBlank()) {
-                                        viewModel.addFood(name, calories, protein, carbs, fat)
+                                        editingFood?.let {
+                                            viewModel.updateFood(it.id, name, calories, protein, carbs, fat)
+                                        } ?: run {
+                                            viewModel.addFood(name, calories, protein, carbs, fat)
+                                        }
                                         name = ""
                                         caloriesStr = ""
                                         proteinStr = ""
                                         carbsStr = ""
                                         fatStr = ""
                                         showAddForm = false
+                                        editingFood = null
                                     }
                                 }
                             )
@@ -173,8 +183,16 @@ fun FoodScreen(
                         items = state.foods,
                         key = { it.name }
                     ) { food ->
-                        SwipeToDeleteContainer(
+                        SwipeActionContainer(
                             onDelete = { viewModel.deleteFood(food) },
+                            onEdit = {
+                                editingFood = food
+                                name = food.name
+                                caloriesStr = food.calories.toString()
+                                proteinStr = food.protein.toString()
+                                carbsStr = food.carbs.toString()
+                                fatStr = food.fat.toString()
+                            },
                             confirmTitle = "Delete Food",
                             confirmMessage = "Are you sure you want to delete '${food.name}' from the database?"
                         ) {

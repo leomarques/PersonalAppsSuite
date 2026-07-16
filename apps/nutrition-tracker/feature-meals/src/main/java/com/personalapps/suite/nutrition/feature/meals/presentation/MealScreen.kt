@@ -36,7 +36,7 @@ import com.personalapps.suite.shared.uicomponents.NutrientListItem
 import com.personalapps.suite.shared.uicomponents.NutrientPortionDialog
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
 import com.personalapps.suite.shared.uicomponents.PersonalTextField
-import com.personalapps.suite.shared.uicomponents.SwipeToDeleteContainer
+import com.personalapps.suite.shared.uicomponents.SwipeActionContainer
 
 @Composable
 fun MealScreen(
@@ -54,6 +54,7 @@ fun MealScreen(
                 is MealEffect.MealLogged -> snackbarHostState.showSnackbar("Meal logged successfully")
                 is MealEffect.MealDeleted -> snackbarHostState.showSnackbar("Meal deleted")
                 is MealEffect.FoodAdded -> snackbarHostState.showSnackbar("Custom food added to database")
+                is MealEffect.FoodUpdated -> snackbarHostState.showSnackbar("Food updated")
                 is MealEffect.FoodDeleted -> snackbarHostState.showSnackbar("Food deleted from library")
             }
         }
@@ -61,6 +62,7 @@ fun MealScreen(
 
     var searchQuery by remember { mutableStateOf("") }
     var showAddFoodDialog by remember { mutableStateOf(false) }
+    var editingFood by remember { mutableStateOf<Food?>(null) }
     var selectedFoodToLog by remember { mutableStateOf<Food?>(null) }
 
     val filteredFoods = remember(state.foods, searchQuery) {
@@ -136,8 +138,9 @@ fun MealScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     items(filteredFoods) { food ->
-                        SwipeToDeleteContainer(
+                        SwipeActionContainer(
                             onDelete = { viewModel.deleteFood(food) },
+                            onEdit = { editingFood = food },
                             confirmTitle = "Delete Food",
                             confirmMessage = "Are you sure you want to delete '${food.name}' from the library?"
                         ) {
@@ -152,13 +155,23 @@ fun MealScreen(
         }
     }
 
-    // Add Custom Food Dialog
-    if (showAddFoodDialog) {
+    // Add/Edit Custom Food Dialog
+    if (showAddFoodDialog || editingFood != null) {
+        val foodToEdit = editingFood
         AddFoodDialog(
-            onDismiss = { showAddFoodDialog = false },
-            onSave = { name, calories, protein, carbs, fat, gramsPerServing ->
-                viewModel.addCustomFood(name, calories, protein, carbs, fat, gramsPerServing)
+            initialFood = foodToEdit,
+            onDismiss = { 
                 showAddFoodDialog = false
+                editingFood = null
+            },
+            onSave = { name, calories, protein, carbs, fat, gramsPerServing ->
+                if (foodToEdit != null) {
+                    viewModel.updateFood(foodToEdit.id, name, calories, protein, carbs, fat, gramsPerServing)
+                } else {
+                    viewModel.addCustomFood(name, calories, protein, carbs, fat, gramsPerServing)
+                }
+                showAddFoodDialog = false
+                editingFood = null
             }
         )
     }
@@ -202,19 +215,20 @@ fun FoodListItem(
 
 @Composable
 fun AddFoodDialog(
+    initialFood: Food? = null,
     onDismiss: () -> Unit,
     onSave: (name: String, calories: Int, protein: Float, carbs: Float, fat: Float, gramsPerServing: Float) -> Unit
 ) {
-    var name by remember { mutableStateOf("") }
-    var caloriesStr by remember { mutableStateOf("") }
-    var proteinStr by remember { mutableStateOf("") }
-    var carbsStr by remember { mutableStateOf("") }
-    var fatStr by remember { mutableStateOf("") }
-    var gramsPerServingStr by remember { mutableStateOf("100") }
+    var name by remember { mutableStateOf(initialFood?.name ?: "") }
+    var caloriesStr by remember { mutableStateOf(initialFood?.calories?.toString() ?: "") }
+    var proteinStr by remember { mutableStateOf(initialFood?.protein?.toString() ?: "") }
+    var carbsStr by remember { mutableStateOf(initialFood?.carbs?.toString() ?: "") }
+    var fatStr by remember { mutableStateOf(initialFood?.fat?.toString() ?: "") }
+    var gramsPerServingStr by remember { mutableStateOf(initialFood?.gramsPerServing?.toString() ?: "100") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Add Custom Food") },
+        title = { Text(if (initialFood != null) "Edit Food" else "Add Custom Food") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 PersonalTextField(value = name, onValueChange = { name = it }, label = "Food Name")

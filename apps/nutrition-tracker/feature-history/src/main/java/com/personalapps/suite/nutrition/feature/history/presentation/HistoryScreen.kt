@@ -46,7 +46,7 @@ import com.personalapps.suite.shared.designsystem.proteinColor
 import com.personalapps.suite.shared.designsystem.carbsColor
 import com.personalapps.suite.shared.designsystem.fatColor
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
-import com.personalapps.suite.shared.uicomponents.SwipeToDeleteContainer
+import com.personalapps.suite.shared.uicomponents.SwipeActionContainer
 
 @Composable
 fun HistoryScreen(
@@ -238,7 +238,7 @@ fun HistoryScreen(
                             items = meal.loggedFoods,
                             key = { "${meal.id}-${it.name}" }
                         ) { portion ->
-                            SwipeToDeleteContainer(
+                            SwipeActionContainer(
                                 onDelete = { viewModel.deleteMeal(meal) },
                                 confirmTitle = "Delete Meal",
                                 confirmMessage = "Are you sure you want to delete '${portion.name}'?"

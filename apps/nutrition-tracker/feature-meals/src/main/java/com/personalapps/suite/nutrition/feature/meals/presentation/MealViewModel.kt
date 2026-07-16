@@ -23,6 +23,7 @@ sealed interface MealEffect {
     data object MealLogged : MealEffect
     data object MealDeleted : MealEffect
     data object FoodAdded : MealEffect
+    data object FoodUpdated : MealEffect
     data object FoodDeleted : MealEffect
 }
 
@@ -96,6 +97,28 @@ class MealViewModel(
                 sendEffect(MealEffect.FoodAdded)
             } catch (e: Exception) {
                 sendEffect(MealEffect.ShowError(e.message ?: "Failed to add food"))
+            }
+        }
+    }
+
+    fun updateFood(id: Long, name: String, calories: Int, protein: Float, carbs: Float, fat: Float, gramsPerServing: Float) {
+        if (name.isBlank()) return
+        viewModelScope.launch {
+            try {
+                foodRepository.updateFood(
+                    Food(
+                        id = id,
+                        name = name,
+                        calories = calories,
+                        protein = protein,
+                        carbs = carbs,
+                        fat = fat,
+                        gramsPerServing = gramsPerServing
+                    )
+                )
+                sendEffect(MealEffect.FoodUpdated)
+            } catch (e: Exception) {
+                sendEffect(MealEffect.ShowError(e.message ?: "Failed to update food"))
             }
         }
     }

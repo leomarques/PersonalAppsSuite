@@ -16,6 +16,7 @@ data class FoodUiState(
 sealed interface FoodEffect {
     data class ShowError(val message: String) : FoodEffect
     data object FoodAdded : FoodEffect
+    data object FoodUpdated : FoodEffect
     data object FoodDeleted : FoodEffect
 }
 
@@ -59,6 +60,26 @@ class FoodViewModel(
                 sendEffect(FoodEffect.FoodAdded)
             } catch (e: Exception) {
                 sendEffect(FoodEffect.ShowError(e.message ?: "Failed to add food"))
+            }
+        }
+    }
+
+    fun updateFood(id: Long, name: String, calories: Int, protein: Float, carbs: Float, fat: Float) {
+        viewModelScope.launch {
+            try {
+                repository.updateFood(
+                    Food(
+                        id = id,
+                        name = name,
+                        calories = calories,
+                        protein = protein,
+                        carbs = carbs,
+                        fat = fat
+                    )
+                )
+                sendEffect(FoodEffect.FoodUpdated)
+            } catch (e: Exception) {
+                sendEffect(FoodEffect.ShowError(e.message ?: "Failed to update food"))
             }
         }
     }

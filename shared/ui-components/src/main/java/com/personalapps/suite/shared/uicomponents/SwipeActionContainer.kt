@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,9 +27,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun SwipeToDeleteContainer(
+fun SwipeActionContainer(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
+    onEdit: (() -> Unit)? = null,
     confirmTitle: String = "Confirm Deletion",
     confirmMessage: String = "Are you sure you want to delete this item?",
     content: @Composable () -> Unit
@@ -37,10 +39,19 @@ fun SwipeToDeleteContainer(
 
     val dismissState = rememberSwipeToDismissBoxState(
         confirmValueChange = {
-            if (it == SwipeToDismissBoxValue.EndToStart) {
-                showConfirm = true
-                false
-            } else false
+            when (it) {
+                SwipeToDismissBoxValue.EndToStart -> {
+                    showConfirm = true
+                    false
+                }
+                SwipeToDismissBoxValue.StartToEnd -> {
+                    if (onEdit != null) {
+                        onEdit()
+                        false
+                    } else false
+                }
+                else -> false
+            }
         }
     )
 
@@ -71,25 +82,35 @@ fun SwipeToDeleteContainer(
             val color by animateColorAsState(
                 when (dismissState.targetValue) {
                     SwipeToDismissBoxValue.Settled -> Color.Transparent
-                    SwipeToDismissBoxValue.StartToEnd -> Color.Transparent
+                    SwipeToDismissBoxValue.StartToEnd -> if (onEdit != null) MaterialTheme.colorScheme.primary else Color.Transparent
                     SwipeToDismissBoxValue.EndToStart -> MaterialTheme.colorScheme.error
-                }, label = "delete_background"
+                }, label = "action_background"
             )
+            
             Box(
                 Modifier
                     .fillMaxSize()
                     .background(color, MaterialTheme.shapes.medium)
-                    .padding(horizontal = 20.dp),
-                contentAlignment = Alignment.CenterEnd
+                    .padding(horizontal = 20.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete",
-                    tint = MaterialTheme.colorScheme.onError
-                )
+                if (dismissState.targetValue == SwipeToDismissBoxValue.StartToEnd && onEdit != null) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = "Edit",
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.align(Alignment.CenterStart)
+                    )
+                } else if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete",
+                        tint = MaterialTheme.colorScheme.onError,
+                        modifier = Modifier.align(Alignment.CenterEnd)
+                    )
+                }
             }
         },
-        enableDismissFromStartToEnd = false,
+        enableDismissFromStartToEnd = onEdit != null,
         modifier = modifier
     ) {
         content()

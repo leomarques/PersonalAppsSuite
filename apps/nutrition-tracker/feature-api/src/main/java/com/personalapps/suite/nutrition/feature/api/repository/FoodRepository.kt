@@ -6,5 +6,6 @@ import kotlinx.coroutines.flow.Flow
 interface FoodRepository {
     fun getAllFoods(): Flow<List<Food>>
     suspend fun insertFood(food: Food): Long
+    suspend fun updateFood(food: Food)
     suspend fun deleteFood(food: Food)
 }

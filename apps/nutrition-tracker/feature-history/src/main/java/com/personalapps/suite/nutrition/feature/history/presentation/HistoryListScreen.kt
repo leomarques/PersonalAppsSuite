@@ -25,7 +25,7 @@ import com.personalapps.suite.shared.designsystem.carbsColor
 import com.personalapps.suite.shared.designsystem.fatColor
 import com.personalapps.suite.shared.designsystem.proteinColor
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
-import com.personalapps.suite.shared.uicomponents.SwipeToDeleteContainer
+import com.personalapps.suite.shared.uicomponents.SwipeActionContainer
 import java.time.format.DateTimeFormatter
 
 @Composable
@@ -67,7 +67,7 @@ fun HistoryListScreen(
                     items = state.history,
                     key = { it.date.toString() }
                 ) { entry ->
-                    SwipeToDeleteContainer(
+                    SwipeActionContainer(
                         onDelete = { viewModel.deleteHistoryEntry(entry) },
                         confirmTitle = "Delete History Entry",
                         confirmMessage = "Are you sure you want to delete the history entry for ${entry.date}?"
