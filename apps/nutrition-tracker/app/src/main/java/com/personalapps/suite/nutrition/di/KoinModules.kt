@@ -52,7 +52,7 @@ val nutritionModule = module {
                     }
                 }
             }
-        }).fallbackToDestructiveMigration().build()
+        }).fallbackToDestructiveMigration(dropAllTables = true).build()
     }
 
     // DAOs
