@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -29,6 +30,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.personalapps.suite.nutrition.feature.api.model.Food
 import com.personalapps.suite.shared.designsystem.EmptyScreen
@@ -225,18 +229,70 @@ fun AddFoodDialog(
     var carbsStr by remember { mutableStateOf(initialFood?.carbs?.toString() ?: "") }
     var fatStr by remember { mutableStateOf(initialFood?.fat?.toString() ?: "") }
     var gramsPerServingStr by remember { mutableStateOf(initialFood?.gramsPerServing?.toString() ?: "100") }
+    
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(if (initialFood != null) "Edit Food" else "Add Custom Food") },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                PersonalTextField(value = name, onValueChange = { name = it }, label = "Food Name")
-                PersonalTextField(value = caloriesStr, onValueChange = { caloriesStr = it }, label = "Calories per Serving")
-                PersonalTextField(value = proteinStr, onValueChange = { proteinStr = it }, label = "Protein (g) per Serving")
-                PersonalTextField(value = carbsStr, onValueChange = { carbsStr = it }, label = "Carbs (g) per Serving")
-                PersonalTextField(value = fatStr, onValueChange = { fatStr = it }, label = "Fat (g) per Serving")
-                PersonalTextField(value = gramsPerServingStr, onValueChange = { gramsPerServingStr = it }, label = "Grams per Serving (e.g., 100)")
+                PersonalTextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = "Food Name",
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    focusRequester = focusRequester
+                )
+                PersonalTextField(
+                    value = caloriesStr,
+                    onValueChange = { caloriesStr = it },
+                    label = "Calories per Serving",
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    )
+                )
+                PersonalTextField(
+                    value = proteinStr,
+                    onValueChange = { proteinStr = it },
+                    label = "Protein (g) per Serving",
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    )
+                )
+                PersonalTextField(
+                    value = carbsStr,
+                    onValueChange = { carbsStr = it },
+                    label = "Carbs (g) per Serving",
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    )
+                )
+                PersonalTextField(
+                    value = fatStr,
+                    onValueChange = { fatStr = it },
+                    label = "Fat (g) per Serving",
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
+                    )
+                )
+                PersonalTextField(
+                    value = gramsPerServingStr,
+                    onValueChange = { gramsPerServingStr = it },
+                    label = "Grams per Serving (e.g., 100)",
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                    )
+                )
             }
         },
         confirmButton = {

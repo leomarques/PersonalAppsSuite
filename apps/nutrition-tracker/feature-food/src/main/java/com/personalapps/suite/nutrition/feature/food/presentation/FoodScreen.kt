@@ -15,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -23,6 +24,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.personalapps.suite.nutrition.feature.api.model.Food
 import com.personalapps.suite.shared.designsystem.EmptyScreen
@@ -54,6 +58,8 @@ fun FoodScreen(
 
     var showAddForm by remember { mutableStateOf(false) }
     var editingFood by remember { mutableStateOf<Food?>(null) }
+    val focusRequester = remember { FocusRequester() }
+
     var name by remember { mutableStateOf("") }
     var caloriesStr by remember { mutableStateOf("") }
     var proteinStr by remember { mutableStateOf("") }
@@ -73,6 +79,9 @@ fun FoodScreen(
                 .padding(16.dp)
         ) {
             if (showAddForm || editingFood != null) {
+                LaunchedEffect(Unit) {
+                    focusRequester.requestFocus()
+                }
                 androidx.compose.material3.Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = androidx.compose.material3.CardDefaults.cardColors(
@@ -89,6 +98,8 @@ fun FoodScreen(
                             value = name,
                             onValueChange = { name = it },
                             label = "Food Name",
+                            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                            focusRequester = focusRequester,
                             modifier = Modifier.fillMaxWidth()
                         )
                         Row(modifier = Modifier.fillMaxWidth()) {
@@ -96,12 +107,20 @@ fun FoodScreen(
                                 value = caloriesStr,
                                 onValueChange = { caloriesStr = it },
                                 label = "Calories (kcal)",
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Number,
+                                    imeAction = ImeAction.Next
+                                ),
                                 modifier = Modifier.weight(1f).padding(end = 4.dp)
                             )
                             PersonalTextField(
                                 value = proteinStr,
                                 onValueChange = { proteinStr = it },
                                 label = "Protein (g)",
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Number,
+                                    imeAction = ImeAction.Next
+                                ),
                                 modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
                             )
                         }
@@ -110,12 +129,20 @@ fun FoodScreen(
                                 value = carbsStr,
                                 onValueChange = { carbsStr = it },
                                 label = "Carbs (g)",
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Number,
+                                    imeAction = ImeAction.Next
+                                ),
                                 modifier = Modifier.weight(1f).padding(end = 4.dp)
                             )
                             PersonalTextField(
                                 value = fatStr,
                                 onValueChange = { fatStr = it },
                                 label = "Fat (g)",
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Number,
+                                    imeAction = ImeAction.Done
+                                ),
                                 modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
                             )
                         }

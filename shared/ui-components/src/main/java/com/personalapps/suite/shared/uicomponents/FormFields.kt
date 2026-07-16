@@ -3,6 +3,7 @@ package com.personalapps.suite.shared.uicomponents
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -18,6 +19,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.unit.dp
 
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -34,7 +37,10 @@ fun PersonalTextField(
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
     shape: Shape = OutlinedTextFieldDefaults.shape,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default,
+    singleLine: Boolean = true,
+    focusRequester: FocusRequester? = null
 ) {
     Column(modifier = modifier) {
         OutlinedTextField(
@@ -46,7 +52,11 @@ fun PersonalTextField(
             trailingIcon = trailingIcon,
             shape = shape,
             keyboardOptions = keyboardOptions,
-            modifier = Modifier.fillMaxWidth()
+            keyboardActions = keyboardActions,
+            singleLine = singleLine,
+            modifier = Modifier
+                .fillMaxWidth()
+                .let { if (focusRequester != null) it.focusRequester(focusRequester) else it }
         )
         if (isError && errorMessage != null) {
             Text(
