@@ -2,6 +2,7 @@ package com.personalapps.suite.nutrition.feature.history.presentation
 
 import androidx.lifecycle.viewModelScope
 import com.personalapps.suite.nutrition.feature.api.model.HistoryEntry
+import com.personalapps.suite.nutrition.feature.api.model.LoggedFoodPortion
 import com.personalapps.suite.nutrition.feature.api.repository.HistoryRepository
 import com.personalapps.suite.nutrition.feature.api.model.MacroGoal
 import com.personalapps.suite.nutrition.feature.api.repository.MacroGoalRepository
@@ -98,6 +99,30 @@ class HistoryViewModel(
                 mealRepository.deleteMeal(meal)
             } catch (e: Exception) {
                 sendEffect(HistoryEffect.ShowError(e.message ?: "Failed to delete meal"))
+            }
+        }
+    }
+
+    fun updateMealPortion(meal: Meal, portion: LoggedFoodPortion, newAmountGrams: Float) {
+        scope.launch {
+            try {
+                val factor = newAmountGrams / portion.amountGrams
+                val updatedPortion = portion.copy(
+                    calories = (portion.calories * factor).toInt(),
+                    protein = portion.protein * factor,
+                    carbs = portion.carbs * factor,
+                    fat = portion.fat * factor,
+                    amountGrams = newAmountGrams
+                )
+                
+                val updatedLoggedFoods = meal.loggedFoods.map {
+                    if (it == portion) updatedPortion else it
+                }
+                
+                val updatedMeal = meal.copy(loggedFoods = updatedLoggedFoods)
+                mealRepository.insertMeal(updatedMeal)
+            } catch (e: Exception) {
+                sendEffect(HistoryEffect.ShowError(e.message ?: "Failed to update meal"))
             }
         }
     }

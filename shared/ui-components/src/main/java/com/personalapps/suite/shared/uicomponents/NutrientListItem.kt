@@ -87,32 +87,32 @@ fun NutrientRow(
     leadingSubtitle: String? = null,
     trailingSubtitle: String? = null,
 ) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-    ) {
+    Column(modifier = modifier){
         if (leadingSubtitle != null) {
             Text(
                 text = leadingSubtitle,
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Bullet()
         }
 
-        NutrientText(label = "P", value = protein, color = proteinColor)
-        Bullet()
-        NutrientText(label = "C", value = carbs, color = carbsColor)
-        Bullet()
-        NutrientText(label = "F", value = fat, color = fatColor)
+        Row(
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            NutrientText(label = "P", value = protein, color = proteinColor)
+            Bullet()
+            NutrientText(label = "C", value = carbs, color = carbsColor)
+            Bullet()
+            NutrientText(label = "F", value = fat, color = fatColor)
 
-        if (trailingSubtitle != null) {
-            Text(
-                text = trailingSubtitle,
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
-            )
+            if (trailingSubtitle != null) {
+                Text(
+                    text = trailingSubtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.outline
+                )
+            }
         }
     }
 }

@@ -3,6 +3,7 @@ package com.personalapps.suite.shared.uicomponents
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -32,7 +33,8 @@ fun PersonalTextField(
     errorMessage: String? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
-    shape: Shape = OutlinedTextFieldDefaults.shape
+    shape: Shape = OutlinedTextFieldDefaults.shape,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
     Column(modifier = modifier) {
         OutlinedTextField(
@@ -43,6 +45,7 @@ fun PersonalTextField(
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
             shape = shape,
+            keyboardOptions = keyboardOptions,
             modifier = Modifier.fillMaxWidth()
         )
         if (isError && errorMessage != null) {

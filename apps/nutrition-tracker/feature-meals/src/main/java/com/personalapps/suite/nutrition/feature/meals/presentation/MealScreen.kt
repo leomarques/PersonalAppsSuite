@@ -2,7 +2,6 @@ package com.personalapps.suite.nutrition.feature.meals.presentation
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,36 +9,31 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.List
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Clear
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.personalapps.suite.nutrition.feature.api.model.Food
 import com.personalapps.suite.shared.designsystem.EmptyScreen
 import com.personalapps.suite.shared.uicomponents.NutrientListItem
-import com.personalapps.suite.shared.uicomponents.NutrientRow
+import com.personalapps.suite.shared.uicomponents.NutrientPortionDialog
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
 import com.personalapps.suite.shared.uicomponents.PersonalTextField
 import com.personalapps.suite.shared.uicomponents.SwipeToDeleteContainer
@@ -171,8 +165,12 @@ fun MealScreen(
 
     // Log Portion Dialog
     selectedFoodToLog?.let { food ->
-        LogPortionDialog(
-            food = food,
+        NutrientPortionDialog(
+            title = "Log ${food.name}",
+            proteinPer100g = food.protein,
+            carbsPer100g = food.carbs,
+            fatPer100g = food.fat,
+            caloriesPer100g = food.calories,
             onDismiss = { selectedFoodToLog = null },
             onConfirm = { amountGrams ->
                 viewModel.logSingleFoodPortion(food, amountGrams)
@@ -246,94 +244,3 @@ fun AddFoodDialog(
     )
 }
 
-@Composable
-fun LogPortionDialog(
-    food: Food,
-    onDismiss: () -> Unit,
-    onConfirm: (amountGrams: Float) -> Unit
-) {
-    var amountStr by remember { mutableStateOf("1") }
-    var logUnit by remember { mutableStateOf("Servings") } // "Grams" or "Servings"
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Log ${food.name}") },
-        text = {
-            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                NutrientRow(
-                    protein = food.protein,
-                    carbs = food.carbs,
-                    fat = food.fat,
-                    leadingSubtitle = "Per 100g: ${food.calories} kcal"
-                )
-                
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    if (logUnit == "Servings") {
-                        Button(
-                            onClick = {},
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Servings")
-                        }
-                    } else {
-                        OutlinedButton(
-                            onClick = {
-                                logUnit = "Servings"
-                                amountStr = "1"
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Servings")
-                        }
-                    }
-
-                    if (logUnit == "Grams") {
-                        Button(
-                            onClick = {},
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Grams (g)")
-                        }
-                    } else {
-                        OutlinedButton(
-                            onClick = {
-                                logUnit = "Grams"
-                                amountStr = "100"
-                            },
-                            modifier = Modifier.weight(1f)
-                        ) {
-                            Text("Grams (g)")
-                        }
-                    }
-                }
-
-                PersonalTextField(
-                    value = amountStr,
-                    onValueChange = { amountStr = it },
-                    label = if (logUnit == "Grams") "Amount (grams)" else "Number of servings (1 serving = 100g)"
-                )
-            }
-        },
-        confirmButton = {
-            TextButton(
-                onClick = {
-                    val amountValue = amountStr.toFloatOrNull() ?: 0f
-                    if (amountValue > 0f) {
-                        val amountGrams = if (logUnit == "Servings") amountValue * 100f else amountValue
-                        onConfirm(amountGrams)
-                    }
-                }
-            ) {
-                Text("Add to Day")
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
-}

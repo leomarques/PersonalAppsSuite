@@ -38,8 +38,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.personalapps.suite.nutrition.feature.api.model.LoggedFoodPortion
+import com.personalapps.suite.nutrition.feature.api.model.Meal
 import com.personalapps.suite.nutrition.feature.history.R
 import com.personalapps.suite.shared.designsystem.PersonalCard
+import com.personalapps.suite.shared.uicomponents.NutrientPortionDialog
 import com.personalapps.suite.shared.designsystem.proteinColor
 import com.personalapps.suite.shared.designsystem.carbsColor
 import com.personalapps.suite.shared.designsystem.fatColor
@@ -57,6 +59,8 @@ fun HistoryScreen(
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     var showConfirmDialog by remember { mutableStateOf(false) }
+    var editingMealAndPortion by remember { mutableStateOf<Pair<Meal, LoggedFoodPortion>?>(null) }
+
 
     LaunchedEffect(key1 = true) {
         viewModel.effect.collect { effect ->
@@ -239,7 +243,10 @@ fun HistoryScreen(
                                 confirmTitle = "Delete Meal",
                                 confirmMessage = "Are you sure you want to delete '${portion.name}'?"
                             ) {
-                                LoggedFoodItem(portion = portion)
+                                LoggedFoodItem(
+                                    portion = portion,
+                                    onClick = { editingMealAndPortion = meal to portion }
+                                )
                             }
                         }
                     }
@@ -247,11 +254,30 @@ fun HistoryScreen(
             }
         }
     }
+
+    editingMealAndPortion?.let { (meal, portion) ->
+        NutrientPortionDialog(
+            title = "Edit ${portion.name}",
+            proteinPer100g = (portion.protein / portion.amountGrams) * 100f,
+            carbsPer100g = (portion.carbs / portion.amountGrams) * 100f,
+            fatPer100g = (portion.fat / portion.amountGrams) * 100f,
+            caloriesPer100g = ((portion.calories.toFloat() / portion.amountGrams) * 100f).toInt(),
+            initialAmountGrams = portion.amountGrams,
+            onDismiss = { editingMealAndPortion = null },
+            onConfirm = { newAmount ->
+                viewModel.updateMealPortion(meal, portion, newAmount)
+                editingMealAndPortion = null
+            },
+            confirmLabel = "Update"
+        )
+    }
 }
+
 
 @Composable
 fun LoggedFoodItem(
     portion: LoggedFoodPortion,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val amountText = if (portion.amountGrams % 100f == 0f) {
@@ -260,7 +286,10 @@ fun LoggedFoodItem(
         "${portion.amountGrams.toInt()}g"
     }
 
-    PersonalCard(modifier = modifier.fillMaxWidth()) {
+    PersonalCard(
+        onClick = onClick,
+        modifier = modifier.fillMaxWidth()
+    ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
