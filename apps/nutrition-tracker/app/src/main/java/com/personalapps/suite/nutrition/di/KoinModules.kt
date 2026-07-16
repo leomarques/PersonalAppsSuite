@@ -23,7 +23,8 @@ val nutritionModule = module {
             androidContext(),
             NutritionDatabase::class.java,
             "nutrition.db"
-        ).addCallback(object : RoomDatabase.Callback() {
+        ).addMigrations(NutritionDatabase.MIGRATION_1_2)
+        .addCallback(object : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
                 Executors.newSingleThreadExecutor().execute {
@@ -40,6 +41,7 @@ val nutritionModule = module {
                                     put("protein", food.protein)
                                     put("carbs", food.carbs)
                                     put("fat", food.fat)
+                                    put("gramsPerServing", food.gramsPerServing)
                                 }
                                 db.insert("foods", OnConflictStrategy.REPLACE, values)
                             }

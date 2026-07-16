@@ -1,16 +1,15 @@
 package com.personalapps.suite.nutrition.feature.meals.data.repository
 
+import com.personalapps.suite.nutrition.feature.api.model.LoggedFoodPortion
+import com.personalapps.suite.nutrition.feature.api.model.Meal
+import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
 import com.personalapps.suite.nutrition.feature.meals.data.dao.MealDao
 import com.personalapps.suite.nutrition.feature.meals.data.entities.LoggedFoodPortionEntity
 import com.personalapps.suite.nutrition.feature.meals.data.entities.MealEntity
-import com.personalapps.suite.nutrition.feature.api.model.Meal
-import com.personalapps.suite.nutrition.feature.api.model.LoggedFoodPortion
-import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
-import java.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import java.time.Instant
 
 fun LoggedFoodPortionEntity.toDomain() = LoggedFoodPortion(
     name = name,
@@ -18,7 +17,8 @@ fun LoggedFoodPortionEntity.toDomain() = LoggedFoodPortion(
     protein = protein,
     carbs = carbs,
     fat = fat,
-    amountGrams = amountGrams
+    amountGrams = amountGrams,
+    gramsPerServing = gramsPerServing
 )
 
 fun LoggedFoodPortion.toEntity() = LoggedFoodPortionEntity(
@@ -27,7 +27,8 @@ fun LoggedFoodPortion.toEntity() = LoggedFoodPortionEntity(
     protein = protein,
     carbs = carbs,
     fat = fat,
-    amountGrams = amountGrams
+    amountGrams = amountGrams,
+    gramsPerServing = gramsPerServing
 )
 
 fun MealEntity.toDomain(): Meal {

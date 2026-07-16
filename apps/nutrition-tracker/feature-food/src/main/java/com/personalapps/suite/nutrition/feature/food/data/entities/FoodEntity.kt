@@ -12,5 +12,6 @@ data class FoodEntity(
     val calories: Int,
     val protein: Float,
     val carbs: Float,
-    val fat: Float
+    val fat: Float,
+    val gramsPerServing: Float = 100f
 )

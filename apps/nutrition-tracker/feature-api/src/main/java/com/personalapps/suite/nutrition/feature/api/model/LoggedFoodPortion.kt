@@ -6,5 +6,6 @@ data class LoggedFoodPortion(
     val protein: Float,
     val carbs: Float,
     val fat: Float,
-    val amountGrams: Float
+    val amountGrams: Float,
+    val gramsPerServing: Float = 100f
 )

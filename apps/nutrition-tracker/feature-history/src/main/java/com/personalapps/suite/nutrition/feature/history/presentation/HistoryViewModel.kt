@@ -106,13 +106,15 @@ class HistoryViewModel(
     fun updateMealPortion(meal: Meal, portion: LoggedFoodPortion, newAmountGrams: Float) {
         scope.launch {
             try {
+                // To maintain nutrients per 100g accuracy, we calculate factor based on amountGrams
                 val factor = newAmountGrams / portion.amountGrams
                 val updatedPortion = portion.copy(
                     calories = (portion.calories * factor).toInt(),
                     protein = portion.protein * factor,
                     carbs = portion.carbs * factor,
                     fat = portion.fat * factor,
-                    amountGrams = newAmountGrams
+                    amountGrams = newAmountGrams,
+                    gramsPerServing = portion.gramsPerServing
                 )
                 
                 val updatedLoggedFoods = meal.loggedFoods.map {

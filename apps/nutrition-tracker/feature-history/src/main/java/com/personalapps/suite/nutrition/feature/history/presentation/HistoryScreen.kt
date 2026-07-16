@@ -258,11 +258,12 @@ fun HistoryScreen(
     editingMealAndPortion?.let { (meal, portion) ->
         NutrientPortionDialog(
             title = "Edit ${portion.name}",
-            proteinPer100g = (portion.protein / portion.amountGrams) * 100f,
-            carbsPer100g = (portion.carbs / portion.amountGrams) * 100f,
-            fatPer100g = (portion.fat / portion.amountGrams) * 100f,
-            caloriesPer100g = ((portion.calories.toFloat() / portion.amountGrams) * 100f).toInt(),
+            proteinPerServing = (portion.protein / (portion.amountGrams / portion.gramsPerServing)),
+            carbsPerServing = (portion.carbs / (portion.amountGrams / portion.gramsPerServing)),
+            fatPerServing = (portion.fat / (portion.amountGrams / portion.gramsPerServing)),
+            caloriesPerServing = (portion.calories.toFloat() / (portion.amountGrams / portion.gramsPerServing)).toInt(),
             initialAmountGrams = portion.amountGrams,
+            gramsPerServing = portion.gramsPerServing,
             onDismiss = { editingMealAndPortion = null },
             onConfirm = { newAmount ->
                 viewModel.updateMealPortion(meal, portion, newAmount)
@@ -280,8 +281,9 @@ fun LoggedFoodItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val amountText = if (portion.amountGrams % 100f == 0f) {
-        "${(portion.amountGrams / 100f).toInt()} servings"
+    val amountText = if (portion.amountGrams % portion.gramsPerServing == 0f) {
+        val servings = (portion.amountGrams / portion.gramsPerServing).toInt()
+        "$servings ${if (servings == 1) "serving" else "servings"}"
     } else {
         "${portion.amountGrams.toInt()}g"
     }

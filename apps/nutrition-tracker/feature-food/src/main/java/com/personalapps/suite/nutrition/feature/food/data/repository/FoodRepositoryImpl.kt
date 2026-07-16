@@ -7,8 +7,8 @@ import com.personalapps.suite.nutrition.feature.api.repository.FoodRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
-fun FoodEntity.toDomain() = Food(id = id, name = name, calories = calories, protein = protein, carbs = carbs, fat = fat)
-fun Food.toEntity() = FoodEntity(id = id, name = name, calories = calories, protein = protein, carbs = carbs, fat = fat)
+fun FoodEntity.toDomain() = Food(id = id, name = name, calories = calories, protein = protein, carbs = carbs, fat = fat, gramsPerServing = gramsPerServing)
+fun Food.toEntity() = FoodEntity(id = id, name = name, calories = calories, protein = protein, carbs = carbs, fat = fat, gramsPerServing = gramsPerServing)
 
 class FoodRepositoryImpl(private val foodDao: FoodDao) : FoodRepository {
     override fun getAllFoods(): Flow<List<Food>> = foodDao.getAllFoods().map { list -> list.map { it.toDomain() } }

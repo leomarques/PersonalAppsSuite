@@ -3,6 +3,8 @@ package com.personalapps.suite.nutrition.data
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.personalapps.suite.nutrition.feature.food.data.dao.FoodDao
 import com.personalapps.suite.nutrition.feature.food.data.entities.FoodEntity
 import com.personalapps.suite.nutrition.feature.meals.data.dao.MealDao
@@ -20,7 +22,7 @@ import com.personalapps.suite.shared.databaseutils.Converters
         MacroGoalEntity::class,
         HistoryEntryEntity::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -29,4 +31,12 @@ abstract class NutritionDatabase : RoomDatabase() {
     abstract fun mealDao(): MealDao
     abstract fun macroGoalDao(): MacroGoalDao
     abstract fun historyDao(): HistoryDao
+
+    companion object {
+        val MIGRATION_1_2 = object : Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE foods ADD COLUMN gramsPerServing REAL NOT NULL DEFAULT 100.0")
+            }
+        }
+    }
 }

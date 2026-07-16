@@ -156,8 +156,8 @@ fun MealScreen(
     if (showAddFoodDialog) {
         AddFoodDialog(
             onDismiss = { showAddFoodDialog = false },
-            onSave = { name, calories, protein, carbs, fat ->
-                viewModel.addCustomFood(name, calories, protein, carbs, fat)
+            onSave = { name, calories, protein, carbs, fat, gramsPerServing ->
+                viewModel.addCustomFood(name, calories, protein, carbs, fat, gramsPerServing)
                 showAddFoodDialog = false
             }
         )
@@ -167,10 +167,12 @@ fun MealScreen(
     selectedFoodToLog?.let { food ->
         NutrientPortionDialog(
             title = "Log ${food.name}",
-            proteinPer100g = food.protein,
-            carbsPer100g = food.carbs,
-            fatPer100g = food.fat,
-            caloriesPer100g = food.calories,
+            proteinPerServing = food.protein,
+            carbsPerServing = food.carbs,
+            fatPerServing = food.fat,
+            caloriesPerServing = food.calories,
+            gramsPerServing = food.gramsPerServing,
+            initialAmountGrams = food.gramsPerServing,
             onDismiss = { selectedFoodToLog = null },
             onConfirm = { amountGrams ->
                 viewModel.logSingleFoodPortion(food, amountGrams)
@@ -192,7 +194,7 @@ fun FoodListItem(
         carbs = food.carbs,
         fat = food.fat,
         calories = food.calories,
-        trailingSubtitle = "(per 100g)",
+        trailingSubtitle = "(per ${food.gramsPerServing.toInt()}g)",
         onClick = onClick,
         modifier = modifier
     )
@@ -201,13 +203,14 @@ fun FoodListItem(
 @Composable
 fun AddFoodDialog(
     onDismiss: () -> Unit,
-    onSave: (name: String, calories: Int, protein: Float, carbs: Float, fat: Float) -> Unit
+    onSave: (name: String, calories: Int, protein: Float, carbs: Float, fat: Float, gramsPerServing: Float) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
     var caloriesStr by remember { mutableStateOf("") }
     var proteinStr by remember { mutableStateOf("") }
     var carbsStr by remember { mutableStateOf("") }
     var fatStr by remember { mutableStateOf("") }
+    var gramsPerServingStr by remember { mutableStateOf("100") }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -215,10 +218,11 @@ fun AddFoodDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 PersonalTextField(value = name, onValueChange = { name = it }, label = "Food Name")
-                PersonalTextField(value = caloriesStr, onValueChange = { caloriesStr = it }, label = "Calories per 100g")
-                PersonalTextField(value = proteinStr, onValueChange = { proteinStr = it }, label = "Protein (g) per 100g")
-                PersonalTextField(value = carbsStr, onValueChange = { carbsStr = it }, label = "Carbs (g) per 100g")
-                PersonalTextField(value = fatStr, onValueChange = { fatStr = it }, label = "Fat (g) per 100g")
+                PersonalTextField(value = caloriesStr, onValueChange = { caloriesStr = it }, label = "Calories per Serving")
+                PersonalTextField(value = proteinStr, onValueChange = { proteinStr = it }, label = "Protein (g) per Serving")
+                PersonalTextField(value = carbsStr, onValueChange = { carbsStr = it }, label = "Carbs (g) per Serving")
+                PersonalTextField(value = fatStr, onValueChange = { fatStr = it }, label = "Fat (g) per Serving")
+                PersonalTextField(value = gramsPerServingStr, onValueChange = { gramsPerServingStr = it }, label = "Grams per Serving (e.g., 100)")
             }
         },
         confirmButton = {
@@ -228,8 +232,9 @@ fun AddFoodDialog(
                     val protein = proteinStr.toFloatOrNull() ?: 0f
                     val carbs = carbsStr.toFloatOrNull() ?: 0f
                     val fat = fatStr.toFloatOrNull() ?: 0f
+                    val gramsPerServing = gramsPerServingStr.toFloatOrNull() ?: 100f
                     if (name.isNotBlank()) {
-                        onSave(name, calories, protein, carbs, fat)
+                        onSave(name, calories, protein, carbs, fat, gramsPerServing)
                     }
                 }
             ) {

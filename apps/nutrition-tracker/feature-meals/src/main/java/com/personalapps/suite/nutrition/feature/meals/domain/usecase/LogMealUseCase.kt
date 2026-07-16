@@ -31,14 +31,15 @@ class LogMealUseCase(private val mealRepository: MealRepository) {
             return Result.Error(IllegalArgumentException("Invalid food amount"))
         }
         return try {
-            val factor = amountGrams / 100f
+            val factor = amountGrams / food.gramsPerServing
             val portion = LoggedFoodPortion(
                 name = food.name,
                 calories = (food.calories * factor).toInt(),
                 protein = food.protein * factor,
                 carbs = food.carbs * factor,
                 fat = food.fat * factor,
-                amountGrams = amountGrams
+                amountGrams = amountGrams,
+                gramsPerServing = food.gramsPerServing
             )
             val meal = Meal(
                 name = food.name,

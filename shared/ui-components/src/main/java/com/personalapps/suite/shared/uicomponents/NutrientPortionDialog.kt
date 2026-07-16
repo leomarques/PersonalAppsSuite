@@ -26,19 +26,20 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun NutrientPortionDialog(
     title: String,
-    proteinPer100g: Float,
-    carbsPer100g: Float,
-    fatPer100g: Float,
-    caloriesPer100g: Int,
+    proteinPerServing: Float,
+    carbsPerServing: Float,
+    fatPerServing: Float,
+    caloriesPerServing: Int,
     onDismiss: () -> Unit,
     onConfirm: (amountGrams: Float) -> Unit,
     initialAmountGrams: Float = 100f,
+    gramsPerServing: Float = 100f,
     confirmLabel: String = "Add to Day"
 ) {
     var logUnit by remember { mutableStateOf("Servings") }
-    var amountStr by remember { 
+    var amountStr by remember(initialAmountGrams, gramsPerServing, logUnit) { 
         mutableStateOf(
-            if (logUnit == "Servings") (initialAmountGrams / 100f).let { if (it % 1 == 0f) it.toInt().toString() else "%.1f".format(it).replace(',', '.') }
+            if (logUnit == "Servings") (initialAmountGrams / gramsPerServing).let { if (it % 1 == 0f) it.toInt().toString() else "%.1f".format(it).replace(',', '.') }
             else initialAmountGrams.let { if (it % 1 == 0f) it.toInt().toString() else "%.1f".format(it).replace(',', '.') }
         )
     }
@@ -55,10 +56,10 @@ fun NutrientPortionDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 NutrientRow(
-                    protein = proteinPer100g,
-                    carbs = carbsPer100g,
-                    fat = fatPer100g,
-                    leadingSubtitle = "Per 100g: $caloriesPer100g kcal"
+                    protein = proteinPerServing,
+                    carbs = carbsPerServing,
+                    fat = fatPerServing,
+                    leadingSubtitle = "Per ${gramsPerServing.toInt()}g: $caloriesPerServing kcal"
                 )
                 
                 Row(
@@ -75,9 +76,9 @@ fun NutrientPortionDialog(
                     } else {
                         OutlinedButton(
                             onClick = {
-                                val currentGrams = if (logUnit == "Servings") (amountStr.replace(',', '.').toFloatOrNull() ?: 0f) * 100f else amountStr.replace(',', '.').toFloatOrNull() ?: 0f
+                                val currentGrams = if (logUnit == "Servings") (amountStr.replace(',', '.').toFloatOrNull() ?: 0f) * gramsPerServing else amountStr.replace(',', '.').toFloatOrNull() ?: 0f
                                 logUnit = "Servings"
-                                val servings = currentGrams / 100f
+                                val servings = currentGrams / gramsPerServing
                                 amountStr = if (servings % 1 == 0f) servings.toInt().toString() else "%.1f".format(servings).replace(',', '.')
                             },
                             modifier = Modifier.weight(1f)
@@ -96,7 +97,7 @@ fun NutrientPortionDialog(
                     } else {
                         OutlinedButton(
                             onClick = {
-                                val currentGrams = if (logUnit == "Servings") (amountStr.replace(',', '.').toFloatOrNull() ?: 0f) * 100f else amountStr.replace(',', '.').toFloatOrNull() ?: 0f
+                                val currentGrams = if (logUnit == "Servings") (amountStr.replace(',', '.').toFloatOrNull() ?: 0f) * gramsPerServing else amountStr.replace(',', '.').toFloatOrNull() ?: 0f
                                 logUnit = "Grams"
                                 amountStr = if (currentGrams % 1 == 0f) currentGrams.toInt().toString() else "%.1f".format(currentGrams).replace(',', '.')
                             },
@@ -124,7 +125,7 @@ fun NutrientPortionDialog(
                     PersonalTextField(
                         value = amountStr,
                         onValueChange = { amountStr = it },
-                        label = if (logUnit == "Grams") "Amount (grams)" else "Servings (100g)",
+                        label = if (logUnit == "Grams") "Amount (grams)" else "Servings (${gramsPerServing.toInt()}g)",
                         modifier = Modifier.weight(1f)
                     )
 
@@ -144,7 +145,7 @@ fun NutrientPortionDialog(
                 onClick = {
                     val amountValue = amountStr.replace(',', '.').toFloatOrNull() ?: 0f
                     if (amountValue > 0f) {
-                        val amountGrams = if (logUnit == "Servings") amountValue * 100f else amountValue
+                        val amountGrams = if (logUnit == "Servings") amountValue * gramsPerServing else amountValue
                         onConfirm(amountGrams)
                     }
                 }

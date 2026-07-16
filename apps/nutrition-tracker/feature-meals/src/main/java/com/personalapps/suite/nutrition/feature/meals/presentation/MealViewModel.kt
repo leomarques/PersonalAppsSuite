@@ -66,7 +66,7 @@ class MealViewModel(
         }
     }
 
-    fun addCustomFood(name: String, calories: Int, protein: Float, carbs: Float, fat: Float) {
+    fun addCustomFood(name: String, calories: Int, protein: Float, carbs: Float, fat: Float, gramsPerServing: Float) {
         if (name.isBlank()) return
         viewModelScope.launch {
             try {
@@ -76,7 +76,8 @@ class MealViewModel(
                         calories = calories,
                         protein = protein,
                         carbs = carbs,
-                        fat = fat
+                        fat = fat,
+                        gramsPerServing = gramsPerServing
                     )
                 )
                 sendEffect(MealEffect.FoodAdded)
