@@ -3,7 +3,9 @@ package com.personalapps.suite.nutrition.feature.food.presentation
 import androidx.lifecycle.viewModelScope
 import com.personalapps.suite.nutrition.feature.api.model.Food
 import com.personalapps.suite.nutrition.feature.api.repository.FoodRepository
+import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
 import com.personalapps.suite.shared.uicomponents.base.BaseViewModel
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 data class FoodUiState(
@@ -17,12 +19,27 @@ sealed interface FoodEffect {
     data object FoodDeleted : FoodEffect
 }
 
-class FoodViewModel(private val repository: FoodRepository) : BaseViewModel<FoodUiState, FoodEffect>(FoodUiState()) {
+class FoodViewModel(
+    private val repository: FoodRepository,
+    private val mealRepository: MealRepository
+) : BaseViewModel<FoodUiState, FoodEffect>(FoodUiState()) {
 
     init {
         viewModelScope.launch {
-            repository.getAllFoods().collect { foods ->
-                updateState { copy(foods = foods, isLoading = false) }
+            combine(
+                repository.getAllFoods(),
+                mealRepository.getAllMeals()
+            ) { foods, meals ->
+                val frequencyMap = meals.flatMap { it.loggedFoods }
+                    .groupingBy { it.name }
+                    .eachCount()
+
+                foods.sortedWith(
+                    compareByDescending<Food> { frequencyMap[it.name] ?: 0 }
+                        .thenBy { it.name }
+                )
+            }.collect { sortedFoods ->
+                updateState { copy(foods = sortedFoods, isLoading = false) }
             }
         }
     }

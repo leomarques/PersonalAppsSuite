@@ -152,4 +152,32 @@ class MealViewModelTest {
         // 20g protein * 2 = 40g
         assertEquals(40f, portions.first().protein)
     }
+
+    @Test
+    fun foods_areSortedByFrequencyThenName() = runTest(mainDispatcherRule.testDispatcher) {
+        backgroundScope.launch {
+            viewModel.uiState.collect {}
+        }
+
+        // Add some foods
+        foodRepository.insertFood(Food(name = "Zucchini", calories = 17, protein = 1.2f, carbs = 3.1f, fat = 0.3f))
+        foodRepository.insertFood(Food(name = "Apple", calories = 52, protein = 0.3f, carbs = 13.8f, fat = 0.2f))
+        foodRepository.insertFood(Food(name = "Banana", calories = 89, protein = 1.1f, carbs = 22.8f, fat = 0.3f))
+        runCurrent()
+
+        // Initially sorted by name: Apple, Banana, Zucchini
+        assertEquals(listOf("Apple", "Banana", "Zucchini"), viewModel.uiState.value.foods.map { it.name })
+
+        // Log Banana twice and Apple once
+        val banana = Food(name = "Banana", calories = 89, protein = 1.1f, carbs = 22.8f, fat = 0.3f)
+        val apple = Food(name = "Apple", calories = 52, protein = 0.3f, carbs = 13.8f, fat = 0.2f)
+
+        viewModel.logSingleFoodPortion(banana, 100f)
+        viewModel.logSingleFoodPortion(banana, 120f)
+        viewModel.logSingleFoodPortion(apple, 150f)
+        runCurrent()
+
+        // Now sorted by frequency: Banana (2), Apple (1), Zucchini (0)
+        assertEquals(listOf("Banana", "Apple", "Zucchini"), viewModel.uiState.value.foods.map { it.name })
+    }
 }

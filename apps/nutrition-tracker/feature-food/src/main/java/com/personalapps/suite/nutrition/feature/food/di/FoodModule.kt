@@ -8,5 +8,5 @@ import org.koin.dsl.module
 
 val foodModule = module {
     single<FoodRepository> { FoodRepositoryImpl(get()) }
-    viewModel { FoodViewModel(get()) }
+    viewModel { FoodViewModel(get(), get()) }
 }

@@ -9,6 +9,7 @@ import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
 import com.personalapps.suite.nutrition.feature.meals.domain.usecase.LogMealUseCase
 import com.personalapps.suite.shared.common.Result
 import com.personalapps.suite.shared.uicomponents.base.BaseViewModel
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 
 data class MealUiState(
@@ -33,8 +34,20 @@ class MealViewModel(
 
     init {
         viewModelScope.launch {
-            foodRepository.getAllFoods().collect { foods ->
-                updateState { copy(foods = foods, isLoading = false) }
+            combine(
+                foodRepository.getAllFoods(),
+                mealRepository.getAllMeals()
+            ) { foods, meals ->
+                val frequencyMap = meals.flatMap { it.loggedFoods }
+                    .groupingBy { it.name }
+                    .eachCount()
+
+                foods.sortedWith(
+                    compareByDescending<Food> { frequencyMap[it.name] ?: 0 }
+                        .thenBy { it.name }
+                )
+            }.collect { sortedFoods ->
+                updateState { copy(foods = sortedFoods, isLoading = false) }
             }
         }
         viewModelScope.launch {
