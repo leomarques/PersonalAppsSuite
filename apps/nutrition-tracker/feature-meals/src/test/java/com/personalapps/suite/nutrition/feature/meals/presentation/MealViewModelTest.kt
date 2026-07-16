@@ -32,10 +32,37 @@ class FakeFoodRepository : FoodRepository {
         return newFood.id
     }
 
+    override suspend fun updateFood(food: Food) {
+        val list = foods.value.toMutableList()
+        val index = list.indexOfFirst { it.id == food.id }
+        if (index != -1) {
+            list[index] = food
+            foods.value = list
+        }
+    }
+
     override suspend fun deleteFood(food: Food) {
         val list = foods.value.toMutableList()
-        list.remove(food)
+        list.removeIf { it.id == food.id }
         foods.value = list
+    }
+
+    override suspend fun incrementFrequency(foodId: Long) {
+        val list = foods.value.toMutableList()
+        val index = list.indexOfFirst { it.id == foodId }
+        if (index != -1) {
+            list[index] = list[index].copy(frequency = list[index].frequency + 1)
+            foods.value = list
+        }
+    }
+
+    override suspend fun incrementFrequencyByName(name: String) {
+        val list = foods.value.toMutableList()
+        val index = list.indexOfFirst { it.name == name }
+        if (index != -1) {
+            list[index] = list[index].copy(frequency = list[index].frequency + 1)
+            foods.value = list
+        }
     }
 }
 
@@ -74,7 +101,7 @@ class MealViewModelTest {
 
     @Before
     fun setUp() {
-        logMealUseCase = LogMealUseCase(mealRepository)
+        logMealUseCase = LogMealUseCase(mealRepository, foodRepository)
         viewModel = MealViewModel(mealRepository, foodRepository, logMealUseCase)
     }
 

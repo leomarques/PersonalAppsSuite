@@ -23,6 +23,12 @@ interface FoodDao {
     @Update
     suspend fun updateFood(food: FoodEntity): Int
 
+    @Query("UPDATE foods SET frequency = frequency + 1 WHERE id = :foodId")
+    suspend fun incrementFrequency(foodId: Long)
+
+    @Query("UPDATE foods SET frequency = frequency + 1 WHERE name = :name")
+    suspend fun incrementFrequencyByName(name: String)
+
     @Delete
     suspend fun deleteFood(food: FoodEntity): Int
 }

@@ -23,7 +23,7 @@ val nutritionModule = module {
             androidContext(),
             NutritionDatabase::class.java,
             "nutrition.db"
-        ).addMigrations(NutritionDatabase.MIGRATION_1_2)
+        ).addMigrations(NutritionDatabase.MIGRATION_1_2, NutritionDatabase.MIGRATION_2_3)
         .addCallback(object : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)

@@ -141,7 +141,7 @@ fun MealScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    items(filteredFoods) { food ->
+                    items(items = filteredFoods, key = { it.id }) { food ->
                         SwipeActionContainer(
                             onDelete = { viewModel.deleteFood(food) },
                             onEdit = { editingFood = food },

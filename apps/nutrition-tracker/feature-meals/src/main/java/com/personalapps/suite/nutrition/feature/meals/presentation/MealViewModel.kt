@@ -38,13 +38,9 @@ class MealViewModel(
             combine(
                 foodRepository.getAllFoods(),
                 mealRepository.getAllMeals()
-            ) { foods, meals ->
-                val frequencyMap = meals.flatMap { it.loggedFoods }
-                    .groupingBy { it.name }
-                    .eachCount()
-
+            ) { foods, _ ->
                 foods.sortedWith(
-                    compareByDescending<Food> { frequencyMap[it.name] ?: 0 }
+                    compareByDescending<Food> { it.frequency }
                         .thenBy { it.name }
                 )
             }.collect { sortedFoods ->

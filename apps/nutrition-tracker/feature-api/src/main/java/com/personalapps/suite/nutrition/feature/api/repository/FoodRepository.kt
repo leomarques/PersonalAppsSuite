@@ -8,4 +8,6 @@ interface FoodRepository {
     suspend fun insertFood(food: Food): Long
     suspend fun updateFood(food: Food)
     suspend fun deleteFood(food: Food)
+    suspend fun incrementFrequency(foodId: Long)
+    suspend fun incrementFrequencyByName(name: String)
 }

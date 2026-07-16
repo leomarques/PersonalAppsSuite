@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +36,8 @@ fun SwipeActionContainer(
     confirmMessage: String = "Are you sure you want to delete this item?",
     content: @Composable () -> Unit
 ) {
+    val currentOnDelete by rememberUpdatedState(onDelete)
+    val currentOnEdit by rememberUpdatedState(onEdit)
     var showConfirm by remember { mutableStateOf(false) }
 
     val dismissState = rememberSwipeToDismissBoxState(
@@ -45,8 +48,8 @@ fun SwipeActionContainer(
                     false
                 }
                 SwipeToDismissBoxValue.StartToEnd -> {
-                    if (onEdit != null) {
-                        onEdit()
+                    if (currentOnEdit != null) {
+                        currentOnEdit?.invoke()
                         false
                     } else false
                 }
@@ -62,7 +65,7 @@ fun SwipeActionContainer(
             text = { Text(confirmMessage) },
             confirmButton = {
                 TextButton(onClick = {
-                    onDelete()
+                    currentOnDelete()
                     showConfirm = false
                 }) {
                     Text("Delete", color = MaterialTheme.colorScheme.error)

@@ -7,7 +7,10 @@ import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
 import com.personalapps.suite.shared.common.Result
 import java.time.Instant
 
-class LogMealUseCase(private val mealRepository: MealRepository) {
+class LogMealUseCase(
+    private val mealRepository: MealRepository,
+    private val foodRepository: com.personalapps.suite.nutrition.feature.api.repository.FoodRepository
+) {
     
     suspend operator fun invoke(name: String, portions: List<LoggedFoodPortion>): Result<Long> {
         if (name.isBlank() || portions.isEmpty()) {
@@ -20,6 +23,12 @@ class LogMealUseCase(private val mealRepository: MealRepository) {
                 loggedFoods = portions
             )
             val id = mealRepository.insertMeal(meal)
+            
+            // Increment frequency for each food portion logged
+            portions.forEach { portion ->
+                foodRepository.incrementFrequencyByName(portion.name)
+            }
+            
             Result.Success(id)
         } catch (e: Exception) {
             Result.Error(e)
@@ -47,6 +56,14 @@ class LogMealUseCase(private val mealRepository: MealRepository) {
                 loggedFoods = listOf(portion)
             )
             val id = mealRepository.insertMeal(meal)
+            
+            // Increment frequency for the food logged
+            if (food.id != 0L) {
+                foodRepository.incrementFrequency(food.id)
+            } else {
+                foodRepository.incrementFrequencyByName(food.name)
+            }
+            
             Result.Success(id)
         } catch (e: Exception) {
             Result.Error(e)

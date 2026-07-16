@@ -208,7 +208,7 @@ fun FoodScreen(
                 ) {
                     items(
                         items = state.foods,
-                        key = { it.name }
+                        key = { it.id }
                     ) { food ->
                         SwipeActionContainer(
                             onDelete = { viewModel.deleteFood(food) },
