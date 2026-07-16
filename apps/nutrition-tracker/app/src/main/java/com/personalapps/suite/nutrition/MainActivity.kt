@@ -5,10 +5,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.DateRange
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -17,7 +13,6 @@ import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
-import com.personalapps.suite.nutrition.feature.food.navigation.FoodDatabaseRoute
 import com.personalapps.suite.nutrition.feature.food.navigation.foodEntries
 import com.personalapps.suite.nutrition.feature.food.presentation.FoodViewModel
 import com.personalapps.suite.nutrition.feature.history.navigation.DashboardRoute
@@ -33,7 +28,6 @@ import com.personalapps.suite.nutrition.feature.meals.presentation.MealViewModel
 import com.personalapps.suite.shared.designsystem.PersonalAppsSuiteTheme
 import com.personalapps.suite.shared.navigation.Destination
 import com.personalapps.suite.shared.uicomponents.AppScaffold
-import com.personalapps.suite.shared.uicomponents.NavItem
 import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
