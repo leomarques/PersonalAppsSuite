@@ -126,5 +126,53 @@ class HistoryViewModelTest {
         assertEquals(27.6f, updatedPortion.carbs, 0.01f)
         assertEquals(0.4f, updatedPortion.fat, 0.01f)
     }
+
+    @Test
+    fun startNewDay_groupsMealsByDateAndClearsList() = runTest(mainDispatcherRule.testDispatcher) {
+        backgroundScope.launch {
+            viewModel.uiState.collect {}
+        }
+
+        // Use fixed timestamps to avoid timezone issues in tests if possible, 
+        // though ZoneId.systemDefault() will be used by the ViewModel.
+        val date1 = Instant.parse("2023-01-01T12:00:00Z")
+        val date2 = Instant.parse("2023-01-02T12:00:00Z")
+
+        val meal1 = Meal(
+            id = 1,
+            name = "Meal 1",
+            timestamp = date1,
+            loggedFoods = listOf(LoggedFoodPortion("Apple", 52, 0.3f, 13.8f, 0.2f, 100f))
+        )
+        val meal2 = Meal(
+            id = 2,
+            name = "Meal 2",
+            timestamp = date2,
+            loggedFoods = listOf(LoggedFoodPortion("Banana", 89, 1.1f, 22.8f, 0.3f, 100f))
+        )
+
+        mealRepository.insertMeal(meal1)
+        mealRepository.insertMeal(meal2)
+        runCurrent()
+
+        viewModel.startNewDay()
+        runCurrent()
+
+        val history = historyRepository.getAllHistory().first()
+        assertEquals(2, history.size)
+
+        // Grouping by date in ViewModel uses system default zone
+        val localDate1 = date1.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+        val localDate2 = date2.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
+
+        val entry1 = history.find { it.date == localDate1 }
+        val entry2 = history.find { it.date == localDate2 }
+
+        assertEquals(52, entry1?.totalCalories)
+        assertEquals(89, entry2?.totalCalories)
+
+        val remainingMeals = mealRepository.getAllMeals().first()
+        assertEquals(0, remainingMeals.size)
+    }
 }
 

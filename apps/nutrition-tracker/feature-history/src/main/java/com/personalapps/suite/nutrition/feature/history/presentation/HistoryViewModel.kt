@@ -61,28 +61,31 @@ class HistoryViewModel(
             val meals = currentState.meals
             if (meals.isEmpty()) return@launch
 
-            // Use the date of the first meal as the "day it started"
-            val startedDate = meals.minByOrNull { it.timestamp }
-                ?.timestamp?.atZone(ZoneId.systemDefault())?.toLocalDate() ?: LocalDate.now()
+            // Group meals by their local date to ensure they are saved to the day they were started
+            val mealsByDate = meals.groupBy {
+                it.timestamp.atZone(ZoneId.systemDefault()).toLocalDate()
+            }
 
-            val totalCalories = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.calories } }
-            val totalProtein = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.protein.toDouble() } }.toFloat()
-            val totalCarbs = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.carbs.toDouble() } }.toFloat()
-            val totalFat = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.fat.toDouble() } }.toFloat()
+            mealsByDate.forEach { (date, dailyMeals) ->
+                val totalCalories = dailyMeals.sumOf { meal -> meal.loggedFoods.sumOf { it.calories } }
+                val totalProtein = dailyMeals.sumOf { meal -> meal.loggedFoods.sumOf { it.protein.toDouble() } }.toFloat()
+                val totalCarbs = dailyMeals.sumOf { meal -> meal.loggedFoods.sumOf { it.carbs.toDouble() } }.toFloat()
+                val totalFat = dailyMeals.sumOf { meal -> meal.loggedFoods.sumOf { it.fat.toDouble() } }.toFloat()
 
-            val historyEntry = HistoryEntry(
-                date = startedDate,
-                totalCalories = totalCalories,
-                totalProtein = totalProtein,
-                totalCarbs = totalCarbs,
-                totalFat = totalFat,
-                goalCalories = currentState.goal?.calories ?: 0,
-                goalProtein = currentState.goal?.protein ?: 0f,
-                goalCarbs = currentState.goal?.carbs ?: 0f,
-                goalFat = currentState.goal?.fat ?: 0f
-            )
+                val historyEntry = HistoryEntry(
+                    date = date,
+                    totalCalories = totalCalories,
+                    totalProtein = totalProtein,
+                    totalCarbs = totalCarbs,
+                    totalFat = totalFat,
+                    goalCalories = currentState.goal?.calories ?: 0,
+                    goalProtein = currentState.goal?.protein ?: 0f,
+                    goalCarbs = currentState.goal?.carbs ?: 0f,
+                    goalFat = currentState.goal?.fat ?: 0f
+                )
 
-            historyRepository.insertHistoryEntry(historyEntry)
+                historyRepository.insertHistoryEntry(historyEntry)
+            }
 
             // Clear the list by deleting the meals
             meals.forEach { meal ->
