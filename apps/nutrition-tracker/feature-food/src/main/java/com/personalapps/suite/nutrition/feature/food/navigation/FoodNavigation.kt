@@ -6,15 +6,16 @@ import com.personalapps.suite.nutrition.feature.food.presentation.FoodScreen
 import com.personalapps.suite.nutrition.feature.food.presentation.FoodViewModel
 import com.personalapps.suite.shared.navigation.Destination
 import kotlinx.serialization.Serializable
+import org.koin.androidx.compose.koinViewModel
 
 @Serializable data object FoodDatabaseRoute : Destination
 
 fun EntryProviderScope<Destination>.foodEntries(
-    viewModel: FoodViewModel,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     entry<FoodDatabaseRoute> {
+        val viewModel: FoodViewModel = koinViewModel()
         FoodScreen(
             viewModel = viewModel,
             onBackClick = onBackClick,

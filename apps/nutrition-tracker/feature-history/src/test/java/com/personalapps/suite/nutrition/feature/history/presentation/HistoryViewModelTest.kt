@@ -5,10 +5,13 @@ import com.personalapps.suite.nutrition.feature.api.model.MacroGoal
 import com.personalapps.suite.nutrition.feature.api.repository.MacroGoalRepository
 import com.personalapps.suite.nutrition.feature.api.model.Meal
 import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
-import com.personalapps.suite.shared.testing.MainDispatcherRule
 import com.personalapps.suite.nutrition.feature.api.repository.HistoryRepository
 import com.personalapps.suite.nutrition.feature.api.model.HistoryEntry
+import com.personalapps.suite.nutrition.feature.history.domain.usecase.StartNewDayUseCase
+import com.personalapps.suite.shared.common.DateProvider
+import com.personalapps.suite.shared.common.Result
 import com.personalapps.suite.shared.preferences.PreferencesManager
+import com.personalapps.suite.shared.testing.MainDispatcherRule
 import java.time.LocalDate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -25,40 +28,44 @@ import org.junit.Test
 class FakeMealRepository : MealRepository {
     private val meals = MutableStateFlow<List<Meal>>(emptyList())
     override fun getAllMeals(): Flow<List<Meal>> = meals
-    override suspend fun insertMeal(meal: Meal): Long {
+    override suspend fun insertMeal(meal: Meal): Result<Long> {
         val current = meals.value.toMutableList()
         val index = current.indexOfFirst { it.id == meal.id && meal.id != 0L }
-        if (index != -1) {
+        val id = if (index != -1) {
             current[index] = meal
+            meal.id
         } else {
-            current.add(meal.copy(id = if (meal.id == 0L) (current.size + 1).toLong() else meal.id))
+            val newId = (current.size + 1).toLong()
+            current.add(meal.copy(id = if (meal.id == 0L) newId else meal.id))
+            if (meal.id == 0L) newId else meal.id
         }
         meals.value = current
-        return meal.id
+        return Result.Success(id)
     }
-    override suspend fun deleteMeal(meal: Meal) {
+    override suspend fun deleteMeal(meal: Meal): Result<Unit> {
         val current = meals.value.toMutableList()
         current.removeIf { it.id == meal.id }
         meals.value = current
+        return Result.Success(Unit)
     }
 }
 
 class FakeMacroGoalRepository : MacroGoalRepository {
     private val goal = MutableStateFlow<MacroGoal?>(null)
     override fun getMacroGoal(): Flow<MacroGoal?> = goal
-    override suspend fun insertMacroGoal(macroGoal: MacroGoal): Long {
-        goal.value = macroGoal
-        return 1L
+    override suspend fun insertMacroGoal(goal: MacroGoal): Result<Long> {
+        this.goal.value = goal
+        return Result.Success(1L)
     }
 }
 
 class FakeHistoryRepository : HistoryRepository {
     private val history = MutableStateFlow<List<HistoryEntry>>(emptyList())
     override fun getAllHistory(): Flow<List<HistoryEntry>> = history
-    override suspend fun getHistoryEntryByDate(date: LocalDate): HistoryEntry? {
-        return history.value.find { it.date == date }
+    override suspend fun getHistoryEntryByDate(date: LocalDate): Result<HistoryEntry?> {
+        return Result.Success(history.value.find { it.date == date })
     }
-    override suspend fun insertHistoryEntry(entry: HistoryEntry) {
+    override suspend fun insertHistoryEntry(entry: HistoryEntry): Result<Unit> {
         val current = history.value.toMutableList()
         val index = current.indexOfFirst { it.date == entry.date }
         if (index != -1) {
@@ -67,8 +74,9 @@ class FakeHistoryRepository : HistoryRepository {
             current.add(entry)
         }
         history.value = current
+        return Result.Success(Unit)
     }
-    override suspend fun deleteHistoryEntry(entry: HistoryEntry) {}
+    override suspend fun deleteHistoryEntry(entry: HistoryEntry): Result<Unit> = Result.Success(Unit)
 }
 
 class FakePreferencesManager : PreferencesManager {
@@ -77,6 +85,15 @@ class FakePreferencesManager : PreferencesManager {
     override suspend fun setOpenDayDate(date: String) {
         openDayDate.value = date
     }
+}
+
+class FakeDateProvider(private var fixedDate: LocalDate) : DateProvider {
+    fun setDate(date: LocalDate) { fixedDate = date }
+    override fun now(): LocalDate = fixedDate
+}
+
+class FakeTransactionProvider : com.personalapps.suite.shared.databaseutils.TransactionProvider {
+    override suspend fun <T> runInTransaction(block: suspend () -> T): T = block()
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -89,11 +106,27 @@ class HistoryViewModelTest {
     private val macroGoalRepository = FakeMacroGoalRepository()
     private val historyRepository = FakeHistoryRepository()
     private val preferencesManager = FakePreferencesManager()
+    private val dateProvider = FakeDateProvider(LocalDate.now())
+    private val transactionProvider = FakeTransactionProvider()
     private lateinit var viewModel: HistoryViewModel
 
     @Before
     fun setUp() {
-        viewModel = HistoryViewModel(mealRepository, macroGoalRepository, historyRepository, preferencesManager, null)
+        val startNewDayUseCase = StartNewDayUseCase(
+            mealRepository,
+            macroGoalRepository,
+            historyRepository,
+            preferencesManager,
+            dateProvider,
+            transactionProvider
+        )
+        viewModel = HistoryViewModel(
+            mealRepository,
+            macroGoalRepository,
+            historyRepository,
+            startNewDayUseCase,
+            null
+        )
     }
 
     @Test
@@ -152,7 +185,9 @@ class HistoryViewModelTest {
         }
 
         val storedDate = LocalDate.of(2023, 1, 1)
+        val today = LocalDate.of(2023, 1, 2)
         preferencesManager.setOpenDayDate(storedDate.toString())
+        dateProvider.setDate(today)
 
         val meal1 = Meal(
             id = 1,
@@ -182,7 +217,7 @@ class HistoryViewModelTest {
         val remainingMeals = mealRepository.getAllMeals().first()
         assertEquals(0, remainingMeals.size)
         
-        assertEquals(LocalDate.now().toString(), preferencesManager.getOpenDayDate().first())
+        assertEquals(today.toString(), preferencesManager.getOpenDayDate().first())
     }
 }
 

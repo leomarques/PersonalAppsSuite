@@ -25,7 +25,9 @@ class PersonalAppsSuiteFeatureConventionPlugin : Plugin<Project> {
                 val koinBom = libs.findLibrary("koin-bom").get()
                 add("implementation", platform(koinBom))
                 add("implementation", libs.findLibrary("koin-core").get())
+                add("implementation", libs.findLibrary("koin-android").get())
                 add("implementation", libs.findLibrary("koin-compose").get())
+                add("implementation", libs.findLibrary("koin-androidx-compose").get())
 
                 // Navigation3
                 add("implementation", libs.findLibrary("androidx-navigation3-runtime").get())

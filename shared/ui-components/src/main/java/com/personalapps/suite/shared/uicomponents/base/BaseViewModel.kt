@@ -1,6 +1,7 @@
 package com.personalapps.suite.shared.uicomponents.base
 
 import androidx.lifecycle.ViewModel
+import com.personalapps.suite.shared.common.Result
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -21,5 +22,17 @@ abstract class BaseViewModel<State, Effect>(initialState: State) : ViewModel() {
 
     protected fun sendEffect(effect: Effect) {
         _effect.trySend(effect)
+    }
+
+    protected fun <T> handleResult(
+        result: Result<T>,
+        onSuccess: (T) -> Unit,
+        onError: (Throwable) -> Unit
+    ) {
+        when (result) {
+            is Result.Success -> onSuccess(result.data)
+            is Result.Error -> onError(result.exception)
+            Result.Loading -> { /* Handle loading if needed */ }
+        }
     }
 }

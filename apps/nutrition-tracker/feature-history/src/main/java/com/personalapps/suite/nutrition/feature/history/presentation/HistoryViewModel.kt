@@ -8,10 +8,9 @@ import com.personalapps.suite.nutrition.feature.api.model.MacroGoal
 import com.personalapps.suite.nutrition.feature.api.repository.MacroGoalRepository
 import com.personalapps.suite.nutrition.feature.api.model.Meal
 import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
+import com.personalapps.suite.nutrition.feature.history.domain.usecase.StartNewDayUseCase
 import com.personalapps.suite.shared.uicomponents.base.BaseViewModel
-import java.time.LocalDate
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -19,6 +18,10 @@ data class DashboardUiState(
     val meals: List<Meal> = emptyList(),
     val goal: MacroGoal? = null,
     val history: List<HistoryEntry> = emptyList(),
+    val totalCalories: Int = 0,
+    val totalProtein: Float = 0f,
+    val totalCarbs: Float = 0f,
+    val totalFat: Float = 0f,
     val isLoading: Boolean = true
 )
 
@@ -31,7 +34,7 @@ class HistoryViewModel(
     private val mealRepository: MealRepository,
     private val macroGoalRepository: MacroGoalRepository,
     private val historyRepository: HistoryRepository,
-    private val preferencesManager: com.personalapps.suite.shared.preferences.PreferencesManager,
+    private val startNewDayUseCase: StartNewDayUseCase,
     coroutineScope: CoroutineScope? = null
 ) : BaseViewModel<DashboardUiState, HistoryEffect>(DashboardUiState()) {
 
@@ -44,10 +47,19 @@ class HistoryViewModel(
                 macroGoalRepository.getMacroGoal(),
                 historyRepository.getAllHistory()
             ) { meals, goal, history ->
+                val totalCalories = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.calories } }
+                val totalProtein = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.protein.toDouble() } }.toFloat()
+                val totalCarbs = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.carbs.toDouble() } }.toFloat()
+                val totalFat = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.fat.toDouble() } }.toFloat()
+
                 DashboardUiState(
                     meals = meals,
                     goal = goal,
                     history = history,
+                    totalCalories = totalCalories,
+                    totalProtein = totalProtein,
+                    totalCarbs = totalCarbs,
+                    totalFat = totalFat,
                     isLoading = false
                 )
             }.collect { state ->
@@ -59,52 +71,23 @@ class HistoryViewModel(
     fun startNewDay() {
         scope.launch {
             val currentState = uiState.value
-            val meals = currentState.meals
-            if (meals.isEmpty()) return@launch
-
-            val storedDateString = preferencesManager.getOpenDayDate().first()
-            val dateToSave = storedDateString?.let { LocalDate.parse(it) } ?: LocalDate.now()
-
-            val totalCalories = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.calories } }
-            val totalProtein = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.protein.toDouble() } }.toFloat()
-            val totalCarbs = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.carbs.toDouble() } }.toFloat()
-            val totalFat = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.fat.toDouble() } }.toFloat()
-
-            val existingEntry = historyRepository.getHistoryEntryByDate(dateToSave)
-            
-            val historyEntry = HistoryEntry(
-                date = dateToSave,
-                totalCalories = totalCalories + (existingEntry?.totalCalories ?: 0),
-                totalProtein = totalProtein + (existingEntry?.totalProtein ?: 0f),
-                totalCarbs = totalCarbs + (existingEntry?.totalCarbs ?: 0f),
-                totalFat = totalFat + (existingEntry?.totalFat ?: 0f),
-                goalCalories = currentState.goal?.calories ?: 0,
-                goalProtein = currentState.goal?.protein ?: 0f,
-                goalCarbs = currentState.goal?.carbs ?: 0f,
-                goalFat = currentState.goal?.fat ?: 0f
+            val result = startNewDayUseCase(currentState.meals, currentState.goal)
+            handleResult(
+                result = result,
+                onSuccess = { sendEffect(HistoryEffect.DayStarted) },
+                onError = { sendEffect(HistoryEffect.ShowError(it.message ?: "Failed to start new day")) }
             )
-
-            historyRepository.insertHistoryEntry(historyEntry)
-
-            // Clear the list by deleting the meals
-            meals.forEach { meal ->
-                mealRepository.deleteMeal(meal)
-            }
-
-            // Set new open day date to today
-            preferencesManager.setOpenDayDate(LocalDate.now().toString())
-
-            sendEffect(HistoryEffect.DayStarted)
         }
     }
 
     fun deleteMeal(meal: Meal) {
         scope.launch {
-            try {
-                mealRepository.deleteMeal(meal)
-            } catch (e: Exception) {
-                sendEffect(HistoryEffect.ShowError(e.message ?: "Failed to delete meal"))
-            }
+            val result = mealRepository.deleteMeal(meal)
+            handleResult(
+                result = result,
+                onSuccess = { /* Success state already handled by flow collection */ },
+                onError = { sendEffect(HistoryEffect.ShowError(it.message ?: "Failed to delete meal")) }
+            )
         }
     }
 
@@ -127,7 +110,12 @@ class HistoryViewModel(
                 }
                 
                 val updatedMeal = meal.copy(loggedFoods = updatedLoggedFoods)
-                mealRepository.insertMeal(updatedMeal)
+                val result = mealRepository.insertMeal(updatedMeal)
+                handleResult(
+                    result = result,
+                    onSuccess = { /* Success state already handled by flow collection */ },
+                    onError = { sendEffect(HistoryEffect.ShowError(it.message ?: "Failed to update meal")) }
+                )
             } catch (e: Exception) {
                 sendEffect(HistoryEffect.ShowError(e.message ?: "Failed to update meal"))
             }
@@ -136,11 +124,12 @@ class HistoryViewModel(
 
     fun deleteHistoryEntry(entry: HistoryEntry) {
         scope.launch {
-            try {
-                historyRepository.deleteHistoryEntry(entry)
-            } catch (e: Exception) {
-                sendEffect(HistoryEffect.ShowError(e.message ?: "Failed to delete history entry"))
-            }
+            val result = historyRepository.deleteHistoryEntry(entry)
+            handleResult(
+                result = result,
+                onSuccess = { /* Success state already handled by flow collection */ },
+                onError = { sendEffect(HistoryEffect.ShowError(it.message ?: "Failed to delete history entry")) }
+            )
         }
     }
 }

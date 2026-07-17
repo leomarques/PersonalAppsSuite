@@ -92,21 +92,10 @@ fun HistoryScreen(
         )
     }
 
-    val totalCalories = remember(state.meals) {
-        state.meals.sumOf { meal -> meal.loggedFoods.sumOf { it.calories } }
-    }
-
-    val totalProtein = remember(state.meals) {
-        state.meals.sumOf { meal -> meal.loggedFoods.sumOf { it.protein.toDouble() } }.toFloat()
-    }
-
-    val totalCarbs = remember(state.meals) {
-        state.meals.sumOf { meal -> meal.loggedFoods.sumOf { it.carbs.toDouble() } }.toFloat()
-    }
-
-    val totalFat = remember(state.meals) {
-        state.meals.sumOf { meal -> meal.loggedFoods.sumOf { it.fat.toDouble() } }.toFloat()
-    }
+    val totalCalories = state.totalCalories
+    val totalProtein = state.totalProtein
+    val totalCarbs = state.totalCarbs
+    val totalFat = state.totalFat
 
     val targetCalories = state.goal?.calories ?: 2000
     val targetProtein = state.goal?.protein ?: 120f

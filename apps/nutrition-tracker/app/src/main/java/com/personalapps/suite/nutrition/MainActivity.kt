@@ -14,21 +14,16 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.ui.NavDisplay
 import com.personalapps.suite.nutrition.feature.food.navigation.foodEntries
-import com.personalapps.suite.nutrition.feature.food.presentation.FoodViewModel
 import com.personalapps.suite.nutrition.feature.history.navigation.DashboardRoute
 import com.personalapps.suite.nutrition.feature.history.navigation.HistoryListRoute
 import com.personalapps.suite.nutrition.feature.history.navigation.historyEntries
-import com.personalapps.suite.nutrition.feature.history.presentation.HistoryViewModel
 import com.personalapps.suite.nutrition.feature.macros.navigation.SetGoalsRoute
 import com.personalapps.suite.nutrition.feature.macros.navigation.macroEntries
-import com.personalapps.suite.nutrition.feature.macros.presentation.MacroViewModel
 import com.personalapps.suite.nutrition.feature.meals.navigation.LogMealRoute
 import com.personalapps.suite.nutrition.feature.meals.navigation.mealEntries
-import com.personalapps.suite.nutrition.feature.meals.presentation.MealViewModel
 import com.personalapps.suite.shared.designsystem.PersonalAppsSuiteTheme
 import com.personalapps.suite.shared.navigation.Destination
 import com.personalapps.suite.shared.uicomponents.AppScaffold
-import org.koin.androidx.compose.koinViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,11 +47,6 @@ class MainActivity : ComponentActivity() {
 fun MainNavigation() {
     val backStack = rememberNavBackStack(DashboardRoute) as NavBackStack<Destination>
 
-    val historyViewModel: HistoryViewModel = koinViewModel()
-    val mealViewModel: MealViewModel = koinViewModel()
-    val macroViewModel: MacroViewModel = koinViewModel()
-    val foodViewModel: FoodViewModel = koinViewModel()
-
     AppScaffold(
         navItems = emptyList()
     ) { modifier ->
@@ -65,7 +55,6 @@ fun MainNavigation() {
             onBack = { backStack.removeLastOrNull() },
             entryProvider = entryProvider {
                 historyEntries(
-                    viewModel = historyViewModel,
                     onNavigateToLogMeal = { backStack.add(LogMealRoute) },
                     onNavigateToConfig = { backStack.add(SetGoalsRoute) },
                     onNavigateToHistory = { backStack.add(HistoryListRoute) },
@@ -73,17 +62,14 @@ fun MainNavigation() {
                     modifier = modifier
                 )
                 mealEntries(
-                    viewModel = mealViewModel,
                     onBackClick = { backStack.removeLastOrNull() },
                     modifier = modifier
                 )
                 macroEntries(
-                    viewModel = macroViewModel,
                     onBackClick = { backStack.removeLastOrNull() },
                     modifier = modifier
                 )
                 foodEntries(
-                    viewModel = foodViewModel,
                     onBackClick = { backStack.removeLastOrNull() },
                     modifier = modifier
                 )

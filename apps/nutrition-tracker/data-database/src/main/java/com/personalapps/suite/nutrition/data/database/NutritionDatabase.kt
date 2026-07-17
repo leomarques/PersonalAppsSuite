@@ -1,4 +1,4 @@
-package com.personalapps.suite.nutrition.data
+package com.personalapps.suite.nutrition.data.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

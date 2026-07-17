@@ -6,15 +6,16 @@ import com.personalapps.suite.nutrition.feature.meals.presentation.MealScreen
 import com.personalapps.suite.nutrition.feature.meals.presentation.MealViewModel
 import com.personalapps.suite.shared.navigation.Destination
 import kotlinx.serialization.Serializable
+import org.koin.androidx.compose.koinViewModel
 
 @Serializable data object LogMealRoute : Destination
 
 fun EntryProviderScope<Destination>.mealEntries(
-    viewModel: MealViewModel,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     entry<LogMealRoute> {
+        val viewModel: MealViewModel = koinViewModel()
         MealScreen(
             viewModel = viewModel,
             onBackClick = onBackClick,

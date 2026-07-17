@@ -9,6 +9,6 @@ import org.koin.dsl.module
 
 val mealModule = module {
     single<MealRepository> { MealRepositoryImpl(get()) }
-    factory { LogMealUseCase(get(), get()) }
+    factory { LogMealUseCase(get(), get(), get()) }
     viewModel { MealViewModel(get(), get(), get()) }
 }

@@ -7,12 +7,12 @@ import com.personalapps.suite.nutrition.feature.history.presentation.HistoryScre
 import com.personalapps.suite.nutrition.feature.history.presentation.HistoryViewModel
 import com.personalapps.suite.shared.navigation.Destination
 import kotlinx.serialization.Serializable
+import org.koin.androidx.compose.koinViewModel
 
 @Serializable data object DashboardRoute : Destination
 @Serializable data object HistoryListRoute : Destination
 
 fun EntryProviderScope<Destination>.historyEntries(
-    viewModel: HistoryViewModel,
     onNavigateToLogMeal: () -> Unit,
     onNavigateToConfig: () -> Unit,
     onNavigateToHistory: () -> Unit,
@@ -20,6 +20,7 @@ fun EntryProviderScope<Destination>.historyEntries(
     modifier: Modifier = Modifier
 ) {
     entry<DashboardRoute> {
+        val viewModel: HistoryViewModel = koinViewModel()
         HistoryScreen(
             viewModel = viewModel,
             onNavigateToLogMeal = onNavigateToLogMeal,
@@ -29,6 +30,7 @@ fun EntryProviderScope<Destination>.historyEntries(
         )
     }
     entry<HistoryListRoute> {
+        val viewModel: HistoryViewModel = koinViewModel()
         HistoryListScreen(
             viewModel = viewModel,
             onBackClick = onBackClick,

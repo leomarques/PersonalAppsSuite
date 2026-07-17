@@ -166,24 +166,18 @@ fun FoodScreen(
                             PersonalButton(
                                 text = "Save",
                                 onClick = {
-                                    val calories = caloriesStr.toIntOrNull() ?: 0
-                                    val protein = proteinStr.toFloatOrNull() ?: 0f
-                                    val carbs = carbsStr.toFloatOrNull() ?: 0f
-                                    val fat = fatStr.toFloatOrNull() ?: 0f
-                                    if (name.isNotBlank()) {
-                                        editingFood?.let {
-                                            viewModel.updateFood(it.id, name, calories, protein, carbs, fat)
-                                        } ?: run {
-                                            viewModel.addFood(name, calories, protein, carbs, fat)
-                                        }
-                                        name = ""
-                                        caloriesStr = ""
-                                        proteinStr = ""
-                                        carbsStr = ""
-                                        fatStr = ""
-                                        showAddForm = false
-                                        editingFood = null
+                                    editingFood?.let {
+                                        viewModel.updateFood(it.id, name, caloriesStr, proteinStr, carbsStr, fatStr)
+                                    } ?: run {
+                                        viewModel.addFood(name, caloriesStr, proteinStr, carbsStr, fatStr)
                                     }
+                                    name = ""
+                                    caloriesStr = ""
+                                    proteinStr = ""
+                                    carbsStr = ""
+                                    fatStr = ""
+                                    showAddForm = false
+                                    editingFood = null
                                 }
                             )
                         }

@@ -44,6 +44,7 @@ include(":shared:testing")
 
 // Nutrition Tracker App Modules
 include(":apps:nutrition-tracker:app")
+include(":apps:nutrition-tracker:data-database")
 include(":apps:nutrition-tracker:feature-api")
 include(":apps:nutrition-tracker:feature-food")
 include(":apps:nutrition-tracker:feature-meals")

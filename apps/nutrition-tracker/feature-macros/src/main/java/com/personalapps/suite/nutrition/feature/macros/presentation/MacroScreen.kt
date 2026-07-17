@@ -137,11 +137,7 @@ fun MacroScreen(
                     PersonalButton(
                         text = "Save Targets",
                         onClick = {
-                            val calories = caloriesStr.toIntOrNull() ?: 2000
-                            val protein = proteinStr.toFloatOrNull() ?: 120f
-                            val carbs = carbsStr.toFloatOrNull() ?: 200f
-                            val fat = fatStr.toFloatOrNull() ?: 70f
-                            viewModel.saveMacroGoal(calories, protein, carbs, fat)
+                            viewModel.saveMacroGoal(caloriesStr, proteinStr, carbsStr, fatStr)
                         },
                         modifier = Modifier.fillMaxWidth()
                     )
