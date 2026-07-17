@@ -9,7 +9,6 @@ import com.personalapps.suite.nutrition.feature.meals.data.entities.MealEntity
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
-import java.time.Instant
 
 fun LoggedFoodPortionEntity.toDomain() = LoggedFoodPortion(
     name = name,
@@ -37,20 +36,20 @@ fun MealEntity.toDomain(): Meal {
     } catch (e: Exception) {
         emptyList()
     }
-    return Meal(id = id, name = name, timestamp = timestamp, loggedFoods = portions)
+    return Meal(
+        id = id,
+        name = name,
+        loggedFoods = portions
+    )
 }
 
 fun Meal.toEntity() = MealEntity(
     id = id,
     name = name,
-    timestamp = timestamp,
     loggedFoodsJson = Json.encodeToString(loggedFoods.map { it.toEntity() })
 )
 
 class MealRepositoryImpl(private val mealDao: MealDao) : MealRepository {
-    override fun getMealsBetween(startDate: Instant, endDate: Instant): Flow<List<Meal>> =
-        mealDao.getMealsBetween(startDate, endDate).map { list -> list.map { it.toDomain() } }
-
     override fun getAllMeals(): Flow<List<Meal>> = mealDao.getAllMeals().map { list -> list.map { it.toDomain() } }
 
     override suspend fun insertMeal(meal: Meal): Long = mealDao.insertMeal(meal.toEntity())

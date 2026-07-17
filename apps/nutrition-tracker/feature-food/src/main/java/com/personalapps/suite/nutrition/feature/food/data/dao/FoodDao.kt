@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FoodDao {
-    @Query("SELECT * FROM foods ORDER BY name ASC")
+    @Query("SELECT * FROM foods ORDER BY frequency DESC, name ASC")
     fun getAllFoods(): Flow<List<FoodEntity>>
 
     @Query("SELECT * FROM foods WHERE id = :id")

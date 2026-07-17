@@ -10,8 +10,8 @@ import com.personalapps.suite.nutrition.feature.api.model.Meal
 import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
 import com.personalapps.suite.shared.uicomponents.base.BaseViewModel
 import java.time.LocalDate
-import java.time.ZoneId
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -31,6 +31,7 @@ class HistoryViewModel(
     private val mealRepository: MealRepository,
     private val macroGoalRepository: MacroGoalRepository,
     private val historyRepository: HistoryRepository,
+    private val preferencesManager: com.personalapps.suite.shared.preferences.PreferencesManager,
     coroutineScope: CoroutineScope? = null
 ) : BaseViewModel<DashboardUiState, HistoryEffect>(DashboardUiState()) {
 
@@ -61,36 +62,37 @@ class HistoryViewModel(
             val meals = currentState.meals
             if (meals.isEmpty()) return@launch
 
-            // Group meals by their local date to ensure they are saved to the day they were started
-            val mealsByDate = meals.groupBy {
-                it.timestamp.atZone(ZoneId.systemDefault()).toLocalDate()
-            }
+            val storedDateString = preferencesManager.getOpenDayDate().first()
+            val dateToSave = storedDateString?.let { LocalDate.parse(it) } ?: LocalDate.now()
 
-            mealsByDate.forEach { (date, dailyMeals) ->
-                val totalCalories = dailyMeals.sumOf { meal -> meal.loggedFoods.sumOf { it.calories } }
-                val totalProtein = dailyMeals.sumOf { meal -> meal.loggedFoods.sumOf { it.protein.toDouble() } }.toFloat()
-                val totalCarbs = dailyMeals.sumOf { meal -> meal.loggedFoods.sumOf { it.carbs.toDouble() } }.toFloat()
-                val totalFat = dailyMeals.sumOf { meal -> meal.loggedFoods.sumOf { it.fat.toDouble() } }.toFloat()
+            val totalCalories = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.calories } }
+            val totalProtein = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.protein.toDouble() } }.toFloat()
+            val totalCarbs = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.carbs.toDouble() } }.toFloat()
+            val totalFat = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.fat.toDouble() } }.toFloat()
 
-                val historyEntry = HistoryEntry(
-                    date = date,
-                    totalCalories = totalCalories,
-                    totalProtein = totalProtein,
-                    totalCarbs = totalCarbs,
-                    totalFat = totalFat,
-                    goalCalories = currentState.goal?.calories ?: 0,
-                    goalProtein = currentState.goal?.protein ?: 0f,
-                    goalCarbs = currentState.goal?.carbs ?: 0f,
-                    goalFat = currentState.goal?.fat ?: 0f
-                )
+            val existingEntry = historyRepository.getHistoryEntryByDate(dateToSave)
+            
+            val historyEntry = HistoryEntry(
+                date = dateToSave,
+                totalCalories = totalCalories + (existingEntry?.totalCalories ?: 0),
+                totalProtein = totalProtein + (existingEntry?.totalProtein ?: 0f),
+                totalCarbs = totalCarbs + (existingEntry?.totalCarbs ?: 0f),
+                totalFat = totalFat + (existingEntry?.totalFat ?: 0f),
+                goalCalories = currentState.goal?.calories ?: 0,
+                goalProtein = currentState.goal?.protein ?: 0f,
+                goalCarbs = currentState.goal?.carbs ?: 0f,
+                goalFat = currentState.goal?.fat ?: 0f
+            )
 
-                historyRepository.insertHistoryEntry(historyEntry)
-            }
+            historyRepository.insertHistoryEntry(historyEntry)
 
             // Clear the list by deleting the meals
             meals.forEach { meal ->
                 mealRepository.deleteMeal(meal)
             }
+
+            // Set new open day date to today
+            preferencesManager.setOpenDayDate(LocalDate.now().toString())
 
             sendEffect(HistoryEffect.DayStarted)
         }

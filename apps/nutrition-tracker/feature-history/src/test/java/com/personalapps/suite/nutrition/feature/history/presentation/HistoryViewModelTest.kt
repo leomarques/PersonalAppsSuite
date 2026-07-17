@@ -8,7 +8,8 @@ import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
 import com.personalapps.suite.shared.testing.MainDispatcherRule
 import com.personalapps.suite.nutrition.feature.api.repository.HistoryRepository
 import com.personalapps.suite.nutrition.feature.api.model.HistoryEntry
-import java.time.Instant
+import com.personalapps.suite.shared.preferences.PreferencesManager
+import java.time.LocalDate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +25,6 @@ import org.junit.Test
 class FakeMealRepository : MealRepository {
     private val meals = MutableStateFlow<List<Meal>>(emptyList())
     override fun getAllMeals(): Flow<List<Meal>> = meals
-    override fun getMealsBetween(startDate: Instant, endDate: Instant): Flow<List<Meal>> = meals
     override suspend fun insertMeal(meal: Meal): Long {
         val current = meals.value.toMutableList()
         val index = current.indexOfFirst { it.id == meal.id && meal.id != 0L }
@@ -55,10 +55,28 @@ class FakeMacroGoalRepository : MacroGoalRepository {
 class FakeHistoryRepository : HistoryRepository {
     private val history = MutableStateFlow<List<HistoryEntry>>(emptyList())
     override fun getAllHistory(): Flow<List<HistoryEntry>> = history
+    override suspend fun getHistoryEntryByDate(date: LocalDate): HistoryEntry? {
+        return history.value.find { it.date == date }
+    }
     override suspend fun insertHistoryEntry(entry: HistoryEntry) {
-        history.value += entry
+        val current = history.value.toMutableList()
+        val index = current.indexOfFirst { it.date == entry.date }
+        if (index != -1) {
+            current[index] = entry
+        } else {
+            current.add(entry)
+        }
+        history.value = current
     }
     override suspend fun deleteHistoryEntry(entry: HistoryEntry) {}
+}
+
+class FakePreferencesManager : PreferencesManager {
+    private val openDayDate = MutableStateFlow<String?>(null)
+    override fun getOpenDayDate(): Flow<String?> = openDayDate
+    override suspend fun setOpenDayDate(date: String) {
+        openDayDate.value = date
+    }
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -70,11 +88,12 @@ class HistoryViewModelTest {
     private val mealRepository = FakeMealRepository()
     private val macroGoalRepository = FakeMacroGoalRepository()
     private val historyRepository = FakeHistoryRepository()
+    private val preferencesManager = FakePreferencesManager()
     private lateinit var viewModel: HistoryViewModel
 
     @Before
     fun setUp() {
-        viewModel = HistoryViewModel(mealRepository, macroGoalRepository, historyRepository, null)
+        viewModel = HistoryViewModel(mealRepository, macroGoalRepository, historyRepository, preferencesManager, null)
     }
 
     @Test
@@ -107,7 +126,6 @@ class HistoryViewModelTest {
         val meal = Meal(
             id = 1,
             name = "Snack",
-            timestamp = Instant.now(),
             loggedFoods = listOf(portion)
         )
         
@@ -128,26 +146,22 @@ class HistoryViewModelTest {
     }
 
     @Test
-    fun startNewDay_groupsMealsByDateAndClearsList() = runTest(mainDispatcherRule.testDispatcher) {
+    fun startNewDay_usesStoredDateAndClearsList() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
             viewModel.uiState.collect {}
         }
 
-        // Use fixed timestamps to avoid timezone issues in tests if possible, 
-        // though ZoneId.systemDefault() will be used by the ViewModel.
-        val date1 = Instant.parse("2023-01-01T12:00:00Z")
-        val date2 = Instant.parse("2023-01-02T12:00:00Z")
+        val storedDate = LocalDate.of(2023, 1, 1)
+        preferencesManager.setOpenDayDate(storedDate.toString())
 
         val meal1 = Meal(
             id = 1,
             name = "Meal 1",
-            timestamp = date1,
             loggedFoods = listOf(LoggedFoodPortion("Apple", 52, 0.3f, 13.8f, 0.2f, 100f))
         )
         val meal2 = Meal(
             id = 2,
             name = "Meal 2",
-            timestamp = date2,
             loggedFoods = listOf(LoggedFoodPortion("Banana", 89, 1.1f, 22.8f, 0.3f, 100f))
         )
 
@@ -159,20 +173,16 @@ class HistoryViewModelTest {
         runCurrent()
 
         val history = historyRepository.getAllHistory().first()
-        assertEquals(2, history.size)
+        assertEquals(1, history.size)
 
-        // Grouping by date in ViewModel uses system default zone
-        val localDate1 = date1.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
-        val localDate2 = date2.atZone(java.time.ZoneId.systemDefault()).toLocalDate()
-
-        val entry1 = history.find { it.date == localDate1 }
-        val entry2 = history.find { it.date == localDate2 }
-
-        assertEquals(52, entry1?.totalCalories)
-        assertEquals(89, entry2?.totalCalories)
+        val entry = history.first()
+        assertEquals(storedDate, entry.date)
+        assertEquals(52 + 89, entry.totalCalories)
 
         val remainingMeals = mealRepository.getAllMeals().first()
         assertEquals(0, remainingMeals.size)
+        
+        assertEquals(LocalDate.now().toString(), preferencesManager.getOpenDayDate().first())
     }
 }
 

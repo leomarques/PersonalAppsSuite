@@ -5,7 +5,6 @@ import com.personalapps.suite.nutrition.feature.api.model.LoggedFoodPortion
 import com.personalapps.suite.nutrition.feature.api.model.Meal
 import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
 import com.personalapps.suite.shared.common.Result
-import java.time.Instant
 
 class LogMealUseCase(
     private val mealRepository: MealRepository,
@@ -19,7 +18,6 @@ class LogMealUseCase(
         return try {
             val meal = Meal(
                 name = name,
-                timestamp = Instant.now(),
                 loggedFoods = portions
             )
             val id = mealRepository.insertMeal(meal)
@@ -52,7 +50,6 @@ class LogMealUseCase(
             )
             val meal = Meal(
                 name = food.name,
-                timestamp = Instant.now(),
                 loggedFoods = listOf(portion)
             )
             val id = mealRepository.insertMeal(meal)

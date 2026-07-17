@@ -4,6 +4,7 @@ import com.personalapps.suite.nutrition.feature.api.model.HistoryEntry
 import com.personalapps.suite.nutrition.feature.api.repository.HistoryRepository
 import com.personalapps.suite.nutrition.feature.history.data.dao.HistoryDao
 import com.personalapps.suite.nutrition.feature.history.data.entities.HistoryEntryEntity
+import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -12,6 +13,10 @@ class HistoryRepositoryImpl(private val historyDao: HistoryDao) : HistoryReposit
         return historyDao.getAllHistory().map { list ->
             list.map { it.toDomain() }
         }
+    }
+
+    override suspend fun getHistoryEntryByDate(date: LocalDate): HistoryEntry? {
+        return historyDao.getHistoryEntryByDate(date)?.toDomain()
     }
 
     override suspend fun insertHistoryEntry(entry: HistoryEntry) {

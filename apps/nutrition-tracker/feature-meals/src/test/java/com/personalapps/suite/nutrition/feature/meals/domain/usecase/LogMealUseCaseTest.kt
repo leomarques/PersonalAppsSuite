@@ -5,7 +5,6 @@ import com.personalapps.suite.nutrition.feature.api.model.Meal
 import com.personalapps.suite.nutrition.feature.api.model.LoggedFoodPortion
 import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
 import com.personalapps.suite.shared.common.Result
-import java.time.Instant
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -17,7 +16,6 @@ import org.junit.Test
 class FakeMealRepository : MealRepository {
     private val meals = MutableStateFlow<List<Meal>>(emptyList())
     override fun getAllMeals(): Flow<List<Meal>> = meals
-    override fun getMealsBetween(startDate: Instant, endDate: Instant): Flow<List<Meal>> = meals
     override suspend fun insertMeal(meal: Meal): Long {
         val list = meals.value.toMutableList()
         val newMeal = meal.copy(id = (list.size + 1).toLong())

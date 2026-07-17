@@ -17,52 +17,59 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
-import java.time.Instant
 
 class FakeFoodRepository : FoodRepository {
-    private val foods = MutableStateFlow<List<Food>>(emptyList())
+    private val _foods = MutableStateFlow<List<Food>>(emptyList())
 
-    override fun getAllFoods(): Flow<List<Food>> = foods
+    override fun getAllFoods(): Flow<List<Food>> = _foods
 
     override suspend fun insertFood(food: Food): Long {
-        val list = foods.value.toMutableList()
+        val list = _foods.value.toMutableList()
         val newFood = food.copy(id = (list.size + 1).toLong())
         list.add(newFood)
-        foods.value = list
+        sortFoods(list)
         return newFood.id
     }
 
     override suspend fun updateFood(food: Food) {
-        val list = foods.value.toMutableList()
+        val list = _foods.value.toMutableList()
         val index = list.indexOfFirst { it.id == food.id }
         if (index != -1) {
             list[index] = food
-            foods.value = list
+            sortFoods(list)
         }
     }
 
     override suspend fun deleteFood(food: Food) {
-        val list = foods.value.toMutableList()
+        val list = _foods.value.toMutableList()
         list.removeIf { it.id == food.id }
-        foods.value = list
+        sortFoods(list)
     }
 
     override suspend fun incrementFrequency(foodId: Long) {
-        val list = foods.value.toMutableList()
+        val list = _foods.value.toMutableList()
         val index = list.indexOfFirst { it.id == foodId }
         if (index != -1) {
             list[index] = list[index].copy(frequency = list[index].frequency + 1)
-            foods.value = list
+            sortFoods(list)
         }
     }
 
     override suspend fun incrementFrequencyByName(name: String) {
-        val list = foods.value.toMutableList()
+        val list = _foods.value.toMutableList()
         val index = list.indexOfFirst { it.name == name }
         if (index != -1) {
             list[index] = list[index].copy(frequency = list[index].frequency + 1)
-            foods.value = list
+            sortFoods(list)
         }
+    }
+
+    private fun sortFoods(list: MutableList<Food>) {
+        list.sortWith(
+            compareByDescending<Food> { it.frequency }
+                .thenBy { it.name }
+        )
+        _foods.value = list
     }
 }
 
@@ -70,8 +77,6 @@ class FakeMealRepository : MealRepository {
     private val meals = MutableStateFlow<List<Meal>>(emptyList())
 
     override fun getAllMeals(): Flow<List<Meal>> = meals
-
-    override fun getMealsBetween(startDate: Instant, endDate: Instant): Flow<List<Meal>> = meals
 
     override suspend fun insertMeal(meal: Meal): Long {
         val list = meals.value.toMutableList()

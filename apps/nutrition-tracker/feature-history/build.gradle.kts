@@ -9,4 +9,5 @@ android {
 
 dependencies {
     implementation(project(":apps:nutrition-tracker:feature-api"))
+    implementation(project(":shared:preferences"))
 }

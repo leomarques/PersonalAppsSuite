@@ -8,5 +8,5 @@ import org.koin.dsl.module
 
 val historyModule = module {
     single<HistoryRepository> { HistoryRepositoryImpl(get()) }
-    viewModel { HistoryViewModel(get(), get(), get()) }
+    viewModel { HistoryViewModel(get(), get(), get(), get()) }
 }

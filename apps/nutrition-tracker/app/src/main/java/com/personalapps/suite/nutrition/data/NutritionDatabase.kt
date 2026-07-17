@@ -22,7 +22,7 @@ import com.personalapps.suite.shared.databaseutils.Converters
         MacroGoalEntity::class,
         HistoryEntryEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -42,6 +42,15 @@ abstract class NutritionDatabase : RoomDatabase() {
         val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE foods ADD COLUMN frequency INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE meals_new (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, loggedFoodsJson TEXT NOT NULL)")
+                db.execSQL("INSERT INTO meals_new (id, name, loggedFoodsJson) SELECT id, name, loggedFoodsJson FROM meals")
+                db.execSQL("DROP TABLE meals")
+                db.execSQL("ALTER TABLE meals_new RENAME TO meals")
             }
         }
     }
