@@ -4,7 +4,6 @@ import androidx.lifecycle.viewModelScope
 import com.personalapps.suite.nutrition.feature.api.model.Food
 import com.personalapps.suite.nutrition.feature.api.repository.FoodRepository
 import com.personalapps.suite.nutrition.feature.api.model.Meal
-import com.personalapps.suite.nutrition.feature.api.model.LoggedFoodPortion
 import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
 import com.personalapps.suite.nutrition.feature.meals.domain.usecase.LogMealUseCase
 import com.personalapps.suite.shared.common.Result
@@ -21,7 +20,7 @@ sealed interface MealEffect {
     data class ShowError(val message: String) : MealEffect
     data object MealLogged : MealEffect
     data object MealDeleted : MealEffect
-    data object FoodAdded : MealEffect
+    data class FoodAdded(val food: Food) : MealEffect
     data object FoodUpdated : MealEffect
     data object FoodDeleted : MealEffect
 }
@@ -45,45 +44,21 @@ class MealViewModel(
         }
     }
 
-    fun logMeal(name: String, portions: List<LoggedFoodPortion>) {
-        if (portions.isEmpty() || name.isBlank()) return
-        viewModelScope.launch {
-            when (val result = logMealUseCase(name, portions)) {
-                is Result.Success -> sendEffect(MealEffect.MealLogged)
-                is Result.Error -> sendEffect(MealEffect.ShowError(result.exception.message ?: "Failed to log meal"))
-                is Result.Loading -> { /* no-op */ }
-            }
-        }
-    }
-
-    fun deleteMeal(meal: Meal) {
-        viewModelScope.launch {
-            try {
-                mealRepository.deleteMeal(meal)
-                sendEffect(MealEffect.MealDeleted)
-            } catch (e: Exception) {
-                sendEffect(MealEffect.ShowError(e.message ?: "Failed to delete meal"))
-            }
-        }
-    }
-
     fun addCustomFood(name: String, calories: Int, protein: Float, carbs: Float, fat: Float, gramsPerServing: Float) {
         if (name.isBlank()) return
         viewModelScope.launch {
-            try {
-                foodRepository.insertFood(
-                    Food(
-                        name = name,
-                        calories = calories,
-                        protein = protein,
-                        carbs = carbs,
-                        fat = fat,
-                        gramsPerServing = gramsPerServing
-                    )
-                )
-                sendEffect(MealEffect.FoodAdded)
-            } catch (e: Exception) {
-                sendEffect(MealEffect.ShowError(e.message ?: "Failed to add food"))
+            val food = Food(
+                name = name,
+                calories = calories,
+                protein = protein,
+                carbs = carbs,
+                fat = fat,
+                gramsPerServing = gramsPerServing
+            )
+            when (val result = foodRepository.insertFood(food)) {
+                is Result.Success -> sendEffect(MealEffect.FoodAdded(food.copy(id = result.data)))
+                is Result.Error -> sendEffect(MealEffect.ShowError(result.exception.message ?: "Failed to add food"))
+                is Result.Loading -> { /* no-op */ }
             }
         }
     }

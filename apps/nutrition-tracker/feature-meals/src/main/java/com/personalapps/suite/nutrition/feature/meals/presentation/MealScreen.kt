@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.personalapps.suite.nutrition.feature.api.model.Food
+import kotlinx.coroutines.launch
 import com.personalapps.suite.shared.designsystem.EmptyScreen
 import com.personalapps.suite.shared.uicomponents.NutrientListItem
 import com.personalapps.suite.shared.uicomponents.NutrientPortionDialog
@@ -50,24 +51,28 @@ fun MealScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(key1 = true) {
-        viewModel.effect.collect { effect ->
-            when (effect) {
-                is MealEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
-                is MealEffect.MealLogged -> snackbarHostState.showSnackbar("Meal logged successfully")
-                is MealEffect.MealDeleted -> snackbarHostState.showSnackbar("Meal deleted")
-                is MealEffect.FoodAdded -> snackbarHostState.showSnackbar("Custom food added to database")
-                is MealEffect.FoodUpdated -> snackbarHostState.showSnackbar("Food updated")
-                is MealEffect.FoodDeleted -> snackbarHostState.showSnackbar("Food deleted from library")
-            }
-        }
-    }
+    val scope = androidx.compose.runtime.rememberCoroutineScope()
 
     var searchQuery by remember { mutableStateOf("") }
     var showAddFoodDialog by remember { mutableStateOf(false) }
     var editingFood by remember { mutableStateOf<Food?>(null) }
     var selectedFoodToLog by remember { mutableStateOf<Food?>(null) }
+
+    LaunchedEffect(key1 = true) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is MealEffect.ShowError -> scope.launch { snackbarHostState.showSnackbar(effect.message) }
+                is MealEffect.MealLogged -> scope.launch { snackbarHostState.showSnackbar("Meal logged successfully") }
+                is MealEffect.MealDeleted -> scope.launch { snackbarHostState.showSnackbar("Meal deleted") }
+                is MealEffect.FoodAdded -> {
+                    scope.launch { snackbarHostState.showSnackbar("Custom food added to database") }
+                    selectedFoodToLog = effect.food
+                }
+                is MealEffect.FoodUpdated -> scope.launch { snackbarHostState.showSnackbar("Food updated") }
+                is MealEffect.FoodDeleted -> scope.launch { snackbarHostState.showSnackbar("Food deleted from library") }
+            }
+        }
+    }
 
     val filteredFoods = remember(state.foods, searchQuery) {
         if (searchQuery.isBlank()) {
