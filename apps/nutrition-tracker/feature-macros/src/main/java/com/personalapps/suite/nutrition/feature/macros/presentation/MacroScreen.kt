@@ -21,6 +21,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.personalapps.suite.nutrition.feature.macros.R
 import com.personalapps.suite.shared.designsystem.PersonalButton
 import com.personalapps.suite.shared.designsystem.PersonalCard
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
@@ -35,11 +37,13 @@ fun MacroScreen(
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val goalSavedSuccess = stringResource(R.string.goal_saved_success)
+
     LaunchedEffect(key1 = true) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is MacroEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
-                is MacroEffect.GoalSaved -> snackbarHostState.showSnackbar("Macro targets saved successfully")
+                is MacroEffect.GoalSaved -> snackbarHostState.showSnackbar(goalSavedSuccess)
             }
         }
     }
@@ -64,7 +68,7 @@ fun MacroScreen(
     }
 
     PersonalScaffold(
-        title = "Macro Targets",
+        title = stringResource(R.string.macro_targets_title),
         onBackClick = onBackClick,
         snackbarHostState = snackbarHostState,
         modifier = modifier
@@ -76,12 +80,12 @@ fun MacroScreen(
                 .padding(16.dp)
         ) {
             Text(
-                text = "Set Daily Macro Targets",
+                text = stringResource(R.string.set_daily_macros_header),
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
             Text(
-                text = "Configure your target daily nutrient intake. These targets are used to track your nutrition progress on the main dashboard.",
+                text = stringResource(R.string.macro_targets_description),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(bottom = 16.dp)
@@ -92,7 +96,7 @@ fun MacroScreen(
                     PersonalTextField(
                         value = caloriesStr,
                         onValueChange = { caloriesStr = it },
-                        label = "Target Calories (kcal)",
+                        label = stringResource(R.string.target_calories_label),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Next
@@ -103,7 +107,7 @@ fun MacroScreen(
                     PersonalTextField(
                         value = proteinStr,
                         onValueChange = { proteinStr = it },
-                        label = "Target Protein (g)",
+                        label = stringResource(R.string.target_protein_label),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Next
@@ -114,7 +118,7 @@ fun MacroScreen(
                     PersonalTextField(
                         value = carbsStr,
                         onValueChange = { carbsStr = it },
-                        label = "Target Carbs (g)",
+                        label = stringResource(R.string.target_carbs_label),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Next
@@ -125,7 +129,7 @@ fun MacroScreen(
                     PersonalTextField(
                         value = fatStr,
                         onValueChange = { fatStr = it },
-                        label = "Target Fat (g)",
+                        label = stringResource(R.string.target_fat_label),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Done
@@ -135,7 +139,7 @@ fun MacroScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     PersonalButton(
-                        text = "Save Targets",
+                        text = stringResource(R.string.save_targets),
                         onClick = {
                             viewModel.saveMacroGoal(caloriesStr, proteinStr, carbsStr, fatStr)
                         },

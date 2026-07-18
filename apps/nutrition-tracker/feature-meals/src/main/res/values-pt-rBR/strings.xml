@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="meal_logged_success">Refeição registrada com sucesso</string>
+    <string name="meal_deleted_success">Refeição excluída</string>
+    <string name="custom_food_added_success">Alimento personalizado adicionado ao banco de dados</string>
+    <string name="food_updated_success">Alimento atualizado</string>
+    <string name="food_deleted_library_success">Alimento excluído da biblioteca</string>
+    <string name="add_entry_title">Novo Registro</string>
+    <string name="new_food">Novo Alimento</string>
+    <string name="search_foods">Buscar alimentos…</string>
+    <string name="search">Buscar</string>
+    <string name="clear_search">Limpar Busca</string>
+    <string name="food_library_title">Biblioteca de Alimentos</string>
+    <string name="empty_food_db_long_message">Sua biblioteca está vazia. Crie um alimento usando o ícone de adicionar no topo para começar!</string>
+    <string name="no_matching_foods">Nenhum alimento encontrado.</string>
+    <string name="delete_food">Excluir Alimento</string>
+    <string name="delete_food_library_confirm_message">Tem certeza que deseja excluir \'%1$s\' da biblioteca?</string>
+    <string name="log_food_title">Registrar %1$s</string>
+    <string name="per_grams_label">(por %1$dg)</string>
+    <string name="edit_food">Editar Alimento</string>
+    <string name="add_custom_food">Novo Alimento</string>
+    <string name="food_name">Nome do Alimento</string>
+    <string name="calories_per_serving">Calorias por Porção</string>
+    <string name="protein_g_per_serving">Proteína (g) por Porção</string>
+    <string name="carbs_g_per_serving">Carboidratos (g) por Porção</string>
+    <string name="fat_g_per_serving">Gordura (g) por Porção</string>
+    <string name="grams_per_serving_label">Gramas por Porção (ex: 100)</string>
+    <string name="save">Salvar</string>
+    <string name="cancel">Cancelar</string>
+</resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="food_database">Food Database</string>
+    <string name="add_food_success">Food added</string>
+    <string name="update_food_success">Food updated</string>
+    <string name="delete_food_success">Food deleted</string>
+    <string name="edit_food">Edit Food</string>
+    <string name="add_new_food">Add New Food</string>
+    <string name="food_name">Food Name</string>
+    <string name="calories_kcal_label">Calories (kcal)</string>
+    <string name="protein_g">Protein (g)</string>
+    <string name="carbs_g">Carbs (g)</string>
+    <string name="fat_g">Fat (g)</string>
+    <string name="add_custom_food">Add Custom Food</string>
+    <string name="empty_food_db_message">Tap \'Add Custom Food\' to build your local nutrition database.</string>
+    <string name="delete_food_confirm_title">Delete Food</string>
+    <string name="delete_food_confirm_message">Are you sure you want to delete \'%1$s\' from the database?</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+</resources>

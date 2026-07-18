@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import com.personalapps.suite.shared.designsystem.PersonalCard
 import com.personalapps.suite.shared.designsystem.carbsColor
 import com.personalapps.suite.shared.designsystem.fatColor
@@ -67,7 +68,7 @@ fun NutrientListItem(
                 trailingContent()
             } else if (calories != null) {
                 Text(
-                    text = "$calories kcal",
+                    text = stringResource(R.string.calories_kcal, calories),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary,
@@ -100,11 +101,11 @@ fun NutrientRow(
             horizontalArrangement = Arrangement.spacedBy(6.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            NutrientText(label = "P", value = protein, color = proteinColor)
+            NutrientText(label = stringResource(R.string.nutrient_protein_short), value = protein, color = proteinColor)
             Bullet()
-            NutrientText(label = "C", value = carbs, color = carbsColor)
+            NutrientText(label = stringResource(R.string.nutrient_carbs_short), value = carbs, color = carbsColor)
             Bullet()
-            NutrientText(label = "F", value = fat, color = fatColor)
+            NutrientText(label = stringResource(R.string.nutrient_fat_short), value = fat, color = fatColor)
 
             if (trailingSubtitle != null) {
                 Text(
@@ -121,7 +122,7 @@ fun NutrientRow(
 private fun NutrientText(label: String, value: Float, color: Color) {
     val formattedValue = if (value % 1 == 0f) value.toInt().toString() else "%.1f".format(value)
     Text(
-        text = "$label: ${formattedValue}g",
+        text = stringResource(R.string.nutrient_value_grams, label, formattedValue),
         style = MaterialTheme.typography.bodySmall,
         color = color,
         fontWeight = FontWeight.Medium

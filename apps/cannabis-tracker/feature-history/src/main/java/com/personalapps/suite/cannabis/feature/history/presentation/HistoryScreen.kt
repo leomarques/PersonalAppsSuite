@@ -40,7 +40,7 @@ import com.personalapps.suite.shared.uicomponents.PersonalTextField
 fun HistoryScreen(
     viewModel: HistoryViewModel,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -71,7 +71,7 @@ fun HistoryScreen(
         title = "Consumption Logs",
         onBackClick = onBackClick,
         snackbarHostState = snackbarHostState,
-        modifier = modifier
+        modifier = modifier,
     ) { padding ->
         Column(
             modifier = Modifier

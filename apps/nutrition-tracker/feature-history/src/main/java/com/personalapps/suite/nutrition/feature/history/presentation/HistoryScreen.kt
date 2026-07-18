@@ -39,7 +39,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.personalapps.suite.nutrition.feature.api.model.LoggedFoodPortion
 import com.personalapps.suite.nutrition.feature.api.model.Meal
-import com.personalapps.suite.nutrition.feature.history.R
 import com.personalapps.suite.shared.designsystem.PersonalCard
 import com.personalapps.suite.shared.uicomponents.NutrientPortionDialog
 import com.personalapps.suite.shared.designsystem.proteinColor
@@ -54,19 +53,21 @@ fun HistoryScreen(
     onNavigateToLogMeal: () -> Unit,
     onNavigateToConfig: () -> Unit,
     onNavigateToHistory: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
-    var showConfirmDialog by remember { mutableStateOf(false) }
+    var showConfirmDialog by remember { mutableStateOf(value = false) }
     var editingMealAndPortion by remember { mutableStateOf<Pair<Meal, LoggedFoodPortion>?>(null) }
 
+
+    val daySavedHistory = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.day_saved_history)
 
     LaunchedEffect(key1 = true) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is HistoryEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
-                is HistoryEffect.DayStarted -> snackbarHostState.showSnackbar("Day saved to history!")
+                is HistoryEffect.DayStarted -> snackbarHostState.showSnackbar(daySavedHistory)
             }
         }
     }
@@ -74,21 +75,23 @@ fun HistoryScreen(
     if (showConfirmDialog) {
         AlertDialog(
             onDismissRequest = { showConfirmDialog = false },
-            title = { Text("Start New Day") },
-            text = { Text("This will save your current totals to history and clear today's meals. Are you sure?") },
+            title = { Text(stringResource(com.personalapps.suite.nutrition.feature.history.R.string.start_new_day)) },
+            text = { Text(stringResource(com.personalapps.suite.nutrition.feature.history.R.string.start_new_day_confirm_message)) },
             confirmButton = {
-                TextButton(onClick = {
-                    viewModel.startNewDay()
-                    showConfirmDialog = false
-                }) {
-                    Text("Confirm")
+                TextButton(
+                    onClick = {
+                        viewModel.startNewDay()
+                        showConfirmDialog = false
+                    }
+                ) {
+                    Text(stringResource(com.personalapps.suite.nutrition.feature.history.R.string.confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showConfirmDialog = false }) {
-                    Text("Cancel")
+                    Text(stringResource(com.personalapps.suite.nutrition.feature.history.R.string.cancel))
                 }
-            }
+            },
         )
     }
 
@@ -103,32 +106,32 @@ fun HistoryScreen(
     val targetFat = state.goal?.fat ?: 70f
 
     PersonalScaffold(
-        title = stringResource(R.string.title),
+        title = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.title),
         actions = {
             if (state.meals.isNotEmpty()) {
                 IconButton(onClick = { showConfirmDialog = true }) {
                     Icon(
                         imageVector = Icons.Default.Refresh,
-                        contentDescription = "Start New Day"
+                        contentDescription = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.start_new_day)
                     )
                 }
             }
             IconButton(onClick = onNavigateToHistory) {
                 Icon(
                     imageVector = Icons.Default.DateRange,
-                    contentDescription = "History"
+                    contentDescription = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.history)
                 )
             }
             IconButton(onClick = onNavigateToConfig) {
                 Icon(
                     imageVector = Icons.Default.Settings,
-                    contentDescription = "Settings"
+                    contentDescription = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.settings)
                 )
             }
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onNavigateToLogMeal) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Log Meal")
+                Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.log_meal))
             }
         },
         snackbarHostState = snackbarHostState,
@@ -145,10 +148,10 @@ fun HistoryScreen(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Text(text = "Today's Calories", style = MaterialTheme.typography.titleMedium)
+                    Text(text = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.todays_calories), style = MaterialTheme.typography.titleMedium)
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "$totalCalories / $targetCalories kcal",
+                        text = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.calories_ratio, totalCalories, targetCalories),
                         style = MaterialTheme.typography.headlineLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -171,13 +174,13 @@ fun HistoryScreen(
             PersonalCard(modifier = Modifier.fillMaxWidth()) {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = "Macronutrients",
+                        text = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.macronutrients),
                         style = MaterialTheme.typography.titleMedium,
                         modifier = Modifier.padding(bottom = 12.dp)
                     )
 
                     MacroProgressRow(
-                        label = "Protein",
+                        label = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.protein),
                         current = totalProtein,
                         target = targetProtein,
                         unit = "g",
@@ -186,7 +189,7 @@ fun HistoryScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     MacroProgressRow(
-                        label = "Carbs",
+                        label = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.carbs),
                         current = totalCarbs,
                         target = targetCarbs,
                         unit = "g",
@@ -195,7 +198,7 @@ fun HistoryScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     MacroProgressRow(
-                        label = "Fat",
+                        label = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.fat),
                         current = totalFat,
                         target = targetFat,
                         unit = "g",
@@ -206,12 +209,12 @@ fun HistoryScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text(text = "Today's Meals", style = MaterialTheme.typography.titleMedium)
+            Text(text = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.todays_meals), style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
             if (state.meals.isEmpty()) {
                 Text(
-                    text = "No meals logged today yet.",
+                    text = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.no_meals_logged),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -229,8 +232,8 @@ fun HistoryScreen(
                         ) { portion ->
                             SwipeActionContainer(
                                 onDelete = { viewModel.deleteMeal(meal) },
-                                confirmTitle = "Delete Meal",
-                                confirmMessage = "Are you sure you want to delete '${portion.name}'?"
+                                confirmTitle = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.delete_meal),
+                                confirmMessage = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.delete_meal_confirm_message, portion.name)
                             ) {
                                 LoggedFoodItem(
                                     portion = portion,
@@ -246,7 +249,7 @@ fun HistoryScreen(
 
     editingMealAndPortion?.let { (meal, portion) ->
         NutrientPortionDialog(
-            title = "Edit ${portion.name}",
+            title = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.edit_meal_title, portion.name),
             proteinPerServing = (portion.protein / (portion.amountGrams / portion.gramsPerServing)),
             carbsPerServing = (portion.carbs / (portion.amountGrams / portion.gramsPerServing)),
             fatPerServing = (portion.fat / (portion.amountGrams / portion.gramsPerServing)),
@@ -258,7 +261,7 @@ fun HistoryScreen(
                 viewModel.updateMealPortion(meal, portion, newAmount)
                 editingMealAndPortion = null
             },
-            confirmLabel = "Update"
+            confirmLabel = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.update)
         )
     }
 }
@@ -270,11 +273,15 @@ fun LoggedFoodItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val amountText = if (portion.amountGrams % portion.gramsPerServing == 0f) {
+    val amountText = if ((portion.amountGrams % portion.gramsPerServing) == 0f) {
         val servings = (portion.amountGrams / portion.gramsPerServing).toInt()
-        "$servings ${if (servings == 1) "serving" else "servings"}"
+        stringResource(
+            com.personalapps.suite.nutrition.feature.history.R.string.servings_amount,
+            servings,
+            if (servings == 1) stringResource(com.personalapps.suite.nutrition.feature.history.R.string.serving) else stringResource(com.personalapps.suite.nutrition.feature.history.R.string.servings_plural)
+        )
     } else {
-        "${portion.amountGrams.toInt()}g"
+        stringResource(com.personalapps.suite.nutrition.feature.history.R.string.grams_amount, portion.amountGrams.toInt())
     }
 
     PersonalCard(
@@ -308,15 +315,15 @@ fun LoggedFoodItem(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    NutrientText(label = "P", value = portion.protein, color = proteinColor)
+                    NutrientText(label = stringResource(com.personalapps.suite.shared.uicomponents.R.string.nutrient_protein_short), value = portion.protein, color = proteinColor)
                     Bullet()
-                    NutrientText(label = "C", value = portion.carbs, color = carbsColor)
+                    NutrientText(label = stringResource(com.personalapps.suite.shared.uicomponents.R.string.nutrient_carbs_short), value = portion.carbs, color = carbsColor)
                     Bullet()
-                    NutrientText(label = "F", value = portion.fat, color = fatColor)
+                    NutrientText(label = stringResource(com.personalapps.suite.shared.uicomponents.R.string.nutrient_fat_short), value = portion.fat, color = fatColor)
                 }
             }
             Text(
-                text = "${portion.calories} kcal",
+                text = stringResource(com.personalapps.suite.shared.uicomponents.R.string.calories_kcal, portion.calories),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary,
@@ -328,9 +335,9 @@ fun LoggedFoodItem(
 
 @Composable
 private fun NutrientText(label: String, value: Float, color: Color) {
-    val formattedValue = if (value % 1 == 0f) value.toInt().toString() else "%.1f".format(value)
+    val formattedValue = if ((value % 1) == 0f) value.toInt().toString() else "%.1f".format(value)
     Text(
-        text = "$label: ${formattedValue}g",
+        text = stringResource(com.personalapps.suite.shared.uicomponents.R.string.nutrient_value_grams, label, formattedValue),
         style = MaterialTheme.typography.bodySmall,
         color = color,
         fontWeight = FontWeight.Medium

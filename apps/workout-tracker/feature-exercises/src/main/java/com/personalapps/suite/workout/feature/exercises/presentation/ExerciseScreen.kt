@@ -31,6 +31,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.personalapps.suite.workout.feature.exercises.R
 import com.personalapps.suite.shared.designsystem.EmptyScreen
 import com.personalapps.suite.shared.designsystem.PersonalButton
 import com.personalapps.suite.shared.designsystem.PersonalCard
@@ -48,12 +50,15 @@ fun ExerciseScreen(
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val exerciseAdded = stringResource(R.string.exercise_added_success)
+    val exerciseDeleted = stringResource(R.string.exercise_deleted_success)
+
     LaunchedEffect(key1 = true) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is ExerciseEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
-                is ExerciseEffect.ExerciseAdded -> snackbarHostState.showSnackbar("Exercise added successfully")
-                is ExerciseEffect.ExerciseDeleted -> snackbarHostState.showSnackbar("Exercise deleted")
+                is ExerciseEffect.ExerciseAdded -> snackbarHostState.showSnackbar(exerciseAdded)
+                is ExerciseEffect.ExerciseDeleted -> snackbarHostState.showSnackbar(exerciseDeleted)
             }
         }
     }
@@ -70,7 +75,7 @@ fun ExerciseScreen(
     }
 
     PersonalScaffold(
-        title = "Exercises Library",
+        title = stringResource(R.string.exercises_library_title),
         onBackClick = onBackClick,
         snackbarHostState = snackbarHostState,
         modifier = modifier
@@ -88,12 +93,12 @@ fun ExerciseScreen(
                 PersonalTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
-                    label = "Search exercises...",
+                    label = stringResource(R.string.search_exercises),
                     modifier = Modifier.weight(1f)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 PersonalButton(
-                    text = "New Exercise",
+                    text = stringResource(R.string.new_exercise),
                     onClick = { showAddDialog = true }
                 )
             }
@@ -101,16 +106,16 @@ fun ExerciseScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "My Exercises",
+                text = stringResource(R.string.my_exercises),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
             if (filteredExercises.isEmpty()) {
                 val msg = if (searchQuery.isBlank()) {
-                    "Exercises database is empty. Create a custom exercise to begin logging workouts!"
+                    stringResource(R.string.empty_exercise_db_message)
                 } else {
-                    "No exercises matching '$searchQuery'."
+                    stringResource(R.string.no_exercises_matching, searchQuery)
                 }
                 EmptyScreen(message = msg)
             } else {
@@ -169,7 +174,7 @@ fun ExerciseItemCard(
             IconButton(onClick = onDelete) {
                 Icon(
                     imageVector = Icons.Default.Delete,
-                    contentDescription = "Delete exercise",
+                    contentDescription = stringResource(R.string.delete_exercise),
                     tint = MaterialTheme.colorScheme.error
                 )
             }
@@ -183,24 +188,32 @@ fun AddExerciseDialog(
     onSave: (name: String, category: String) -> Unit
 ) {
     var name by remember { mutableStateOf("") }
-    var category by remember { mutableStateOf("Chest") }
-    val categories = listOf("Chest", "Back", "Legs", "Shoulders", "Arms", "Core", "Cardio")
+    val categories = listOf(
+        stringResource(R.string.cat_chest),
+        stringResource(R.string.cat_back),
+        stringResource(R.string.cat_legs),
+        stringResource(R.string.cat_shoulders),
+        stringResource(R.string.cat_arms),
+        stringResource(R.string.cat_core),
+        stringResource(R.string.cat_cardio)
+    )
+    var category by remember { mutableStateOf(categories[0]) }
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("New Exercise") },
+        title = { Text(stringResource(R.string.new_exercise)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 PersonalTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = "Exercise Name"
+                    label = stringResource(R.string.exercise_name)
                 )
                 PersonalDropdownMenu(
                     options = categories,
                     selectedOption = category,
                     onOptionSelected = { category = it },
-                    label = "Category"
+                    label = stringResource(R.string.category)
                 )
             }
         },
@@ -212,12 +225,12 @@ fun AddExerciseDialog(
                     }
                 }
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

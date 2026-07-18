@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="exercise_added_success">Exercise added successfully</string>
+    <string name="exercise_deleted_success">Exercise deleted</string>
+    <string name="exercises_library_title">Exercises Library</string>
+    <string name="search_exercises">Search exercises...</string>
+    <string name="new_exercise">New Exercise</string>
+    <string name="my_exercises">My Exercises</string>
+    <string name="empty_exercise_db_message">Exercises database is empty. Create a custom exercise to begin logging workouts!</string>
+    <string name="no_exercises_matching">No exercises matching \'%1$s\'.</string>
+    <string name="delete_exercise">Delete exercise</string>
+    <string name="exercise_name">Exercise Name</string>
+    <string name="category">Category</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+
+    <string name="cat_chest">Chest</string>
+    <string name="cat_back">Back</string>
+    <string name="cat_legs">Legs</string>
+    <string name="cat_shoulders">Shoulders</string>
+    <string name="cat_arms">Arms</string>
+    <string name="cat_core">Core</string>
+    <string name="cat_cardio">Cardio</string>
+</resources>

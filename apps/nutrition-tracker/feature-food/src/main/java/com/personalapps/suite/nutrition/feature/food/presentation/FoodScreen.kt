@@ -25,6 +25,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.res.stringResource
+import com.personalapps.suite.nutrition.feature.food.R
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -44,14 +46,18 @@ fun FoodScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    
+    val addFoodSuccess = stringResource(R.string.add_food_success)
+    val updateFoodSuccess = stringResource(R.string.update_food_success)
+    val deleteFoodSuccess = stringResource(R.string.delete_food_success)
 
     LaunchedEffect(key1 = true) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is FoodEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
-                is FoodEffect.FoodAdded -> snackbarHostState.showSnackbar("Food added")
-                is FoodEffect.FoodUpdated -> snackbarHostState.showSnackbar("Food updated")
-                is FoodEffect.FoodDeleted -> snackbarHostState.showSnackbar("Food deleted")
+                is FoodEffect.FoodAdded -> snackbarHostState.showSnackbar(addFoodSuccess)
+                is FoodEffect.FoodUpdated -> snackbarHostState.showSnackbar(updateFoodSuccess)
+                is FoodEffect.FoodDeleted -> snackbarHostState.showSnackbar(deleteFoodSuccess)
             }
         }
     }
@@ -67,7 +73,7 @@ fun FoodScreen(
     var fatStr by remember { mutableStateOf("") }
 
     PersonalScaffold(
-        title = "Food Database",
+        title = stringResource(R.string.food_database),
         onBackClick = onBackClick,
         snackbarHostState = snackbarHostState,
         modifier = modifier
@@ -90,14 +96,14 @@ fun FoodScreen(
                 ) {
                     Column(modifier = Modifier.fillMaxWidth().padding(16.dp)) {
                         Text(
-                            text = if (editingFood != null) "Edit Food" else "Add New Food",
+                            text = if (editingFood != null) stringResource(R.string.edit_food) else stringResource(R.string.add_new_food),
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
                         PersonalTextField(
                             value = name,
                             onValueChange = { name = it },
-                            label = "Food Name",
+                            label = stringResource(R.string.food_name),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                             focusRequester = focusRequester,
                             modifier = Modifier.fillMaxWidth()
@@ -106,7 +112,7 @@ fun FoodScreen(
                             PersonalTextField(
                                 value = caloriesStr,
                                 onValueChange = { caloriesStr = it },
-                                label = "Calories (kcal)",
+                                label = stringResource(R.string.calories_kcal_label),
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Number,
                                     imeAction = ImeAction.Next
@@ -116,7 +122,7 @@ fun FoodScreen(
                             PersonalTextField(
                                 value = proteinStr,
                                 onValueChange = { proteinStr = it },
-                                label = "Protein (g)",
+                                label = stringResource(R.string.protein_g),
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Number,
                                     imeAction = ImeAction.Next
@@ -128,7 +134,7 @@ fun FoodScreen(
                             PersonalTextField(
                                 value = carbsStr,
                                 onValueChange = { carbsStr = it },
-                                label = "Carbs (g)",
+                                label = stringResource(R.string.carbs_g),
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Number,
                                     imeAction = ImeAction.Next
@@ -138,7 +144,7 @@ fun FoodScreen(
                             PersonalTextField(
                                 value = fatStr,
                                 onValueChange = { fatStr = it },
-                                label = "Fat (g)",
+                                label = stringResource(R.string.fat_g),
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Number,
                                     imeAction = ImeAction.Done
@@ -160,11 +166,11 @@ fun FoodScreen(
                                 carbsStr = ""
                                 fatStr = ""
                             }) {
-                                Text("Cancel")
+                                Text(stringResource(R.string.cancel))
                             }
                             Spacer(modifier = Modifier.width(8.dp))
                             PersonalButton(
-                                text = "Save",
+                                text = stringResource(R.string.save),
                                 onClick = {
                                     editingFood?.let {
                                         viewModel.updateFood(it.id, name, caloriesStr, proteinStr, carbsStr, fatStr)
@@ -186,7 +192,7 @@ fun FoodScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             } else {
                 PersonalButton(
-                    text = "Add Custom Food",
+                    text = stringResource(R.string.add_custom_food),
                     onClick = { showAddForm = true },
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -194,7 +200,7 @@ fun FoodScreen(
             }
 
             if (state.foods.isEmpty()) {
-                EmptyScreen(message = "Tap 'Add Custom Food' to build your local nutrition database.")
+                EmptyScreen(message = stringResource(R.string.empty_food_db_message))
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -214,8 +220,8 @@ fun FoodScreen(
                                 carbsStr = food.carbs.toString()
                                 fatStr = food.fat.toString()
                             },
-                            confirmTitle = "Delete Food",
-                            confirmMessage = "Are you sure you want to delete '${food.name}' from the database?"
+                            confirmTitle = stringResource(R.string.delete_food_confirm_title),
+                            confirmMessage = stringResource(R.string.delete_food_confirm_message, food.name)
                         ) {
                             FoodListItem(food = food)
                         }
@@ -236,7 +242,7 @@ fun FoodListItem(
         protein = food.protein,
         carbs = food.carbs,
         fat = food.fat,
-        leadingSubtitle = "${food.calories} kcal",
+        leadingSubtitle = stringResource(com.personalapps.suite.shared.uicomponents.R.string.calories_kcal, food.calories),
         modifier = modifier
     )
 }

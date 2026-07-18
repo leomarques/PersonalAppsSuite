@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="workout_created_success">Workout session logged successfully</string>
+    <string name="workout_deleted_success">Workout session deleted</string>
+    <string name="workout_dashboard_title">Workout Dashboard</string>
+    <string name="log_workout">Log Workout</string>
+    <string name="workout_history">Workout History</string>
+    <string name="exercises">Exercises</string>
+    <string name="empty_workout_history_message">No logged workouts yet. Start a session using the \'+\' button below!</string>
+    <string name="delete_session">Delete session</string>
+    <string name="unknown_exercise">Unknown Exercise</string>
+    <string name="set_label">Set %1$d: %2$s kg x %3$d</string>
+    <string name="log_workout_session_title">Log Workout Session</string>
+    <string name="session_name">Session Name</string>
+    <string name="default_session_name">Full Body Workout</string>
+    <string name="create_exercises_first_error">Create exercises in the library first before starting a session.</string>
+    <string name="add_exercise_set">Add Exercise Set</string>
+    <string name="search_exercise">Search exercise...</string>
+    <string name="selected_exercise_label">Selected: %1$s</string>
+    <string name="reps">Reps</string>
+    <string name="load_kg">Load (kg)</string>
+    <string name="add_set">Add Set</string>
+    <string name="session_preview">Session Preview</string>
+    <string name="remove_set">Remove set</string>
+    <string name="log_workout_confirm">Log Workout</string>
+    <string name="cancel">Cancel</string>
+    <string name="set_preview_line">%1$s: %2$s kg x %3$d</string>
+</resources>

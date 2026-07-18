@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="food_database">Banco de Alimentos</string>
+    <string name="add_food_success">Alimento adicionado</string>
+    <string name="update_food_success">Alimento atualizado</string>
+    <string name="delete_food_success">Alimento excluído</string>
+    <string name="edit_food">Editar Alimento</string>
+    <string name="add_new_food">Adicionar Novo Alimento</string>
+    <string name="food_name">Nome do Alimento</string>
+    <string name="calories_kcal_label">Calorias (kcal)</string>
+    <string name="protein_g">Proteína (g)</string>
+    <string name="carbs_g">Carboidratos (g)</string>
+    <string name="fat_g">Gordura (g)</string>
+    <string name="add_custom_food">Novo Alimento</string>
+    <string name="empty_food_db_message">Toque em \'Novo Alimento\' para criar seu banco de dados nutricional local.</string>
+    <string name="delete_food_confirm_title">Excluir Alimento</string>
+    <string name="delete_food_confirm_message">Tem certeza que deseja excluir \'%1$s\' do banco de dados?</string>
+    <string name="cancel">Cancelar</string>
+    <string name="save">Salvar</string>
+</resources>

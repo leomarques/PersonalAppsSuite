@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="progress_dashboard_title">Progress Dashboard</string>
+    <string name="empty_progress_message">Create exercises and log sessions first to view performance evolution!</string>
+    <string name="track_exercise_performance">Track Exercise Performance</string>
+    <string name="select_exercise">Select Exercise</string>
+    <string name="max_load">Max Load</string>
+    <string name="total_volume">Total Volume</string>
+    <string name="empty_chart_message">Log at least 2 workouts for this exercise to generate a progression chart.</string>
+    <string name="progression_label">Progression: %1$s</string>
+    <string name="max_load_kg">Max Load (kg)</string>
+    <string name="total_volume_kg">Total Volume (kg)</string>
+</resources>

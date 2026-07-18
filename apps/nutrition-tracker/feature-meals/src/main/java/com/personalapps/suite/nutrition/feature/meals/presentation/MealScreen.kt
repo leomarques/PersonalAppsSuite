@@ -34,6 +34,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.personalapps.suite.nutrition.feature.meals.R
 import com.personalapps.suite.nutrition.feature.api.model.Food
 import kotlinx.coroutines.launch
 import com.personalapps.suite.shared.designsystem.EmptyScreen
@@ -58,18 +60,24 @@ fun MealScreen(
     var editingFood by remember { mutableStateOf<Food?>(null) }
     var selectedFoodToLog by remember { mutableStateOf<Food?>(null) }
 
+    val mealLoggedSuccess = stringResource(R.string.meal_logged_success)
+    val mealDeleted = stringResource(R.string.meal_deleted_success)
+    val customFoodAdded = stringResource(R.string.custom_food_added_success)
+    val foodUpdated = stringResource(R.string.food_updated_success)
+    val foodDeletedFromLibrary = stringResource(R.string.food_deleted_library_success)
+
     LaunchedEffect(key1 = true) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is MealEffect.ShowError -> scope.launch { snackbarHostState.showSnackbar(effect.message) }
-                is MealEffect.MealLogged -> scope.launch { snackbarHostState.showSnackbar("Meal logged successfully") }
-                is MealEffect.MealDeleted -> scope.launch { snackbarHostState.showSnackbar("Meal deleted") }
+                is MealEffect.MealLogged -> scope.launch { snackbarHostState.showSnackbar(mealLoggedSuccess) }
+                is MealEffect.MealDeleted -> scope.launch { snackbarHostState.showSnackbar(mealDeleted) }
                 is MealEffect.FoodAdded -> {
-                    scope.launch { snackbarHostState.showSnackbar("Custom food added to database") }
+                    scope.launch { snackbarHostState.showSnackbar(customFoodAdded) }
                     selectedFoodToLog = effect.food
                 }
-                is MealEffect.FoodUpdated -> scope.launch { snackbarHostState.showSnackbar("Food updated") }
-                is MealEffect.FoodDeleted -> scope.launch { snackbarHostState.showSnackbar("Food deleted from library") }
+                is MealEffect.FoodUpdated -> scope.launch { snackbarHostState.showSnackbar(foodUpdated) }
+                is MealEffect.FoodDeleted -> scope.launch { snackbarHostState.showSnackbar(foodDeletedFromLibrary) }
             }
         }
     }
@@ -83,13 +91,13 @@ fun MealScreen(
     }
 
     PersonalScaffold(
-        title = "Add Entry",
+        title = stringResource(R.string.add_entry_title),
         onBackClick = onBackClick,
         actions = {
             IconButton(onClick = { showAddFoodDialog = true }) {
                 Icon(
                     imageVector = Icons.Default.Add,
-                    contentDescription = "New Food"
+                    contentDescription = stringResource(R.string.new_food)
                 )
             }
         },
@@ -105,11 +113,11 @@ fun MealScreen(
             PersonalTextField(
                 value = searchQuery,
                 onValueChange = { searchQuery = it },
-                label = "Search foods...",
+                label = stringResource(R.string.search_foods),
                 leadingIcon = {
                     Icon(
                         imageVector = Icons.Default.Search,
-                        contentDescription = "Search"
+                        contentDescription = stringResource(R.string.search)
                     )
                 },
                 trailingIcon = if (searchQuery.isNotEmpty()) {
@@ -117,7 +125,7 @@ fun MealScreen(
                         IconButton(onClick = { searchQuery = "" }) {
                             Icon(
                                 imageVector = Icons.Default.Clear,
-                                contentDescription = "Clear Search"
+                                contentDescription = stringResource(R.string.clear_search)
                             )
                         }
                     }
@@ -129,16 +137,16 @@ fun MealScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Food Database Library",
+                text = stringResource(R.string.food_library_title),
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(bottom = 8.dp)
             )
 
             if (filteredFoods.isEmpty()) {
                 val msg = if (searchQuery.isBlank()) {
-                    "Your food database is empty. Create a custom food item using the add icon in the top bar to start logging!"
+                    stringResource(R.string.empty_food_db_long_message)
                 } else {
-                    "No matching foods found."
+                    stringResource(R.string.no_matching_foods)
                 }
                 EmptyScreen(message = msg)
             } else {
@@ -150,8 +158,8 @@ fun MealScreen(
                         SwipeActionContainer(
                             onDelete = { viewModel.deleteFood(food) },
                             onEdit = { editingFood = food },
-                            confirmTitle = "Delete Food",
-                            confirmMessage = "Are you sure you want to delete '${food.name}' from the library?"
+                            confirmTitle = stringResource(R.string.delete_food),
+                            confirmMessage = stringResource(R.string.delete_food_library_confirm_message, food.name)
                         ) {
                             FoodListItem(
                                 food = food,
@@ -188,7 +196,7 @@ fun MealScreen(
     // Log Portion Dialog
     selectedFoodToLog?.let { food ->
         NutrientPortionDialog(
-            title = "Log ${food.name}",
+            title = stringResource(R.string.log_food_title, food.name),
             proteinPerServing = food.protein,
             carbsPerServing = food.carbs,
             fatPerServing = food.fat,
@@ -216,7 +224,7 @@ fun FoodListItem(
         carbs = food.carbs,
         fat = food.fat,
         calories = food.calories,
-        trailingSubtitle = "(per ${food.gramsPerServing.toInt()}g)",
+        trailingSubtitle = stringResource(R.string.per_grams_label, food.gramsPerServing.toInt()),
         onClick = onClick,
         modifier = modifier
     )
@@ -243,20 +251,20 @@ fun AddFoodDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text(if (initialFood != null) "Edit Food" else "Add Custom Food") },
+        title = { Text(if (initialFood != null) stringResource(R.string.edit_food) else stringResource(R.string.add_custom_food)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 PersonalTextField(
                     value = name,
                     onValueChange = { name = it },
-                    label = "Food Name",
+                    label = stringResource(R.string.food_name),
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                     focusRequester = focusRequester
                 )
                 PersonalTextField(
                     value = caloriesStr,
                     onValueChange = { caloriesStr = it },
-                    label = "Calories per Serving",
+                    label = stringResource(R.string.calories_per_serving),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
@@ -265,7 +273,7 @@ fun AddFoodDialog(
                 PersonalTextField(
                     value = proteinStr,
                     onValueChange = { proteinStr = it },
-                    label = "Protein (g) per Serving",
+                    label = stringResource(R.string.protein_g_per_serving),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
@@ -274,7 +282,7 @@ fun AddFoodDialog(
                 PersonalTextField(
                     value = carbsStr,
                     onValueChange = { carbsStr = it },
-                    label = "Carbs (g) per Serving",
+                    label = stringResource(R.string.carbs_g_per_serving),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
@@ -283,7 +291,7 @@ fun AddFoodDialog(
                 PersonalTextField(
                     value = fatStr,
                     onValueChange = { fatStr = it },
-                    label = "Fat (g) per Serving",
+                    label = stringResource(R.string.fat_g_per_serving),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Next
@@ -292,7 +300,7 @@ fun AddFoodDialog(
                 PersonalTextField(
                     value = gramsPerServingStr,
                     onValueChange = { gramsPerServingStr = it },
-                    label = "Grams per Serving (e.g., 100)",
+                    label = stringResource(R.string.grams_per_serving_label),
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Number,
                         imeAction = ImeAction.Done
@@ -313,12 +321,12 @@ fun AddFoodDialog(
                     }
                 }
             ) {
-                Text("Save")
+                Text(stringResource(R.string.save))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

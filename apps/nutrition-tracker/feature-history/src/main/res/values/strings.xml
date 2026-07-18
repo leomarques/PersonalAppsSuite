@@ -1,4 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="title">Dashboard</string>
+    <string name="day_saved_history">Day saved to history!</string>
+    <string name="start_new_day">Start New Day</string>
+    <string name="start_new_day_confirm_message">This will save your current totals to history and clear today\'s meals. Are you sure?</string>
+    <string name="confirm">Confirm</string>
+    <string name="cancel">Cancel</string>
+    <string name="history">History</string>
+    <string name="settings">Settings</string>
+    <string name="log_meal">Log Meal</string>
+    <string name="todays_calories">Today\'s Calories</string>
+    <string name="calories_ratio">%1$d / %2$d kcal</string>
+    <string name="macronutrients">Macronutrients</string>
+    <string name="protein">Protein</string>
+    <string name="carbs">Carbs</string>
+    <string name="fat">Fat</string>
+    <string name="todays_meals">Today\'s Meals</string>
+    <string name="no_meals_logged">No meals logged today yet.</string>
+    <string name="delete_meal">Delete Meal</string>
+    <string name="delete_meal_confirm_message">Are you sure you want to delete \'%1$s\'?</string>
+    <string name="edit_meal_title">Edit %1$s</string>
+    <string name="update">Update</string>
+    <string name="serving">serving</string>
+    <string name="servings_plural">servings</string>
+    <string name="servings_amount">%1$d %2$s</string>
+    <string name="grams_amount">%1$dg</string>
 </resources>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="macro_targets_title">Metas de Macros</string>
+    <string name="goal_saved_success">Metas salvas com sucesso</string>
+    <string name="set_daily_macros_header">Definir Metas Diárias</string>
+    <string name="macro_targets_description">Configure suas metas diárias de nutrientes. Elas serão usadas para acompanhar seu progresso no painel principal.</string>
+    <string name="target_calories_label">Meta de Calorias (kcal)</string>
+    <string name="target_protein_label">Meta de Proteína (g)</string>
+    <string name="target_carbs_label">Meta de Carboidratos (g)</string>
+    <string name="target_fat_label">Meta de Gordura (g)</string>
+    <string name="save_targets">Salvar Metas</string>
+</resources>

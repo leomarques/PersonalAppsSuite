@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="title">Painel</string>
+    <string name="day_saved_history">Dia salvo no histórico!</string>
+    <string name="start_new_day">Iniciar Novo Dia</string>
+    <string name="start_new_day_confirm_message">Isso salvará seus totais atuais no histórico e limpará as refeições de hoje. Tem certeza?</string>
+    <string name="confirm">Confirmar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="history">Histórico</string>
+    <string name="settings">Ajustes</string>
+    <string name="log_meal">Registrar Refeição</string>
+    <string name="todays_calories">Calorias de Hoje</string>
+    <string name="calories_ratio">%1$d / %2$d kcal</string>
+    <string name="macronutrients">Macronutrientes</string>
+    <string name="protein">Proteína</string>
+    <string name="carbs">Carboidratos</string>
+    <string name="fat">Gordura</string>
+    <string name="todays_meals">Refeições de Hoje</string>
+    <string name="no_meals_logged">Nenhuma refeição registrada hoje.</string>
+    <string name="delete_meal">Excluir Refeição</string>
+    <string name="delete_meal_confirm_message">Tem certeza que deseja excluir \'%1$s\'?</string>
+    <string name="edit_meal_title">Editar %1$s</string>
+    <string name="update">Atualizar</string>
+    <string name="serving">porção</string>
+    <string name="servings_plural">porções</string>
+    <string name="servings_amount">%1$d %2$s</string>
+    <string name="grams_amount">%1$dg</string>
+</resources>

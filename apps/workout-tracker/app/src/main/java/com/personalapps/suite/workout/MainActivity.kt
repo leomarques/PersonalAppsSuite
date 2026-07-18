@@ -13,6 +13,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -60,7 +61,7 @@ fun MainNavigation() {
 
     val navItems = listOf(
         NavItem(
-            label = "Workouts",
+            label = stringResource(R.string.nav_workouts),
             icon = Icons.Default.Home,
             isSelected = backStack.lastOrNull() == DashboardRoute,
             onClick = {
@@ -71,7 +72,7 @@ fun MainNavigation() {
             }
         ),
         NavItem(
-            label = "Library",
+            label = stringResource(R.string.nav_library),
             icon = Icons.Default.List,
             isSelected = backStack.lastOrNull() == ExercisesRoute,
             onClick = {
@@ -82,7 +83,7 @@ fun MainNavigation() {
             }
         ),
         NavItem(
-            label = "Progress",
+            label = stringResource(R.string.nav_progress),
             icon = Icons.Default.Menu,
             isSelected = backStack.lastOrNull() == ProgressRoute,
             onClick = {

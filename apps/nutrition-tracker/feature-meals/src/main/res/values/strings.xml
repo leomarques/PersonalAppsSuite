@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="meal_logged_success">Meal logged successfully</string>
+    <string name="meal_deleted_success">Meal deleted</string>
+    <string name="custom_food_added_success">Custom food added to database</string>
+    <string name="food_updated_success">Food updated</string>
+    <string name="food_deleted_library_success">Food deleted from library</string>
+    <string name="add_entry_title">Add Entry</string>
+    <string name="new_food">New Food</string>
+    <string name="search_foods">Search foods…</string>
+    <string name="search">Search</string>
+    <string name="clear_search">Clear Search</string>
+    <string name="food_library_title">Food Database Library</string>
+    <string name="empty_food_db_long_message">Your food database is empty. Create a custom food item using the add icon in the top bar to start logging!</string>
+    <string name="no_matching_foods">No matching foods found.</string>
+    <string name="delete_food">Delete Food</string>
+    <string name="delete_food_library_confirm_message">Are you sure you want to delete \'%1$s\' from the library?</string>
+    <string name="log_food_title">Log %1$s</string>
+    <string name="per_grams_label">(per %1$dg)</string>
+    <string name="edit_food">Edit Food</string>
+    <string name="add_custom_food">Add Custom Food</string>
+    <string name="food_name">Food Name</string>
+    <string name="calories_per_serving">Calories per Serving</string>
+    <string name="protein_g_per_serving">Protein (g) per Serving</string>
+    <string name="carbs_g_per_serving">Carbs (g) per Serving</string>
+    <string name="fat_g_per_serving">Fat (g) per Serving</string>
+    <string name="grams_per_serving_label">Grams per Serving (e.g., 100)</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+</resources>

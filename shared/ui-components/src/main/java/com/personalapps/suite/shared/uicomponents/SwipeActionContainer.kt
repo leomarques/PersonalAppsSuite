@@ -25,6 +25,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -32,10 +33,12 @@ fun SwipeActionContainer(
     onDelete: () -> Unit,
     modifier: Modifier = Modifier,
     onEdit: (() -> Unit)? = null,
-    confirmTitle: String = "Confirm Deletion",
-    confirmMessage: String = "Are you sure you want to delete this item?",
+    confirmTitle: String? = null,
+    confirmMessage: String? = null,
     content: @Composable () -> Unit
 ) {
+    val finalConfirmTitle = confirmTitle ?: stringResource(R.string.confirm_deletion)
+    val finalConfirmMessage = confirmMessage ?: stringResource(R.string.confirm_deletion_message)
     val currentOnDelete by rememberUpdatedState(onDelete)
     val currentOnEdit by rememberUpdatedState(onEdit)
     var showConfirm by remember { mutableStateOf(false) }
@@ -61,19 +64,19 @@ fun SwipeActionContainer(
     if (showConfirm) {
         AlertDialog(
             onDismissRequest = { showConfirm = false },
-            title = { Text(confirmTitle) },
-            text = { Text(confirmMessage) },
+            title = { Text(finalConfirmTitle) },
+            text = { Text(finalConfirmMessage) },
             confirmButton = {
                 TextButton(onClick = {
                     currentOnDelete()
                     showConfirm = false
                 }) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showConfirm = false }) {
-                    Text("Cancel")
+                    Text(stringResource(R.string.cancel))
                 }
             }
         )
@@ -99,14 +102,14 @@ fun SwipeActionContainer(
                 if (dismissState.targetValue == SwipeToDismissBoxValue.StartToEnd && onEdit != null) {
                     Icon(
                         imageVector = Icons.Default.Edit,
-                        contentDescription = "Edit",
+                        contentDescription = stringResource(R.string.edit),
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.align(Alignment.CenterStart)
                     )
                 } else if (dismissState.targetValue == SwipeToDismissBoxValue.EndToStart) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete",
+                        contentDescription = stringResource(R.string.delete),
                         tint = MaterialTheme.colorScheme.onError,
                         modifier = Modifier.align(Alignment.CenterEnd)
                     )

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="macro_targets_title">Macro Targets</string>
+    <string name="goal_saved_success">Macro targets saved successfully</string>
+    <string name="set_daily_macros_header">Set Daily Macro Targets</string>
+    <string name="macro_targets_description">Configure your target daily nutrient intake. These targets are used to track your nutrition progress on the main dashboard.</string>
+    <string name="target_calories_label">Target Calories (kcal)</string>
+    <string name="target_protein_label">Target Protein (g)</string>
+    <string name="target_carbs_label">Target Carbs (g)</string>
+    <string name="target_fat_label">Target Fat (g)</string>
+    <string name="save_targets">Save Targets</string>
+</resources>

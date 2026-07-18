@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="cancel">Cancelar</string>
+    <string name="save">Salvar</string>
+    <string name="confirm">Confirmar</string>
+    <string name="delete">Excluir</string>
+    <string name="edit">Editar</string>
+    <string name="back">Voltar</string>
+    <string name="increase">Aumentar</string>
+    <string name="add_to_day">Adicionar ao Dia</string>
+    <string name="servings">Porções</string>
+    <string name="grams_g">Gramas (g)</string>
+    <string name="amount_grams">Quantidade (gramas)</string>
+    <string name="servings_with_grams">Porções (%1$dg)</string>
+    <string name="total_calories_with_grams">Total: %1$d kcal (%2$dg)</string>
+    <string name="calories_kcal">%1$d kcal</string>
+    <string name="started_at">Iniciado em: %1$s</string>
+    <string name="end">Encerrar</string>
+    <string name="confirm_deletion">Confirmar Exclusão</string>
+    <string name="confirm_deletion_message">Tem certeza que deseja excluir este item?</string>
+    <string name="nutrient_protein_short">P</string>
+    <string name="nutrient_carbs_short">C</string>
+    <string name="nutrient_fat_short">G</string>
+    <string name="nutrient_value_grams">%1$s: %2$sg</string>
+</resources>

@@ -32,6 +32,8 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.personalapps.suite.workout.feature.progress.R
 import com.personalapps.suite.shared.designsystem.EmptyScreen
 import com.personalapps.suite.shared.designsystem.PersonalCard
 import com.personalapps.suite.shared.uicomponents.PersonalDropdownMenu
@@ -74,7 +76,7 @@ fun ProgressScreen(
     }
 
     PersonalScaffold(
-        title = "Progress Dashboard",
+        title = stringResource(R.string.progress_dashboard_title),
         onBackClick = onBackClick,
         snackbarHostState = snackbarHostState,
         modifier = modifier
@@ -86,10 +88,10 @@ fun ProgressScreen(
                 .padding(16.dp)
         ) {
             if (state.exercises.isEmpty()) {
-                EmptyScreen(message = "Create exercises and log sessions first to view performance evolution!")
+                EmptyScreen(message = stringResource(R.string.empty_progress_message))
             } else {
                 Text(
-                    text = "Track Exercise Performance",
+                    text = stringResource(R.string.track_exercise_performance),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 8.dp)
@@ -100,7 +102,7 @@ fun ProgressScreen(
                         options = state.exercises,
                         selectedOption = exercise,
                         onOptionSelected = { selectedExercise = it },
-                        label = "Select Exercise",
+                        label = stringResource(R.string.select_exercise),
                         optionToString = { it.name }
                     )
                 }
@@ -113,21 +115,21 @@ fun ProgressScreen(
                         onClick = { selectedMetricIndex = 0 },
                         shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2)
                     ) {
-                        Text("Max Load")
+                        Text(stringResource(R.string.max_load))
                     }
                     SegmentedButton(
                         selected = selectedMetricIndex == 1,
                         onClick = { selectedMetricIndex = 1 },
                         shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2)
                     ) {
-                        Text("Total Volume")
+                        Text(stringResource(R.string.total_volume))
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
                 if (progressPoints.size < 2) {
-                    EmptyScreen(message = "Log at least 2 workouts for this exercise to generate a progression chart.")
+                    EmptyScreen(message = stringResource(R.string.empty_chart_message))
                 } else {
                     PersonalCard(
                         modifier = Modifier
@@ -139,9 +141,9 @@ fun ProgressScreen(
                                 .fillMaxSize()
                                 .padding(16.dp)
                         ) {
-                            val metricLabel = if (selectedMetricIndex == 0) "Max Load (kg)" else "Total Volume (kg)"
+                            val metricLabel = if (selectedMetricIndex == 0) stringResource(R.string.max_load_kg) else stringResource(R.string.total_volume_kg)
                             Text(
-                                text = "Progression: $metricLabel",
+                                text = stringResource(R.string.progression_label, metricLabel),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold
                             )

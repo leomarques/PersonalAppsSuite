@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -39,8 +40,9 @@ fun NutrientPortionDialog(
     onConfirm: (amountGrams: Float) -> Unit,
     initialAmountGrams: Float = 100f,
     gramsPerServing: Float = 100f,
-    confirmLabel: String = "Add to Day"
+    confirmLabel: String? = null
 ) {
+    val finalConfirmLabel = confirmLabel ?: stringResource(R.string.add_to_day)
     var logUnit by remember { mutableStateOf("Servings") }
     var amountStr by remember(initialAmountGrams, gramsPerServing, logUnit) { 
         mutableStateOf(
@@ -79,7 +81,7 @@ fun NutrientPortionDialog(
                     protein = totalProtein,
                     carbs = totalCarbs,
                     fat = totalFat,
-                    leadingSubtitle = "Total: $totalCalories kcal (${currentAmountGrams.toInt()}g)"
+                    leadingSubtitle = stringResource(R.string.total_calories_with_grams, totalCalories, currentAmountGrams.toInt())
                 )
                 
                 Row(
@@ -91,7 +93,7 @@ fun NutrientPortionDialog(
                             onClick = {},
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Servings")
+                            Text(stringResource(R.string.servings))
                         }
                     } else {
                         OutlinedButton(
@@ -103,7 +105,7 @@ fun NutrientPortionDialog(
                             },
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Servings")
+                            Text(stringResource(R.string.servings))
                         }
                     }
 
@@ -112,7 +114,7 @@ fun NutrientPortionDialog(
                             onClick = {},
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Grams (g)")
+                            Text(stringResource(R.string.grams_g))
                         }
                     } else {
                         OutlinedButton(
@@ -123,7 +125,7 @@ fun NutrientPortionDialog(
                             },
                             modifier = Modifier.weight(1f)
                         ) {
-                            Text("Grams (g)")
+                            Text(stringResource(R.string.grams_g))
                         }
                     }
                 }
@@ -145,7 +147,7 @@ fun NutrientPortionDialog(
                     PersonalTextField(
                         value = amountStr,
                         onValueChange = { amountStr = it },
-                        label = if (logUnit == "Grams") "Amount (grams)" else "Servings (${gramsPerServing.toInt()}g)",
+                        label = if (logUnit == "Grams") stringResource(R.string.amount_grams) else stringResource(R.string.servings_with_grams, gramsPerServing.toInt()),
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number,
                             imeAction = ImeAction.Done
@@ -159,7 +161,7 @@ fun NutrientPortionDialog(
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "Increase"
+                            contentDescription = stringResource(R.string.increase)
                         )
                     }
                 }
@@ -175,12 +177,12 @@ fun NutrientPortionDialog(
                     }
                 }
             ) {
-                Text(confirmLabel)
+                Text(finalConfirmLabel)
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

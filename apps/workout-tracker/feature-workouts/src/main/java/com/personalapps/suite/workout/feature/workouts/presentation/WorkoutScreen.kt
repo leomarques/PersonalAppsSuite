@@ -33,6 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
+import com.personalapps.suite.workout.feature.workouts.R
 import com.personalapps.suite.shared.common.DateUtils
 import com.personalapps.suite.shared.designsystem.EmptyScreen
 import com.personalapps.suite.shared.designsystem.PersonalButton
@@ -55,12 +57,15 @@ fun WorkoutScreen(
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val workoutCreated = stringResource(R.string.workout_created_success)
+    val workoutDeleted = stringResource(R.string.workout_deleted_success)
+
     LaunchedEffect(key1 = true) {
         viewModel.effect.collect { effect ->
             when (effect) {
                 is WorkoutEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
-                is WorkoutEffect.WorkoutCreated -> snackbarHostState.showSnackbar("Workout session logged successfully")
-                is WorkoutEffect.WorkoutDeleted -> snackbarHostState.showSnackbar("Workout session deleted")
+                is WorkoutEffect.WorkoutCreated -> snackbarHostState.showSnackbar(workoutCreated)
+                is WorkoutEffect.WorkoutDeleted -> snackbarHostState.showSnackbar(workoutDeleted)
             }
         }
     }
@@ -68,7 +73,7 @@ fun WorkoutScreen(
     var showLogDialog by remember { mutableStateOf(false) }
 
     PersonalScaffold(
-        title = "Workout Dashboard",
+        title = stringResource(R.string.workout_dashboard_title),
         onBackClick = onBackClick,
         floatingActionButton = {
             IconButton(
@@ -76,7 +81,7 @@ fun WorkoutScreen(
                 modifier = Modifier.padding(16.dp)
             ) {
                 androidx.compose.material3.FloatingActionButton(onClick = { showLogDialog = true }) {
-                    Icon(imageVector = Icons.Default.Add, contentDescription = "Log Workout")
+                    Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.log_workout))
                 }
             }
         },
@@ -94,12 +99,12 @@ fun WorkoutScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text(
-                    text = "Workout History",
+                    text = stringResource(R.string.workout_history),
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier.weight(1f)
                 )
                 PersonalButton(
-                    text = "Exercises",
+                    text = stringResource(R.string.exercises),
                     onClick = onNavigateToExercises
                 )
             }
@@ -107,7 +112,7 @@ fun WorkoutScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             if (state.sessions.isEmpty()) {
-                EmptyScreen(message = "No logged workouts yet. Start a session using the '+' button below!")
+                EmptyScreen(message = stringResource(R.string.empty_workout_history_message))
             } else {
                 LazyColumn(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -166,7 +171,7 @@ fun WorkoutSessionItemCard(
                 IconButton(onClick = onDelete) {
                     Icon(
                         imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete session",
+                        contentDescription = stringResource(R.string.delete_session),
                         tint = MaterialTheme.colorScheme.error
                     )
                 }
@@ -176,7 +181,7 @@ fun WorkoutSessionItemCard(
                 Spacer(modifier = Modifier.height(8.dp))
                 val groupedSets = session.sets.groupBy { it.exerciseId }
                 groupedSets.forEach { (exerciseId, exerciseSets) ->
-                    val exerciseName = exercises.find { it.id == exerciseId }?.name ?: "Unknown Exercise"
+                    val exerciseName = exercises.find { it.id == exerciseId }?.name ?: stringResource(R.string.unknown_exercise)
                     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)) {
                         Text(
                             text = exerciseName,
@@ -184,7 +189,7 @@ fun WorkoutSessionItemCard(
                             fontWeight = FontWeight.SemiBold
                         )
                         val setsText = exerciseSets.mapIndexed { idx, set ->
-                            "Set ${idx + 1}: ${set.loadKg} kg x ${set.reps}"
+                            stringResource(R.string.set_label, idx + 1, set.loadKg.toString(), set.reps)
                         }.joinToString("  •  ")
                         Text(
                             text = setsText,
@@ -204,7 +209,8 @@ fun LogWorkoutDialog(
     onDismiss: () -> Unit,
     onConfirm: (sessionName: String, sets: List<WorkoutSet>) -> Unit
 ) {
-    var sessionName by remember { mutableStateOf("Full Body Workout") }
+    val defaultSessionName = stringResource(R.string.default_session_name)
+    var sessionName by remember { mutableStateOf(defaultSessionName) }
     val tempSets = remember { mutableStateListOf<WorkoutSet>() }
 
     var selectedExercise by remember { mutableStateOf<Exercise?>(null) }
@@ -228,26 +234,26 @@ fun LogWorkoutDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Log Workout Session") },
+        title = { Text(stringResource(R.string.log_workout_session_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 PersonalTextField(
                     value = sessionName,
                     onValueChange = { sessionName = it },
-                    label = "Session Name"
+                    label = stringResource(R.string.session_name)
                 )
 
                 Spacer(modifier = Modifier.height(4.dp))
 
                 if (exercises.isEmpty()) {
                     Text(
-                        text = "Create exercises in the library first before starting a session.",
+                        text = stringResource(R.string.create_exercises_first_error),
                         color = MaterialTheme.colorScheme.error,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 } else {
                     Text(
-                        text = "Add Exercise Set",
+                        text = stringResource(R.string.add_exercise_set),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -255,7 +261,7 @@ fun LogWorkoutDialog(
                     PersonalTextField(
                         value = exerciseSearchQuery,
                         onValueChange = { exerciseSearchQuery = it },
-                        label = "Search exercise...",
+                        label = stringResource(R.string.search_exercise),
                         modifier = Modifier.fillMaxWidth()
                     )
 
@@ -284,7 +290,7 @@ fun LogWorkoutDialog(
 
                     selectedExercise?.let { exercise ->
                         Text(
-                            text = "Selected: ${exercise.name}",
+                            text = stringResource(R.string.selected_exercise_label, exercise.name),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.SemiBold
@@ -297,14 +303,14 @@ fun LogWorkoutDialog(
                             PersonalTextField(
                                 value = repsStr,
                                 onValueChange = { repsStr = it },
-                                label = "Reps",
+                                label = stringResource(R.string.reps),
                                 modifier = Modifier.weight(1f)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
                             PersonalTextField(
                                 value = loadStr,
                                 onValueChange = { loadStr = it },
-                                label = "Load (kg)",
+                                label = stringResource(R.string.load_kg),
                                 modifier = Modifier.weight(1f)
                             )
                             Spacer(modifier = Modifier.width(8.dp))
@@ -322,7 +328,7 @@ fun LogWorkoutDialog(
                                     )
                                 }
                             ) {
-                                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Set")
+                                Icon(imageVector = Icons.Default.Add, contentDescription = stringResource(R.string.add_set))
                             }
                         }
                     }
@@ -331,7 +337,7 @@ fun LogWorkoutDialog(
                 if (tempSets.isNotEmpty()) {
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Session Preview",
+                        text = stringResource(R.string.session_preview),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Bold
                     )
@@ -340,13 +346,13 @@ fun LogWorkoutDialog(
                     ) {
                         LazyColumn(modifier = Modifier.padding(6.dp)) {
                             items(tempSets) { set ->
-                                val name = exercises.find { it.id == set.exerciseId }?.name ?: "Exercise"
+                                val name = exercises.find { it.id == set.exerciseId }?.name ?: stringResource(R.string.exercises)
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier.fillMaxWidth().padding(vertical = 2.dp)
                                 ) {
                                     Text(
-                                        text = "$name: ${set.loadKg} kg x ${set.reps}",
+                                        text = stringResource(R.string.set_preview_line, name, set.loadKg.toString(), set.reps),
                                         style = MaterialTheme.typography.bodySmall,
                                         modifier = Modifier.weight(1f)
                                     )
@@ -356,7 +362,7 @@ fun LogWorkoutDialog(
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Delete,
-                                            contentDescription = "Remove set",
+                                            contentDescription = stringResource(R.string.remove_set),
                                             tint = MaterialTheme.colorScheme.error
                                         )
                                     }
@@ -375,12 +381,12 @@ fun LogWorkoutDialog(
                     }
                 }
             ) {
-                Text("Log Workout")
+                Text(stringResource(R.string.log_workout_confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancel")
+                Text(stringResource(R.string.cancel))
             }
         }
     )

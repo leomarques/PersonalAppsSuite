@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Workout Tracker</string>
+    <string name="nav_workouts">Workouts</string>
+    <string name="nav_library">Library</string>
+    <string name="nav_progress">Progress</string>
+</resources>
