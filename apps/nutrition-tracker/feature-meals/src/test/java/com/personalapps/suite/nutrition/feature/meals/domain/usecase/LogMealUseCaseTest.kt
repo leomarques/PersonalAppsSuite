@@ -4,7 +4,9 @@ import com.personalapps.suite.nutrition.feature.api.model.Food
 import com.personalapps.suite.nutrition.feature.api.model.Meal
 import com.personalapps.suite.nutrition.feature.api.model.LoggedFoodPortion
 import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
+import com.personalapps.suite.shared.common.DateProvider
 import com.personalapps.suite.shared.common.Result
+import com.personalapps.suite.shared.databaseutils.TransactionProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
@@ -12,18 +14,29 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
+import java.time.Instant
+import java.time.LocalDate
 
 class FakeMealRepository : MealRepository {
     private val meals = MutableStateFlow<List<Meal>>(emptyList())
     override fun getAllMeals(): Flow<List<Meal>> = meals
-    override suspend fun insertMeal(meal: Meal): Long {
+    override suspend fun insertMeal(meal: Meal): Result<Long> {
         val list = meals.value.toMutableList()
         val newMeal = meal.copy(id = (list.size + 1).toLong())
         list.add(newMeal)
         meals.value = list
-        return newMeal.id
+        return Result.Success(newMeal.id)
     }
-    override suspend fun deleteMeal(meal: Meal) {}
+    override suspend fun deleteMeal(meal: Meal): Result<Unit> = Result.Success(Unit)
+}
+
+class FakeDateProvider : DateProvider {
+    override fun now(): LocalDate = LocalDate.EPOCH
+    override fun nowInstant(): Instant = Instant.ofEpochMilli(123456789)
+}
+
+class FakeTransactionProvider : TransactionProvider {
+    override suspend fun <T> runInTransaction(block: suspend () -> T): T = block()
 }
 
 class FakeFoodRepository : com.personalapps.suite.nutrition.feature.api.repository.FoodRepository {
@@ -34,25 +47,29 @@ class FakeFoodRepository : com.personalapps.suite.nutrition.feature.api.reposito
     fun getFrequencyByName(name: String) = nameFrequencies[name] ?: 0
 
     override fun getAllFoods(): Flow<List<Food>> = MutableStateFlow(emptyList())
-    override suspend fun insertFood(food: Food): Long = 0L
-    override suspend fun updateFood(food: Food) {}
-    override suspend fun deleteFood(food: Food) {}
-    override suspend fun incrementFrequency(foodId: Long) {
+    override suspend fun insertFood(food: Food): Result<Long> = Result.Success(0L)
+    override suspend fun updateFood(food: Food): Result<Unit> = Result.Success(Unit)
+    override suspend fun deleteFood(food: Food): Result<Unit> = Result.Success(Unit)
+    override suspend fun incrementFrequency(foodId: Long): Result<Unit> {
         frequencies[foodId] = (frequencies[foodId] ?: 0) + 1
+        return Result.Success(Unit)
     }
-    override suspend fun incrementFrequencyByName(name: String) {
+    override suspend fun incrementFrequencyByName(name: String): Result<Unit> {
         nameFrequencies[name] = (nameFrequencies[name] ?: 0) + 1
+        return Result.Success(Unit)
     }
 }
 
 class LogMealUseCaseTest {
     private val mealRepository = FakeMealRepository()
     private val foodRepository = FakeFoodRepository()
+    private val dateProvider = FakeDateProvider()
+    private val transactionProvider = FakeTransactionProvider()
     private lateinit var useCase: LogMealUseCase
 
     @Before
     fun setUp() {
-        useCase = LogMealUseCase(mealRepository, foodRepository)
+        useCase = LogMealUseCase(mealRepository, foodRepository, dateProvider, transactionProvider)
     }
 
     @Test

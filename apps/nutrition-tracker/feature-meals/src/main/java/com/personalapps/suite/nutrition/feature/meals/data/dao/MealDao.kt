@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MealDao {
-    @Query("SELECT * FROM meals ORDER BY id ASC")
+    @Query("SELECT * FROM meals ORDER BY createdAt DESC")
     fun getAllMeals(): Flow<List<MealEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

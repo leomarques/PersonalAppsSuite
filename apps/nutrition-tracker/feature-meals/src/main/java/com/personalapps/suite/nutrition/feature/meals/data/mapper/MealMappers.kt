@@ -35,12 +35,14 @@ fun MealEntity.toDomain(): Meal {
     return Meal(
         id = id,
         name = name,
-        loggedFoods = portions
+        loggedFoods = portions,
+        createdAt = createdAt
     )
 }
 
 fun Meal.toEntity() = MealEntity(
     id = id,
     name = name,
-    loggedFoodsJson = Json.encodeToString(loggedFoods.map { it.toEntity() })
+    loggedFoodsJson = Json.encodeToString(loggedFoods.map { it.toEntity() }),
+    createdAt = createdAt
 )

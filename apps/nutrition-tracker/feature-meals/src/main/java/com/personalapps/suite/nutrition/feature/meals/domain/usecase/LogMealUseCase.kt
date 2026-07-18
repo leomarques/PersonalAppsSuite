@@ -4,12 +4,14 @@ import com.personalapps.suite.nutrition.feature.api.model.Food
 import com.personalapps.suite.nutrition.feature.api.model.LoggedFoodPortion
 import com.personalapps.suite.nutrition.feature.api.model.Meal
 import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
+import com.personalapps.suite.shared.common.DateProvider
 import com.personalapps.suite.shared.common.Result
 import com.personalapps.suite.shared.databaseutils.TransactionProvider
 
 class LogMealUseCase(
     private val mealRepository: MealRepository,
     private val foodRepository: com.personalapps.suite.nutrition.feature.api.repository.FoodRepository,
+    private val dateProvider: DateProvider,
     private val transactionProvider: TransactionProvider
 ) {
     
@@ -21,7 +23,8 @@ class LogMealUseCase(
             transactionProvider.runInTransaction {
                 val meal = Meal(
                     name = name,
-                    loggedFoods = portions
+                    loggedFoods = portions,
+                    createdAt = dateProvider.nowInstant()
                 )
                 val idResult = mealRepository.insertMeal(meal)
                 val id = (idResult as Result.Success).data
@@ -55,7 +58,8 @@ class LogMealUseCase(
                 )
                 val meal = Meal(
                     name = food.name,
-                    loggedFoods = listOf(portion)
+                    loggedFoods = listOf(portion),
+                    createdAt = dateProvider.nowInstant()
                 )
                 val idResult = mealRepository.insertMeal(meal)
                 val id = (idResult as Result.Success).data

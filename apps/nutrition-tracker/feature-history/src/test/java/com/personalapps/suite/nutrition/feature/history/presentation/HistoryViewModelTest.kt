@@ -12,6 +12,7 @@ import com.personalapps.suite.shared.common.DateProvider
 import com.personalapps.suite.shared.common.Result
 import com.personalapps.suite.shared.preferences.PreferencesManager
 import com.personalapps.suite.shared.testing.MainDispatcherRule
+import java.time.Instant
 import java.time.LocalDate
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -90,6 +91,7 @@ class FakePreferencesManager : PreferencesManager {
 class FakeDateProvider(private var fixedDate: LocalDate) : DateProvider {
     fun setDate(date: LocalDate) { fixedDate = date }
     override fun now(): LocalDate = fixedDate
+    override fun nowInstant(): Instant = Instant.now()
 }
 
 class FakeTransactionProvider : com.personalapps.suite.shared.databaseutils.TransactionProvider {

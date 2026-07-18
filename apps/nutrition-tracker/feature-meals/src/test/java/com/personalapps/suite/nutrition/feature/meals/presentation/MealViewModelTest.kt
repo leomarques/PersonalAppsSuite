@@ -5,6 +5,9 @@ import com.personalapps.suite.nutrition.feature.api.model.Meal
 import com.personalapps.suite.nutrition.feature.api.repository.FoodRepository
 import com.personalapps.suite.nutrition.feature.api.repository.MealRepository
 import com.personalapps.suite.nutrition.feature.meals.domain.usecase.LogMealUseCase
+import com.personalapps.suite.shared.common.DateProvider
+import com.personalapps.suite.shared.common.Result
+import com.personalapps.suite.shared.databaseutils.TransactionProvider
 import com.personalapps.suite.shared.testing.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -17,51 +20,57 @@ import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
+import java.time.Instant
+import java.time.LocalDate
 
 class FakeFoodRepository : FoodRepository {
     private val _foods = MutableStateFlow<List<Food>>(emptyList())
 
     override fun getAllFoods(): Flow<List<Food>> = _foods
 
-    override suspend fun insertFood(food: Food): Long {
+    override suspend fun insertFood(food: Food): Result<Long> {
         val list = _foods.value.toMutableList()
         val newFood = food.copy(id = (list.size + 1).toLong())
         list.add(newFood)
         sortFoods(list)
-        return newFood.id
+        return Result.Success(newFood.id)
     }
 
-    override suspend fun updateFood(food: Food) {
+    override suspend fun updateFood(food: Food): Result<Unit> {
         val list = _foods.value.toMutableList()
         val index = list.indexOfFirst { it.id == food.id }
         if (index != -1) {
             list[index] = food
             sortFoods(list)
         }
+        return Result.Success(Unit)
     }
 
-    override suspend fun deleteFood(food: Food) {
+    override suspend fun deleteFood(food: Food): Result<Unit> {
         val list = _foods.value.toMutableList()
         list.removeIf { it.id == food.id }
         sortFoods(list)
+        return Result.Success(Unit)
     }
 
-    override suspend fun incrementFrequency(foodId: Long) {
+    override suspend fun incrementFrequency(foodId: Long): Result<Unit> {
         val list = _foods.value.toMutableList()
         val index = list.indexOfFirst { it.id == foodId }
         if (index != -1) {
             list[index] = list[index].copy(frequency = list[index].frequency + 1)
             sortFoods(list)
         }
+        return Result.Success(Unit)
     }
 
-    override suspend fun incrementFrequencyByName(name: String) {
+    override suspend fun incrementFrequencyByName(name: String): Result<Unit> {
         val list = _foods.value.toMutableList()
         val index = list.indexOfFirst { it.name == name }
         if (index != -1) {
             list[index] = list[index].copy(frequency = list[index].frequency + 1)
             sortFoods(list)
         }
+        return Result.Success(Unit)
     }
 
     private fun sortFoods(list: MutableList<Food>) {
@@ -78,19 +87,29 @@ class FakeMealRepository : MealRepository {
 
     override fun getAllMeals(): Flow<List<Meal>> = meals
 
-    override suspend fun insertMeal(meal: Meal): Long {
+    override suspend fun insertMeal(meal: Meal): Result<Long> {
         val list = meals.value.toMutableList()
         val newMeal = meal.copy(id = (list.size + 1).toLong())
         list.add(newMeal)
         meals.value = list
-        return newMeal.id
+        return Result.Success(newMeal.id)
     }
 
-    override suspend fun deleteMeal(meal: Meal) {
+    override suspend fun deleteMeal(meal: Meal): Result<Unit> {
         val list = meals.value.toMutableList()
         list.remove(meal)
         meals.value = list
+        return Result.Success(Unit)
     }
+}
+
+class FakeDateProvider : DateProvider {
+    override fun now(): LocalDate = LocalDate.EPOCH
+    override fun nowInstant(): Instant = Instant.now()
+}
+
+class FakeTransactionProvider : TransactionProvider {
+    override suspend fun <T> runInTransaction(block: suspend () -> T): T = block()
 }
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -101,12 +120,14 @@ class MealViewModelTest {
 
     private val foodRepository = FakeFoodRepository()
     private val mealRepository = FakeMealRepository()
+    private val dateProvider = FakeDateProvider()
+    private val transactionProvider = FakeTransactionProvider()
     private lateinit var logMealUseCase: LogMealUseCase
     private lateinit var viewModel: MealViewModel
 
     @Before
     fun setUp() {
-        logMealUseCase = LogMealUseCase(mealRepository, foodRepository)
+        logMealUseCase = LogMealUseCase(mealRepository, foodRepository, dateProvider, transactionProvider)
         viewModel = MealViewModel(mealRepository, foodRepository, logMealUseCase)
     }
 
