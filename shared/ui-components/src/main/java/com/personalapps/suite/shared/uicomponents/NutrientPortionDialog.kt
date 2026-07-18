@@ -57,6 +57,15 @@ fun NutrientPortionDialog(
 
     val focusRequester = remember { FocusRequester() }
 
+    val amountValue = amountStr.replace(',', '.').toFloatOrNull() ?: 0f
+    val currentAmountGrams = if (logUnit == "Servings") amountValue * gramsPerServing else amountValue
+    val factor = if (gramsPerServing > 0) currentAmountGrams / gramsPerServing else 0f
+    
+    val totalProtein = proteinPerServing * factor
+    val totalCarbs = carbsPerServing * factor
+    val totalFat = fatPerServing * factor
+    val totalCalories = (caloriesPerServing * factor).toInt()
+
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
@@ -67,10 +76,10 @@ fun NutrientPortionDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 NutrientRow(
-                    protein = proteinPerServing,
-                    carbs = carbsPerServing,
-                    fat = fatPerServing,
-                    leadingSubtitle = "Per ${gramsPerServing.toInt()}g: $caloriesPerServing kcal"
+                    protein = totalProtein,
+                    carbs = totalCarbs,
+                    fat = totalFat,
+                    leadingSubtitle = "Total: $totalCalories kcal (${currentAmountGrams.toInt()}g)"
                 )
                 
                 Row(
