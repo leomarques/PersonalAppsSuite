@@ -181,6 +181,38 @@ class HistoryViewModelTest {
     }
 
     @Test
+    fun averageLast7Days_calculatesCorrectly() = runTest(mainDispatcherRule.testDispatcher) {
+        backgroundScope.launch {
+            viewModel.uiState.collect {}
+        }
+        runCurrent()
+
+        // Insert 10 history entries (only last 7 should be averaged)
+        for (i in 0 until 10) {
+            historyRepository.insertHistoryEntry(
+                HistoryEntry(
+                    date = LocalDate.now().minusDays(i.toLong() + 1),
+                    totalCalories = 1000 + (i * 100),
+                    totalProtein = 50f + i,
+                    totalCarbs = 150f + i,
+                    totalFat = 30f + i
+                )
+            )
+        }
+        runCurrent()
+
+        val average = viewModel.uiState.value.averageLast7Days
+        assertEquals(7, average?.daysCount)
+        
+        // Last 7 entries are i=0 to i=6
+        // Calories: (1000 + 1100 + 1200 + 1300 + 1400 + 1500 + 1600) / 7 = 9100 / 7 = 1300
+        assertEquals(1300, average?.calories)
+        
+        // Protein: (50+51+52+53+54+55+56) / 7 = 371 / 7 = 53
+        assertEquals(53f, average?.protein ?: 0f, 0.01f)
+    }
+
+    @Test
     fun startNewDay_usesStoredDateAndClearsList() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
             viewModel.uiState.collect {}
@@ -222,4 +254,3 @@ class HistoryViewModelTest {
         assertEquals(today.toString(), preferencesManager.getOpenDayDate().first())
     }
 }
-

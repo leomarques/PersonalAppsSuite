@@ -28,7 +28,9 @@ val databaseModule = module {
             NutritionDatabase.MIGRATION_1_2,
             NutritionDatabase.MIGRATION_2_3,
             NutritionDatabase.MIGRATION_3_4,
-            NutritionDatabase.MIGRATION_4_5
+            NutritionDatabase.MIGRATION_4_5,
+            NutritionDatabase.MIGRATION_5_6,
+            NutritionDatabase.MIGRATION_6_7
         )
         .addCallback(object : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
@@ -50,7 +52,7 @@ val databaseModule = module {
                                     put("carbs", food.carbs)
                                     put("fat", food.fat)
                                     put("gramsPerServing", food.gramsPerServing)
-                                    put("frequency", 0)
+                                    put("lastUsedAt", 0L)
                                 }
                                 db.insert("foods", OnConflictStrategy.REPLACE, values)
                             }

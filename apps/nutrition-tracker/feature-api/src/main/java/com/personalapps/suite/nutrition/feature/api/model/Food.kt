@@ -8,5 +8,5 @@ data class Food(
     val carbs: Float,
     val fat: Float,
     val gramsPerServing: Float = 100f,
-    val frequency: Int = 0
+    val lastUsedAt: Long = 0
 )

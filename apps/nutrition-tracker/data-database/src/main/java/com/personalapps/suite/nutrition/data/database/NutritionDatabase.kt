@@ -22,7 +22,7 @@ import com.personalapps.suite.shared.databaseutils.Converters
         MacroGoalEntity::class,
         HistoryEntryEntity::class
     ],
-    version = 5,
+    version = 7,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -57,6 +57,28 @@ abstract class NutritionDatabase : RoomDatabase() {
         val MIGRATION_4_5 = object : Migration(4, 5) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE meals ADD COLUMN createdAt INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE foods ADD COLUMN lastUsedAt INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Recreate foods table without frequency
+                db.execSQL("CREATE TABLE foods_new (id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, name TEXT NOT NULL, calories INTEGER NOT NULL, protein REAL NOT NULL, carbs REAL NOT NULL, fat REAL NOT NULL, gramsPerServing REAL NOT NULL DEFAULT 100.0, lastUsedAt INTEGER NOT NULL DEFAULT 0)")
+                db.execSQL("INSERT INTO foods_new (id, name, calories, protein, carbs, fat, gramsPerServing, lastUsedAt) SELECT id, name, calories, protein, carbs, fat, gramsPerServing, lastUsedAt FROM foods")
+                db.execSQL("DROP TABLE foods")
+                db.execSQL("ALTER TABLE foods_new RENAME TO foods")
+
+                // Recreate history_entries without goals
+                db.execSQL("CREATE TABLE history_entries_new (date TEXT PRIMARY KEY NOT NULL, totalCalories INTEGER NOT NULL, totalProtein REAL NOT NULL, totalCarbs REAL NOT NULL, totalFat REAL NOT NULL)")
+                db.execSQL("INSERT INTO history_entries_new (date, totalCalories, totalProtein, totalCarbs, totalFat) SELECT date, totalCalories, totalProtein, totalCarbs, totalFat FROM history_entries")
+                db.execSQL("DROP TABLE history_entries")
+                db.execSQL("ALTER TABLE history_entries_new RENAME TO history_entries")
             }
         }
     }

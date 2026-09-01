@@ -183,7 +183,16 @@ fun MealScreen(
             },
             onSave = { name, calories, protein, carbs, fat, gramsPerServing ->
                 if (foodToEdit != null) {
-                    viewModel.updateFood(foodToEdit.id, name, calories, protein, carbs, fat, gramsPerServing)
+                    viewModel.updateFood(
+                        foodToEdit.copy(
+                            name = name,
+                            calories = calories,
+                            protein = protein,
+                            carbs = carbs,
+                            fat = fat,
+                            gramsPerServing = gramsPerServing
+                        )
+                    )
                 } else {
                     viewModel.addCustomFood(name, calories, protein, carbs, fat, gramsPerServing)
                 }

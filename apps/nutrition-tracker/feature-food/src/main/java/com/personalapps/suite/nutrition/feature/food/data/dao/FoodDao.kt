@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FoodDao {
-    @Query("SELECT * FROM foods ORDER BY frequency DESC, name ASC")
+    @Query("SELECT * FROM foods ORDER BY lastUsedAt DESC, name ASC")
     fun getAllFoods(): Flow<List<FoodEntity>>
 
     @Query("SELECT * FROM foods WHERE id = :id")
@@ -23,11 +23,11 @@ interface FoodDao {
     @Update
     suspend fun updateFood(food: FoodEntity): Int
 
-    @Query("UPDATE foods SET frequency = frequency + 1 WHERE id = :foodId")
-    suspend fun incrementFrequency(foodId: Long)
+    @Query("UPDATE foods SET lastUsedAt = :timestamp WHERE id = :foodId")
+    suspend fun updateLastUsed(foodId: Long, timestamp: Long)
 
-    @Query("UPDATE foods SET frequency = frequency + 1 WHERE name = :name")
-    suspend fun incrementFrequencyByName(name: String)
+    @Query("UPDATE foods SET lastUsedAt = :timestamp WHERE name = :name")
+    suspend fun updateLastUsedByName(name: String, timestamp: Long)
 
     @Delete
     suspend fun deleteFood(food: FoodEntity): Int

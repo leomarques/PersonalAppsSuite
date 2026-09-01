@@ -2,6 +2,10 @@ package com.personalapps.suite.nutrition.feature.food.presentation
 
 import com.personalapps.suite.nutrition.feature.api.model.Food
 import com.personalapps.suite.nutrition.feature.api.repository.FoodRepository
+import com.personalapps.suite.nutrition.feature.food.domain.usecase.AddFoodUseCase
+import com.personalapps.suite.nutrition.feature.food.domain.usecase.DeleteFoodUseCase
+import com.personalapps.suite.nutrition.feature.food.domain.usecase.UpdateFoodUseCase
+import com.personalapps.suite.shared.common.Result
 import com.personalapps.suite.shared.testing.MainDispatcherRule
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -20,53 +24,64 @@ class FakeFoodRepository : FoodRepository {
 
     override fun getAllFoods(): Flow<List<Food>> = _foods
 
-    override suspend fun insertFood(food: Food): Long {
+    override suspend fun insertFood(food: Food): Result<Long> {
         val updated = _foods.value.toMutableList()
         val newFood = food.copy(id = (updated.size + 1).toLong())
         updated.add(newFood)
         sortFoods(updated)
-        return newFood.id
+        _foods.value = updated
+        return Result.Success(newFood.id)
     }
 
-    override suspend fun deleteFood(food: Food) {
+    override suspend fun deleteFood(food: Food): Result<Unit> {
         val updated = _foods.value.toMutableList()
         updated.removeIf { it.id == food.id }
-        sortFoods(updated)
+        _foods.value = updated
+        return Result.Success(Unit)
     }
 
-    override suspend fun updateFood(food: Food) {
+    override suspend fun updateFood(food: Food): Result<Unit> {
         val updated = _foods.value.toMutableList()
         updated.removeIf { it.id == food.id }
         updated.add(food)
         sortFoods(updated)
+        _foods.value = updated
+        return Result.Success(Unit)
     }
 
-    override suspend fun incrementFrequency(foodId: Long) {
+    override suspend fun updateLastUsed(foodId: Long): Result<Unit> {
         val updated = _foods.value.toMutableList()
         val index = updated.indexOfFirst { it.id == foodId }
         if (index != -1) {
             val food = updated[index]
-            updated[index] = food.copy(frequency = food.frequency + 1)
+            updated[index] = food.copy(
+                lastUsedAt = System.currentTimeMillis()
+            )
             sortFoods(updated)
+            _foods.value = updated
         }
+        return Result.Success(Unit)
     }
 
-    override suspend fun incrementFrequencyByName(name: String) {
+    override suspend fun updateLastUsedByName(name: String): Result<Unit> {
         val updated = _foods.value.toMutableList()
         val index = updated.indexOfFirst { it.name == name }
         if (index != -1) {
             val food = updated[index]
-            updated[index] = food.copy(frequency = food.frequency + 1)
+            updated[index] = food.copy(
+                lastUsedAt = System.currentTimeMillis()
+            )
             sortFoods(updated)
+            _foods.value = updated
         }
+        return Result.Success(Unit)
     }
 
     private fun sortFoods(list: MutableList<Food>) {
         list.sortWith(
-            compareByDescending<Food> { it.frequency }
+            compareByDescending<Food> { it.lastUsedAt }
                 .thenBy { it.name }
         )
-        _foods.value = list
     }
 }
 
@@ -81,11 +96,14 @@ class FoodViewModelTest {
 
     @Before
     fun setUp() {
-        viewModel = FoodViewModel(repository)
+        val addFoodUseCase = AddFoodUseCase(repository)
+        val updateFoodUseCase = UpdateFoodUseCase(repository)
+        val deleteFoodUseCase = DeleteFoodUseCase(repository)
+        viewModel = FoodViewModel(repository, addFoodUseCase, updateFoodUseCase, deleteFoodUseCase)
     }
 
     @Test
-    fun foods_areSortedByFrequencyThenName() = runTest(mainDispatcherRule.testDispatcher) {
+    fun foods_areSortedByRecencyThenName() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
             viewModel.uiState.collect {}
         }
@@ -96,20 +114,23 @@ class FoodViewModelTest {
         repository.insertFood(Food(name = "Banana", calories = 89, protein = 1.1f, carbs = 22.8f, fat = 0.3f))
         runCurrent()
 
-        // Initially sorted by name: Apple, Banana, Zucchini (frequency 0)
+        // Initially sorted by name since lastUsedAt is 0 for all
         assertEquals(listOf("Apple", "Banana", "Zucchini"), viewModel.uiState.value.foods.map { it.name })
 
-        // Increment frequency
+        // Update last used (which updates lastUsedAt)
         val bananaId = viewModel.uiState.value.foods.first { it.name == "Banana" }.id
-        val appleId = viewModel.uiState.value.foods.first { it.name == "Apple" }.id
-
-        repository.incrementFrequency(bananaId)
-        repository.incrementFrequency(bananaId)
-        repository.incrementFrequency(appleId)
+        repository.updateLastUsed(bananaId)
         runCurrent()
 
-        // Now sorted by frequency: Banana (2), Apple (1), Zucchini (0)
+        // Now Banana should be at the top
         assertEquals(listOf("Banana", "Apple", "Zucchini"), viewModel.uiState.value.foods.map { it.name })
+        
+        val appleId = viewModel.uiState.value.foods.first { it.name == "Apple" }.id
+        repository.updateLastUsed(appleId)
+        runCurrent()
+        
+        // Now Apple should be at the top
+        assertEquals(listOf("Apple", "Banana", "Zucchini"), viewModel.uiState.value.foods.map { it.name })
     }
 
     @Test
@@ -118,7 +139,7 @@ class FoodViewModelTest {
             viewModel.uiState.collect {}
         }
 
-        viewModel.addFood("Banana", 89, 1.1f, 22.8f, 0.3f)
+        viewModel.addFood("Banana", "89", "1.1", "22.8", "0.3")
         runCurrent()
 
         val foods = viewModel.uiState.value.foods
@@ -128,12 +149,33 @@ class FoodViewModelTest {
     }
 
     @Test
+    fun updateFood_preservesMetadata() = runTest(mainDispatcherRule.testDispatcher) {
+        backgroundScope.launch {
+            viewModel.uiState.collect {}
+        }
+
+        repository.insertFood(Food(name = "Banana", calories = 89, protein = 1.1f, carbs = 22.8f, fat = 0.3f, lastUsedAt = 12345L))
+        runCurrent()
+        
+        val foodBefore = viewModel.uiState.value.foods.first()
+        assertEquals(12345L, foodBefore.lastUsedAt)
+
+        viewModel.updateFood(foodBefore.copy(name = "Updated Banana", calories = 100))
+        runCurrent()
+
+        val foodAfter = viewModel.uiState.value.foods.first()
+        assertEquals("Updated Banana", foodAfter.name)
+        assertEquals(100, foodAfter.calories)
+        assertEquals(12345L, foodAfter.lastUsedAt)
+    }
+
+    @Test
     fun deleteFood_removesFromRepository() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
             viewModel.uiState.collect {}
         }
 
-        viewModel.addFood("Banana", 89, 1.1f, 22.8f, 0.3f)
+        viewModel.addFood("Banana", "89", "1.1", "22.8", "0.3")
         runCurrent()
         
         val addedFood = repository.getAllFoods().first().first()

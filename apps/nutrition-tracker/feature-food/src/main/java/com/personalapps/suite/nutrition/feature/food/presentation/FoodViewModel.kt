@@ -36,14 +36,15 @@ class FoodViewModel(
         }
     }
 
-    fun addFood(name: String, caloriesStr: String, proteinStr: String, carbsStr: String, fatStr: String) {
+    fun addFood(name: String, caloriesStr: String, proteinStr: String, carbsStr: String, fatStr: String, gramsPerServingStr: String = "100") {
         viewModelScope.launch {
             val calories = caloriesStr.toIntOrNull() ?: 0
             val protein = proteinStr.toFloatOrNull() ?: 0f
             val carbs = carbsStr.toFloatOrNull() ?: 0f
             val fat = fatStr.toFloatOrNull() ?: 0f
+            val gramsPerServing = gramsPerServingStr.toFloatOrNull() ?: 100f
 
-            val result = addFoodUseCase(name, calories, protein, carbs, fat)
+            val result = addFoodUseCase(name, calories, protein, carbs, fat, gramsPerServing)
             handleResult(
                 result = result,
                 onSuccess = { sendEffect(FoodEffect.FoodAdded) },
@@ -52,14 +53,9 @@ class FoodViewModel(
         }
     }
 
-    fun updateFood(id: Long, name: String, caloriesStr: String, proteinStr: String, carbsStr: String, fatStr: String) {
+    fun updateFood(food: Food) {
         viewModelScope.launch {
-            val calories = caloriesStr.toIntOrNull() ?: 0
-            val protein = proteinStr.toFloatOrNull() ?: 0f
-            val carbs = carbsStr.toFloatOrNull() ?: 0f
-            val fat = fatStr.toFloatOrNull() ?: 0f
-
-            val result = updateFoodUseCase(id, name, calories, protein, carbs, fat)
+            val result = updateFoodUseCase(food)
             handleResult(
                 result = result,
                 onSuccess = { sendEffect(FoodEffect.FoodUpdated) },

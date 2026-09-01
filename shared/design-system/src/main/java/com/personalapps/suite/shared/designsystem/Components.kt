@@ -1,5 +1,6 @@
 package com.personalapps.suite.shared.designsystem
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -38,13 +40,16 @@ fun PersonalButton(
 fun PersonalCard(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
+    colors: CardColors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+    border: BorderStroke? = null,
     content: @Composable () -> Unit
 ) {
     if (onClick != null) {
         Card(
             onClick = onClick,
             modifier = modifier,
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+            colors = colors,
+            border = border,
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
             Box(modifier = Modifier.padding(16.dp)) {
@@ -54,7 +59,8 @@ fun PersonalCard(
     } else {
         Card(
             modifier = modifier,
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainer),
+            colors = colors,
+            border = border,
             elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
         ) {
             Box(modifier = Modifier.padding(16.dp)) {

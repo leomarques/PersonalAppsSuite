@@ -32,15 +32,15 @@ class FoodRepositoryImpl(private val foodDao: FoodDao) : FoodRepository {
         Result.Error(e)
     }
 
-    override suspend fun incrementFrequency(foodId: Long): Result<Unit> = try {
-        foodDao.incrementFrequency(foodId)
+    override suspend fun updateLastUsed(foodId: Long): Result<Unit> = try {
+        foodDao.updateLastUsed(foodId, System.currentTimeMillis())
         Result.Success(Unit)
     } catch (e: Exception) {
         Result.Error(e)
     }
 
-    override suspend fun incrementFrequencyByName(name: String): Result<Unit> = try {
-        foodDao.incrementFrequencyByName(name)
+    override suspend fun updateLastUsedByName(name: String): Result<Unit> = try {
+        foodDao.updateLastUsedByName(name, System.currentTimeMillis())
         Result.Success(Unit)
     } catch (e: Exception) {
         Result.Error(e)

@@ -8,11 +8,7 @@ fun HistoryEntryEntity.toDomain() = HistoryEntry(
     totalCalories = totalCalories,
     totalProtein = totalProtein,
     totalCarbs = totalCarbs,
-    totalFat = totalFat,
-    goalCalories = goalCalories,
-    goalProtein = goalProtein,
-    goalCarbs = goalCarbs,
-    goalFat = goalFat
+    totalFat = totalFat
 )
 
 fun HistoryEntry.toEntity() = HistoryEntryEntity(
@@ -20,9 +16,5 @@ fun HistoryEntry.toEntity() = HistoryEntryEntity(
     totalCalories = totalCalories,
     totalProtein = totalProtein,
     totalCarbs = totalCarbs,
-    totalFat = totalFat,
-    goalCalories = goalCalories,
-    goalProtein = goalProtein,
-    goalCarbs = goalCarbs,
-    goalFat = goalFat
+    totalFat = totalFat
 )

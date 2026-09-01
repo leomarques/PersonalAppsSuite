@@ -11,6 +11,7 @@
     <string name="protein_g">Protein (g)</string>
     <string name="carbs_g">Carbs (g)</string>
     <string name="fat_g">Fat (g)</string>
+    <string name="grams_per_serving_label">Grams per serving (g)</string>
     <string name="add_custom_food">Add Custom Food</string>
     <string name="empty_food_db_message">Tap \'Add Custom Food\' to build your local nutrition database.</string>
     <string name="delete_food_confirm_title">Delete Food</string>

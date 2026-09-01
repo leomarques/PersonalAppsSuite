@@ -11,6 +11,7 @@
     <string name="protein_g">Proteína (g)</string>
     <string name="carbs_g">Carboidratos (g)</string>
     <string name="fat_g">Gordura (g)</string>
+    <string name="grams_per_serving_label">Gramas por porção (g)</string>
     <string name="add_custom_food">Novo Alimento</string>
     <string name="empty_food_db_message">Toque em \'Novo Alimento\' para criar seu banco de dados nutricional local.</string>
     <string name="delete_food_confirm_title">Excluir Alimento</string>

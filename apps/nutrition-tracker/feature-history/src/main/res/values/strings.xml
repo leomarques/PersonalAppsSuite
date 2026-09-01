@@ -25,4 +25,5 @@
     <string name="servings_plural">servings</string>
     <string name="servings_amount">%1$d %2$s</string>
     <string name="grams_amount">%1$dg</string>
+    <string name="last_7_days_average">Last 7 Days Average (%1$d days)</string>
 </resources>

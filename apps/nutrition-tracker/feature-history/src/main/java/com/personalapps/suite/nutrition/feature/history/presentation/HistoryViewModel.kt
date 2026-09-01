@@ -14,6 +14,14 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+data class NutritionAverage(
+    val calories: Int,
+    val protein: Float,
+    val carbs: Float,
+    val fat: Float,
+    val daysCount: Int
+)
+
 data class DashboardUiState(
     val meals: List<Meal> = emptyList(),
     val goal: MacroGoal? = null,
@@ -22,6 +30,7 @@ data class DashboardUiState(
     val totalProtein: Float = 0f,
     val totalCarbs: Float = 0f,
     val totalFat: Float = 0f,
+    val averageLast7Days: NutritionAverage? = null,
     val isLoading: Boolean = true
 )
 
@@ -52,6 +61,17 @@ class HistoryViewModel(
                 val totalCarbs = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.carbs.toDouble() } }.toFloat()
                 val totalFat = meals.sumOf { meal -> meal.loggedFoods.sumOf { it.fat.toDouble() } }.toFloat()
 
+                val last7Days = history.take(7)
+                val average = if (last7Days.isNotEmpty()) {
+                    NutritionAverage(
+                        calories = last7Days.map { it.totalCalories }.average().toInt(),
+                        protein = last7Days.map { it.totalProtein.toDouble() }.average().toFloat(),
+                        carbs = last7Days.map { it.totalCarbs.toDouble() }.average().toFloat(),
+                        fat = last7Days.map { it.totalFat.toDouble() }.average().toFloat(),
+                        daysCount = last7Days.size
+                    )
+                } else null
+
                 DashboardUiState(
                     meals = meals,
                     goal = goal,
@@ -60,6 +80,7 @@ class HistoryViewModel(
                     totalProtein = totalProtein,
                     totalCarbs = totalCarbs,
                     totalFat = totalFat,
+                    averageLast7Days = average,
                     isLoading = false
                 )
             }.collect { state ->

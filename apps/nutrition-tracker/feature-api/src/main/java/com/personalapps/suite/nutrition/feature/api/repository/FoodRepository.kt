@@ -9,6 +9,6 @@ interface FoodRepository {
     suspend fun insertFood(food: Food): Result<Long>
     suspend fun updateFood(food: Food): Result<Unit>
     suspend fun deleteFood(food: Food): Result<Unit>
-    suspend fun incrementFrequency(foodId: Long): Result<Unit>
-    suspend fun incrementFrequencyByName(name: String): Result<Unit>
+    suspend fun updateLastUsed(foodId: Long): Result<Unit>
+    suspend fun updateLastUsedByName(name: String): Result<Unit>
 }

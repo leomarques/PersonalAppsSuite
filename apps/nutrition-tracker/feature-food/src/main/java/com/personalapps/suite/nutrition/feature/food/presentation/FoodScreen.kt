@@ -71,6 +71,7 @@ fun FoodScreen(
     var proteinStr by remember { mutableStateOf("") }
     var carbsStr by remember { mutableStateOf("") }
     var fatStr by remember { mutableStateOf("") }
+    var gramsPerServingStr by remember { mutableStateOf("100") }
 
     PersonalScaffold(
         title = stringResource(R.string.food_database),
@@ -147,11 +148,21 @@ fun FoodScreen(
                                 label = stringResource(R.string.fat_g),
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Number,
-                                    imeAction = ImeAction.Done
+                                    imeAction = ImeAction.Next
                                 ),
                                 modifier = Modifier.weight(1f).padding(horizontal = 4.dp)
                             )
                         }
+                        PersonalTextField(
+                            value = gramsPerServingStr,
+                            onValueChange = { gramsPerServingStr = it },
+                            label = stringResource(R.string.grams_per_serving_label),
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Number,
+                                imeAction = ImeAction.Done
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        )
                         Spacer(modifier = Modifier.height(16.dp))
                         Row(
                             horizontalArrangement = Arrangement.End,
@@ -165,6 +176,7 @@ fun FoodScreen(
                                 proteinStr = ""
                                 carbsStr = ""
                                 fatStr = ""
+                                gramsPerServingStr = "100"
                             }) {
                                 Text(stringResource(R.string.cancel))
                             }
@@ -173,15 +185,32 @@ fun FoodScreen(
                                 text = stringResource(R.string.save),
                                 onClick = {
                                     editingFood?.let {
-                                        viewModel.updateFood(it.id, name, caloriesStr, proteinStr, carbsStr, fatStr)
+                                        viewModel.updateFood(
+                                            it.copy(
+                                                name = name,
+                                                calories = caloriesStr.toIntOrNull() ?: 0,
+                                                protein = proteinStr.toFloatOrNull() ?: 0f,
+                                                carbs = carbsStr.toFloatOrNull() ?: 0f,
+                                                fat = fatStr.toFloatOrNull() ?: 0f,
+                                                gramsPerServing = gramsPerServingStr.toFloatOrNull() ?: 100f
+                                            )
+                                        )
                                     } ?: run {
-                                        viewModel.addFood(name, caloriesStr, proteinStr, carbsStr, fatStr)
+                                        viewModel.addFood(
+                                            name,
+                                            caloriesStr,
+                                            proteinStr,
+                                            carbsStr,
+                                            fatStr,
+                                            gramsPerServingStr
+                                        )
                                     }
                                     name = ""
                                     caloriesStr = ""
                                     proteinStr = ""
                                     carbsStr = ""
                                     fatStr = ""
+                                    gramsPerServingStr = "100"
                                     showAddForm = false
                                     editingFood = null
                                 }
@@ -219,6 +248,7 @@ fun FoodScreen(
                                 proteinStr = food.protein.toString()
                                 carbsStr = food.carbs.toString()
                                 fatStr = food.fat.toString()
+                                gramsPerServingStr = food.gramsPerServing.toString()
                             },
                             confirmTitle = stringResource(R.string.delete_food_confirm_title),
                             confirmMessage = stringResource(R.string.delete_food_confirm_message, food.name)

@@ -41,11 +41,7 @@ class StartNewDayUseCase(
                 totalCalories = totalCalories + (existingEntry?.totalCalories ?: 0),
                 totalProtein = totalProtein + (existingEntry?.totalProtein ?: 0f),
                 totalCarbs = totalCarbs + (existingEntry?.totalCarbs ?: 0f),
-                totalFat = totalFat + (existingEntry?.totalFat ?: 0f),
-                goalCalories = goal?.calories ?: 0,
-                goalProtein = goal?.protein ?: 0f,
-                goalCarbs = goal?.carbs ?: 0f,
-                goalFat = goal?.fat ?: 0f
+                totalFat = totalFat + (existingEntry?.totalFat ?: 0f)
             )
 
             historyRepository.insertHistoryEntry(historyEntry)

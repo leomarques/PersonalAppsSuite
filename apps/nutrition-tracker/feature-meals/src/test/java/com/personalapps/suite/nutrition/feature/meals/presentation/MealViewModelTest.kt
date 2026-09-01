@@ -53,21 +53,25 @@ class FakeFoodRepository : FoodRepository {
         return Result.Success(Unit)
     }
 
-    override suspend fun incrementFrequency(foodId: Long): Result<Unit> {
+    override suspend fun updateLastUsed(foodId: Long): Result<Unit> {
         val list = _foods.value.toMutableList()
         val index = list.indexOfFirst { it.id == foodId }
         if (index != -1) {
-            list[index] = list[index].copy(frequency = list[index].frequency + 1)
+            list[index] = list[index].copy(
+                lastUsedAt = System.currentTimeMillis()
+            )
             sortFoods(list)
         }
         return Result.Success(Unit)
     }
 
-    override suspend fun incrementFrequencyByName(name: String): Result<Unit> {
+    override suspend fun updateLastUsedByName(name: String): Result<Unit> {
         val list = _foods.value.toMutableList()
         val index = list.indexOfFirst { it.name == name }
         if (index != -1) {
-            list[index] = list[index].copy(frequency = list[index].frequency + 1)
+            list[index] = list[index].copy(
+                lastUsedAt = System.currentTimeMillis()
+            )
             sortFoods(list)
         }
         return Result.Success(Unit)
@@ -75,7 +79,7 @@ class FakeFoodRepository : FoodRepository {
 
     private fun sortFoods(list: MutableList<Food>) {
         list.sortWith(
-            compareByDescending<Food> { it.frequency }
+            compareByDescending<Food> { it.lastUsedAt }
                 .thenBy { it.name }
         )
         _foods.value = list
@@ -207,7 +211,7 @@ class MealViewModelTest {
     }
 
     @Test
-    fun foods_areSortedByFrequencyThenName() = runTest(mainDispatcherRule.testDispatcher) {
+    fun foods_areSortedByRecencyThenName() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
             viewModel.uiState.collect {}
         }
@@ -221,16 +225,20 @@ class MealViewModelTest {
         // Initially sorted by name: Apple, Banana, Zucchini
         assertEquals(listOf("Apple", "Banana", "Zucchini"), viewModel.uiState.value.foods.map { it.name })
 
-        // Log Banana twice and Apple once
+        // Log Banana
         val banana = Food(name = "Banana", calories = 89, protein = 1.1f, carbs = 22.8f, fat = 0.3f)
-        val apple = Food(name = "Apple", calories = 52, protein = 0.3f, carbs = 13.8f, fat = 0.2f)
-
         viewModel.logSingleFoodPortion(banana, 100f)
-        viewModel.logSingleFoodPortion(banana, 120f)
-        viewModel.logSingleFoodPortion(apple, 150f)
         runCurrent()
 
-        // Now sorted by frequency: Banana (2), Apple (1), Zucchini (0)
+        // Now Banana should be at the top
         assertEquals(listOf("Banana", "Apple", "Zucchini"), viewModel.uiState.value.foods.map { it.name })
+        
+        // Log Apple
+        val apple = Food(name = "Apple", calories = 52, protein = 0.3f, carbs = 13.8f, fat = 0.2f)
+        viewModel.logSingleFoodPortion(apple, 150f)
+        runCurrent()
+        
+        // Now Apple should be at the top
+        assertEquals(listOf("Apple", "Banana", "Zucchini"), viewModel.uiState.value.foods.map { it.name })
     }
 }

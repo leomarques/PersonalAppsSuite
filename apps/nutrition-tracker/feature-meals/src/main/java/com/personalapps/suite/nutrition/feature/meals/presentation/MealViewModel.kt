@@ -63,21 +63,11 @@ class MealViewModel(
         }
     }
 
-    fun updateFood(id: Long, name: String, calories: Int, protein: Float, carbs: Float, fat: Float, gramsPerServing: Float) {
-        if (name.isBlank()) return
+    fun updateFood(food: Food) {
+        if (food.name.isBlank()) return
         viewModelScope.launch {
             try {
-                foodRepository.updateFood(
-                    Food(
-                        id = id,
-                        name = name,
-                        calories = calories,
-                        protein = protein,
-                        carbs = carbs,
-                        fat = fat,
-                        gramsPerServing = gramsPerServing
-                    )
-                )
+                foodRepository.updateFood(food)
                 sendEffect(MealEffect.FoodUpdated)
             } catch (e: Exception) {
                 sendEffect(MealEffect.ShowError(e.message ?: "Failed to update food"))

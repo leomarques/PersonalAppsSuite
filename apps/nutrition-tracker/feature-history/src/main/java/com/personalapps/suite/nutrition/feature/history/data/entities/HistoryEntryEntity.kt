@@ -10,9 +10,5 @@ data class HistoryEntryEntity(
     val totalCalories: Int,
     val totalProtein: Float,
     val totalCarbs: Float,
-    val totalFat: Float,
-    val goalCalories: Int,
-    val goalProtein: Float,
-    val goalCarbs: Float,
-    val goalFat: Float
+    val totalFat: Float
 )

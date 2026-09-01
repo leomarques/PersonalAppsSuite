@@ -29,9 +29,9 @@ class LogMealUseCase(
                 val idResult = mealRepository.insertMeal(meal)
                 val id = (idResult as Result.Success).data
                 
-                // Increment frequency for each food portion logged
+                // Update last used for each food portion logged
                 portions.forEach { portion ->
-                    foodRepository.incrementFrequencyByName(portion.name)
+                    foodRepository.updateLastUsedByName(portion.name)
                 }
                 id
             }.let { Result.Success(it) }
@@ -64,11 +64,11 @@ class LogMealUseCase(
                 val idResult = mealRepository.insertMeal(meal)
                 val id = (idResult as Result.Success).data
                 
-                // Increment frequency for the food logged
+                // Update last used for the food logged
                 if (food.id != 0L) {
-                    foodRepository.incrementFrequency(food.id)
+                    foodRepository.updateLastUsed(food.id)
                 } else {
-                    foodRepository.incrementFrequencyByName(food.name)
+                    foodRepository.updateLastUsedByName(food.name)
                 }
                 id
             }.let { Result.Success(it) }

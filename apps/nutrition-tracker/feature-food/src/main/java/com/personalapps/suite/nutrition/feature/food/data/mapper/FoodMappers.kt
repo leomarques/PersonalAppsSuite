@@ -11,7 +11,7 @@ fun FoodEntity.toDomain(): Food = Food(
     carbs = carbs,
     fat = fat,
     gramsPerServing = gramsPerServing,
-    frequency = frequency
+    lastUsedAt = lastUsedAt
 )
 
 fun Food.toEntity(): FoodEntity = FoodEntity(
@@ -22,5 +22,5 @@ fun Food.toEntity(): FoodEntity = FoodEntity(
     carbs = carbs,
     fat = fat,
     gramsPerServing = gramsPerServing,
-    frequency = frequency
+    lastUsedAt = lastUsedAt
 )
