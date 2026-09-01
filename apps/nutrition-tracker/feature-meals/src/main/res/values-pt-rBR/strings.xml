@@ -17,8 +17,15 @@
     <string name="delete_food_library_confirm_message">Tem certeza que deseja excluir \'%1$s\' da biblioteca?</string>
     <string name="log_food_title">Registrar %1$s</string>
     <string name="per_grams_label">(por %1$dg)</string>
+    <string name="mix_selected_items">Misturar Itens Selecionados</string>
+    <string name="total_mix_nutrients">Nutrientes Totais da Mistura:</string>
+    <string name="grams">Gramas</string>
+    <string name="clear_selection">Limpar seleção</string>
+    <string name="mix_and_log">Misturar e registrar</string>
+    <string name="toggle_multi_select">Alternar seleção múltipla</string>
     <string name="edit_food">Editar Alimento</string>
     <string name="add_custom_food">Novo Alimento</string>
+    <string name="meal_name">Nome da Refeição</string>
     <string name="food_name">Nome do Alimento</string>
     <string name="calories_per_serving">Calorias por Porção</string>
     <string name="protein_g_per_serving">Proteína (g) por Porção</string>

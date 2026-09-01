@@ -1,20 +1,28 @@
 package com.personalapps.suite.nutrition.feature.meals.presentation
 
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -25,12 +33,16 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -41,6 +53,7 @@ import kotlinx.coroutines.launch
 import com.personalapps.suite.shared.designsystem.EmptyScreen
 import com.personalapps.suite.shared.uicomponents.NutrientListItem
 import com.personalapps.suite.shared.uicomponents.NutrientPortionDialog
+import com.personalapps.suite.shared.uicomponents.NutrientRow
 import com.personalapps.suite.shared.uicomponents.PersonalScaffold
 import com.personalapps.suite.shared.uicomponents.PersonalTextField
 import com.personalapps.suite.shared.uicomponents.SwipeActionContainer
@@ -57,6 +70,7 @@ fun MealScreen(
 
     var searchQuery by remember { mutableStateOf("") }
     var showAddFoodDialog by remember { mutableStateOf(false) }
+    var showMixDialog by remember { mutableStateOf(false) }
     var editingFood by remember { mutableStateOf<Food?>(null) }
     var selectedFoodToLog by remember { mutableStateOf<Food?>(null) }
 
@@ -65,6 +79,12 @@ fun MealScreen(
     val customFoodAdded = stringResource(R.string.custom_food_added_success)
     val foodUpdated = stringResource(R.string.food_updated_success)
     val foodDeletedFromLibrary = stringResource(R.string.food_deleted_library_success)
+
+    DisposableEffect(Unit) {
+        onDispose {
+            viewModel.clearSelection()
+        }
+    }
 
     LaunchedEffect(key1 = true) {
         viewModel.effect.collect { effect ->
@@ -91,14 +111,30 @@ fun MealScreen(
     }
 
     PersonalScaffold(
-        title = stringResource(R.string.add_entry_title),
+        title = if (state.selectedFoodIds.isEmpty()) stringResource(R.string.add_entry_title) else "${state.selectedFoodIds.size} selected",
         onBackClick = onBackClick,
         actions = {
-            IconButton(onClick = { showAddFoodDialog = true }) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.new_food)
-                )
+            if (state.selectedFoodIds.isNotEmpty()) {
+                IconButton(onClick = { viewModel.clearSelection() }) {
+                    Icon(imageVector = Icons.Default.Close, contentDescription = stringResource(R.string.clear_selection))
+                }
+                IconButton(onClick = { showMixDialog = true }) {
+                    Icon(imageVector = Icons.Default.Done, contentDescription = stringResource(R.string.mix_and_log))
+                }
+            } else {
+                IconButton(onClick = { viewModel.setMultiSelectMode(!state.isMultiSelectMode) }) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Default.List,
+                        contentDescription = stringResource(R.string.toggle_multi_select),
+                        tint = if (state.isMultiSelectMode) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+                    )
+                }
+                IconButton(onClick = { showAddFoodDialog = true }) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = stringResource(R.string.new_food)
+                    )
+                }
             }
         },
         snackbarHostState = snackbarHostState,
@@ -155,6 +191,7 @@ fun MealScreen(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     items(items = filteredFoods, key = { it.id }) { food ->
+                        val isSelected = state.selectedFoodIds.contains(food.id)
                         SwipeActionContainer(
                             onDelete = { viewModel.deleteFood(food) },
                             onEdit = { editingFood = food },
@@ -163,13 +200,42 @@ fun MealScreen(
                         ) {
                             FoodListItem(
                                 food = food,
-                                onClick = { selectedFoodToLog = food }
+                                isSelected = isSelected,
+                                showCheckbox = state.isMultiSelectMode,
+                                onSelectToggle = { viewModel.toggleFoodSelection(food.id) },
+                                onClick = {
+                                    if (state.isMultiSelectMode) {
+                                        viewModel.toggleFoodSelection(food.id)
+                                    } else {
+                                        selectedFoodToLog = food
+                                    }
+                                },
+                                onLongClick = {
+                                    if (!state.isMultiSelectMode) {
+                                        viewModel.setMultiSelectMode(true)
+                                        viewModel.toggleFoodSelection(food.id)
+                                    }
+                                }
                             )
                         }
                     }
                 }
             }
         }
+    }
+
+    if (showMixDialog) {
+        val selectedFoods = remember(state.selectedFoodIds, state.foods) {
+            state.foods.filter { state.selectedFoodIds.contains(it.id) }
+        }
+        MixFoodsDialog(
+            foods = selectedFoods,
+            onDismiss = { showMixDialog = false },
+            onConfirm = { name, foodPortions ->
+                viewModel.logMixedMeal(name, foodPortions)
+                showMixDialog = false
+            }
+        )
     }
 
     // Add/Edit Custom Food Dialog
@@ -221,10 +287,15 @@ fun MealScreen(
     }
 }
 
+@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun FoodListItem(
     food: Food,
+    isSelected: Boolean,
+    showCheckbox: Boolean,
+    onSelectToggle: () -> Unit,
     onClick: () -> Unit,
+    onLongClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     NutrientListItem(
@@ -233,9 +304,114 @@ fun FoodListItem(
         carbs = food.carbs,
         fat = food.fat,
         calories = food.calories,
-        trailingSubtitle = stringResource(R.string.per_grams_label, food.gramsPerServing.toInt()),
         onClick = onClick,
-        modifier = modifier
+        leadingContent = if (showCheckbox) {
+            {
+                Checkbox(
+                    checked = isSelected,
+                    onCheckedChange = { onSelectToggle() }
+                )
+            }
+        } else null,
+        modifier = modifier.combinedClickable(
+            onClick = onClick,
+            onLongClick = onLongClick
+        )
+    )
+}
+
+@Composable
+fun MixFoodsDialog(
+    foods: List<Food>,
+    onDismiss: () -> Unit,
+    onConfirm: (name: String, portions: List<Pair<Food, Float>>) -> Unit
+) {
+    var mealName by remember { mutableStateOf("") }
+    val amounts = remember { mutableStateMapOf<Long, String>().apply {
+        foods.forEach { put(it.id, it.gramsPerServing.toInt().toString()) }
+    } }
+
+    val totalNutrients by remember {
+        derivedStateOf {
+            var totalCal = 0
+            var totalP = 0f
+            var totalC = 0f
+            var totalF = 0f
+            foods.forEach { food ->
+                val amount = amounts[food.id]?.toFloatOrNull() ?: 0f
+                val factor = amount / food.gramsPerServing
+                totalCal += (food.calories * factor).toInt()
+                totalP += food.protein * factor
+                totalC += food.carbs * factor
+                totalF += food.fat * factor
+            }
+            Triple(totalCal, totalP, Pair(totalC, totalF))
+        }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.mix_selected_items)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                PersonalTextField(
+                    value = mealName,
+                    onValueChange = { mealName = it },
+                    label = stringResource(R.string.meal_name),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                
+                LazyColumn(
+                    modifier = Modifier.height(200.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    items(items = foods, key = { it.id }) { food ->
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text(food.name, modifier = Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium)
+                            PersonalTextField(
+                                value = amounts[food.id] ?: "",
+                                onValueChange = { amounts[food.id] = it },
+                                label = stringResource(R.string.grams),
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                modifier = Modifier.width(100.dp)
+                            )
+                        }
+                    }
+                }
+
+                Column(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
+                    Text(stringResource(R.string.total_mix_nutrients), style = MaterialTheme.typography.titleSmall)
+                    Text("${totalNutrients.first} kcal", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                    NutrientRow(
+                        protein = totalNutrients.second,
+                        carbs = totalNutrients.third.first,
+                        fat = totalNutrients.third.second
+                    )
+                }
+            }
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    if (mealName.isNotBlank()) {
+                        val portions = foods.map { food ->
+                            food to (amounts[food.id]?.toFloatOrNull() ?: 0f)
+                        }
+                        onConfirm(mealName, portions)
+                    }
+                }
+            ) {
+                Text(stringResource(R.string.save))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
     )
 }
 

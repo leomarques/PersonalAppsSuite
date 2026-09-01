@@ -25,5 +25,5 @@
     <string name="servings_plural">porções</string>
     <string name="servings_amount">%1$d %2$s</string>
     <string name="grams_amount">%1$dg</string>
-    <string name="last_7_days_average">Média dos Últimos 7 Dias (%1$d dias)</string>
+    <string name="last_7_days_average">Média dos Últimos %1$d Dias</string>
 </resources>

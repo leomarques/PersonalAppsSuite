@@ -13,6 +13,8 @@ import kotlinx.coroutines.launch
 data class MealUiState(
     val foods: List<Food> = emptyList(),
     val meals: List<Meal> = emptyList(),
+    val selectedFoodIds: Set<Long> = emptySet(),
+    val isMultiSelectMode: Boolean = false,
     val isLoading: Boolean = true
 )
 
@@ -93,6 +95,59 @@ class MealViewModel(
                 sendEffect(MealEffect.FoodDeleted)
             } catch (e: Exception) {
                 sendEffect(MealEffect.ShowError(e.message ?: "Failed to delete food"))
+            }
+        }
+    }
+
+    fun toggleFoodSelection(foodId: Long) {
+        updateState {
+            val newSelected = if (selectedFoodIds.contains(foodId)) {
+                selectedFoodIds - foodId
+            } else {
+                selectedFoodIds + foodId
+            }
+            copy(
+                selectedFoodIds = newSelected,
+                isMultiSelectMode = newSelected.isNotEmpty() || isMultiSelectMode
+            )
+        }
+    }
+
+    fun setMultiSelectMode(enabled: Boolean) {
+        updateState {
+            copy(
+                isMultiSelectMode = enabled,
+                selectedFoodIds = if (enabled) selectedFoodIds else emptySet()
+            )
+        }
+    }
+
+    fun clearSelection() {
+        updateState { copy(selectedFoodIds = emptySet(), isMultiSelectMode = false) }
+    }
+
+    fun logMixedMeal(name: String, foodPortions: List<Pair<Food, Float>>) {
+        if (name.isBlank() || foodPortions.isEmpty()) return
+        viewModelScope.launch {
+            val portions = foodPortions.map { (food, amountGrams) ->
+                val factor = amountGrams / food.gramsPerServing
+                com.personalapps.suite.nutrition.feature.api.model.LoggedFoodPortion(
+                    name = food.name,
+                    calories = (food.calories * factor).toInt(),
+                    protein = food.protein * factor,
+                    carbs = food.carbs * factor,
+                    fat = food.fat * factor,
+                    amountGrams = amountGrams,
+                    gramsPerServing = food.gramsPerServing
+                )
+            }
+            when (val result = logMealUseCase(name, portions)) {
+                is Result.Success -> {
+                    clearSelection()
+                    sendEffect(MealEffect.MealLogged)
+                }
+                is Result.Error -> sendEffect(MealEffect.ShowError(result.exception.message ?: "Failed to log mixed meal"))
+                else -> {}
             }
         }
     }

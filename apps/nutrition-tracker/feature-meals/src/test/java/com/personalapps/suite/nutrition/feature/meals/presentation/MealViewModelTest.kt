@@ -241,4 +241,33 @@ class MealViewModelTest {
         // Now Apple should be at the top
         assertEquals(listOf("Apple", "Banana", "Zucchini"), viewModel.uiState.value.foods.map { it.name })
     }
+
+    @Test
+    fun logMixedMeal_createsMealWithMultiplePortions() = runTest(mainDispatcherRule.testDispatcher) {
+        backgroundScope.launch {
+            viewModel.uiState.collect {}
+        }
+
+        val apple = Food(id = 1, name = "Apple", calories = 50, protein = 0f, carbs = 10f, fat = 0f, gramsPerServing = 100f)
+        val banana = Food(id = 2, name = "Banana", calories = 100, protein = 1f, carbs = 20f, fat = 0f, gramsPerServing = 100f)
+
+        viewModel.logMixedMeal(
+            name = "Mixed Snack",
+            foodPortions = listOf(
+                apple to 200f, // 2 servings -> 100 cal, 20c
+                banana to 50f   // 0.5 servings -> 50 cal, 0.5p, 10c
+            )
+        )
+        runCurrent()
+
+        val loggedMeals = mealRepository.getAllMeals().first()
+        assertEquals(1, loggedMeals.size)
+        val meal = loggedMeals.first()
+        assertEquals("Mixed Snack", meal.name)
+        assertEquals(2, meal.loggedFoods.size)
+        
+        // Total: 100 + 50 = 150 cal
+        val totalCal = meal.loggedFoods.sumOf { it.calories }
+        assertEquals(150, totalCal)
+    }
 }

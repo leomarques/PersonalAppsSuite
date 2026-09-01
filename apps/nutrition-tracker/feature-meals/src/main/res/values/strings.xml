@@ -17,8 +17,15 @@
     <string name="delete_food_library_confirm_message">Are you sure you want to delete \'%1$s\' from the library?</string>
     <string name="log_food_title">Log %1$s</string>
     <string name="per_grams_label">(per %1$dg)</string>
+    <string name="mix_selected_items">Mix Selected Items</string>
+    <string name="total_mix_nutrients">Total Mix Nutrients:</string>
+    <string name="grams">Grams</string>
+    <string name="clear_selection">Clear selection</string>
+    <string name="mix_and_log">Mix and log</string>
+    <string name="toggle_multi_select">Toggle multi-select</string>
     <string name="edit_food">Edit Food</string>
     <string name="add_custom_food">Add Custom Food</string>
+    <string name="meal_name">Meal Name</string>
     <string name="food_name">Food Name</string>
     <string name="calories_per_serving">Calories per Serving</string>
     <string name="protein_g_per_serving">Protein (g) per Serving</string>

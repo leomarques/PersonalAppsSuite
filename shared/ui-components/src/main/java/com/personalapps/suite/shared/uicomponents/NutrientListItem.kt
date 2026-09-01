@@ -40,6 +40,7 @@ fun NutrientListItem(
     trailingSubtitle: String? = null,
     titleStyle: androidx.compose.ui.text.TextStyle = MaterialTheme.typography.titleMedium,
     onClick: (() -> Unit)? = null,
+    leadingContent: @Composable (() -> Unit)? = null,
     trailingContent: @Composable (() -> Unit)? = null
 ) {
     PersonalCard(
@@ -50,6 +51,14 @@ fun NutrientListItem(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
+            if (leadingContent != null) {
+                Box(
+                    modifier = Modifier.padding(end = 8.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    leadingContent()
+                }
+            }
             Column(
                 modifier = Modifier.weight(1f)
             ) {

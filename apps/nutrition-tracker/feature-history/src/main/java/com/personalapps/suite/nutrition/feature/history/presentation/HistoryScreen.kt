@@ -1,6 +1,7 @@
 package com.personalapps.suite.nutrition.feature.history.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -232,18 +233,17 @@ fun HistoryScreen(
                         .weight(1f)
                 ) {
                     state.meals.forEach { meal ->
-                        items(
-                            items = meal.loggedFoods,
-                            key = { "${meal.id}-${it.name}" }
-                        ) { portion ->
+                        item(key = meal.id) {
                             SwipeActionContainer(
                                 onDelete = { viewModel.deleteMeal(meal) },
                                 confirmTitle = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.delete_meal),
-                                confirmMessage = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.delete_meal_confirm_message, portion.name)
+                                confirmMessage = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.delete_meal_confirm_message, meal.name)
                             ) {
-                                LoggedFoodItem(
-                                    portion = portion,
-                                    onClick = { editingMealAndPortion = meal to portion }
+                                MealItem(
+                                    meal = meal,
+                                    onPortionClick = { portion ->
+                                        editingMealAndPortion = meal to portion
+                                    }
                                 )
                             }
                         }
@@ -274,67 +274,83 @@ fun HistoryScreen(
 
 
 @Composable
-fun LoggedFoodItem(
-    portion: LoggedFoodPortion,
-    onClick: () -> Unit,
+fun MealItem(
+    meal: Meal,
+    onPortionClick: (LoggedFoodPortion) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val amountText = if ((portion.amountGrams % portion.gramsPerServing) == 0f) {
-        val servings = (portion.amountGrams / portion.gramsPerServing).toInt()
-        stringResource(
-            com.personalapps.suite.nutrition.feature.history.R.string.servings_amount,
-            servings,
-            if (servings == 1) stringResource(com.personalapps.suite.nutrition.feature.history.R.string.serving) else stringResource(com.personalapps.suite.nutrition.feature.history.R.string.servings_plural)
-        )
-    } else {
-        stringResource(com.personalapps.suite.nutrition.feature.history.R.string.grams_amount, portion.amountGrams.toInt())
-    }
+    val totalCalories = meal.loggedFoods.sumOf { it.calories }
+    val totalProtein = meal.loggedFoods.sumOf { it.protein.toDouble() }.toFloat()
+    val totalCarbs = meal.loggedFoods.sumOf { it.carbs.toDouble() }.toFloat()
+    val totalFat = meal.loggedFoods.sumOf { it.fat.toDouble() }.toFloat()
 
     PersonalCard(
-        onClick = onClick,
-        modifier = modifier.fillMaxWidth()
+        modifier = modifier.fillMaxWidth(),
+        onClick = if (meal.loggedFoods.size == 1) { { onPortionClick(meal.loggedFoods[0]) } } else null
     ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = portion.name,
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.weight(1f, fill = false)
+                        text = meal.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
                     )
-                    Text(
-                        text = amountText,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        fontWeight = FontWeight.Medium
-                    )
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        NutrientText(label = stringResource(com.personalapps.suite.shared.uicomponents.R.string.nutrient_protein_short), value = totalProtein, color = proteinColor)
+                        Bullet()
+                        NutrientText(label = stringResource(com.personalapps.suite.shared.uicomponents.R.string.nutrient_carbs_short), value = totalCarbs, color = carbsColor)
+                        Bullet()
+                        NutrientText(label = stringResource(com.personalapps.suite.shared.uicomponents.R.string.nutrient_fat_short), value = totalFat, color = fatColor)
+                    }
                 }
-                Spacer(modifier = Modifier.height(2.dp))
-                Row(
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    NutrientText(label = stringResource(com.personalapps.suite.shared.uicomponents.R.string.nutrient_protein_short), value = portion.protein, color = proteinColor)
-                    Bullet()
-                    NutrientText(label = stringResource(com.personalapps.suite.shared.uicomponents.R.string.nutrient_carbs_short), value = portion.carbs, color = carbsColor)
-                    Bullet()
-                    NutrientText(label = stringResource(com.personalapps.suite.shared.uicomponents.R.string.nutrient_fat_short), value = portion.fat, color = fatColor)
+                Text(
+                    text = stringResource(com.personalapps.suite.shared.uicomponents.R.string.calories_kcal, totalCalories),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(start = 8.dp)
+                )
+            }
+
+            if (meal.loggedFoods.size > 1 || meal.name != meal.loggedFoods.firstOrNull()?.name) {
+                Spacer(modifier = Modifier.height(8.dp))
+                androidx.compose.material3.HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 4.dp),
+                    thickness = 0.5.dp,
+                    color = MaterialTheme.colorScheme.outlineVariant
+                )
+                meal.loggedFoods.forEach { portion ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onPortionClick(portion) }
+                            .padding(vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = portion.name,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.weight(1f)
+                        )
+                        Text(
+                            text = "${portion.calories} kcal",
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
             }
-            Text(
-                text = stringResource(com.personalapps.suite.shared.uicomponents.R.string.calories_kcal, portion.calories),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(start = 8.dp)
-            )
         }
     }
 }
