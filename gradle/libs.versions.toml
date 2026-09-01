@@ -1,7 +1,7 @@
 [versions]
-androidGradlePlugin = "9.3.0"
+androidGradlePlugin = "9.3.2"
 androidxActivity = "1.13.0"
-androidxComposeBom = "2026.06.01"
+androidxComposeBom = "2026.08.00"
 androidxCore = "1.19.0"
 androidxLifecycle = "2.11.0"
 androidxTest = "1.7.0"
@@ -15,7 +15,7 @@ koinBom = "4.2.2"
 kotlin = "2.4.10"
 ksp = "2.3.10"
 lifecycleViewmodelNav3 = "2.11.0"
-nav3Core = "1.1.4"
+nav3Core = "1.1.7"
 room = "2.8.4"
 
 [libraries]
