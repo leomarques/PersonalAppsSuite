@@ -1,6 +1,5 @@
 package com.personalapps.suite.nutrition.feature.meals.presentation
 
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -111,7 +110,11 @@ fun MealScreen(
     }
 
     PersonalScaffold(
-        title = if (state.selectedFoodIds.isEmpty()) stringResource(R.string.add_entry_title) else "${state.selectedFoodIds.size} selected",
+        title = if (state.selectedFoodIds.isEmpty()) {
+            stringResource(R.string.add_entry_title)
+        } else {
+            stringResource(R.string.items_selected, state.selectedFoodIds.size)
+        },
         onBackClick = onBackClick,
         actions = {
             if (state.selectedFoodIds.isNotEmpty()) {
@@ -209,12 +212,6 @@ fun MealScreen(
                                     } else {
                                         selectedFoodToLog = food
                                     }
-                                },
-                                onLongClick = {
-                                    if (!state.isMultiSelectMode) {
-                                        viewModel.setMultiSelectMode(true)
-                                        viewModel.toggleFoodSelection(food.id)
-                                    }
                                 }
                             )
                         }
@@ -287,7 +284,6 @@ fun MealScreen(
     }
 }
 
-@OptIn(androidx.compose.foundation.ExperimentalFoundationApi::class)
 @Composable
 fun FoodListItem(
     food: Food,
@@ -295,7 +291,6 @@ fun FoodListItem(
     showCheckbox: Boolean,
     onSelectToggle: () -> Unit,
     onClick: () -> Unit,
-    onLongClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     NutrientListItem(
@@ -304,6 +299,7 @@ fun FoodListItem(
         carbs = food.carbs,
         fat = food.fat,
         calories = food.calories,
+        trailingSubtitle = if (!showCheckbox) stringResource(com.personalapps.suite.shared.uicomponents.R.string.per_grams_label, food.gramsPerServing.toInt()) else null,
         onClick = onClick,
         leadingContent = if (showCheckbox) {
             {
@@ -313,10 +309,7 @@ fun FoodListItem(
                 )
             }
         } else null,
-        modifier = modifier.combinedClickable(
-            onClick = onClick,
-            onLongClick = onLongClick
-        )
+        modifier = modifier
     )
 }
 
@@ -384,7 +377,12 @@ fun MixFoodsDialog(
 
                 Column(modifier = Modifier.fillMaxWidth().padding(top = 8.dp)) {
                     Text(stringResource(R.string.total_mix_nutrients), style = MaterialTheme.typography.titleSmall)
-                    Text("${totalNutrients.first} kcal", style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                    Text(
+                        text = stringResource(com.personalapps.suite.shared.uicomponents.R.string.calories_kcal, totalNutrients.first),
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.primary
+                    )
                     NutrientRow(
                         protein = totalNutrients.second,
                         carbs = totalNutrients.third.first,

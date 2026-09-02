@@ -14,6 +14,7 @@
     <string name="servings_with_grams">Porções (%1$dg)</string>
     <string name="total_calories_with_grams">Total: %1$d kcal (%2$dg)</string>
     <string name="calories_kcal">%1$d kcal</string>
+    <string name="per_grams_label">(por %1$dg)</string>
     <string name="started_at">Iniciado em: %1$s</string>
     <string name="end">Encerrar</string>
     <string name="confirm_deletion">Confirmar Exclusão</string>

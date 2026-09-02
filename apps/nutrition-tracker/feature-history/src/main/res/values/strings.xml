@@ -26,4 +26,7 @@
     <string name="servings_amount">%1$d %2$s</string>
     <string name="grams_amount">%1$dg</string>
     <string name="last_7_days_average">Last %1$d Days Average</string>
+    <string name="no_history_available">No history available.</string>
+    <string name="delete_history_entry">Delete History Entry</string>
+    <string name="delete_history_confirm_message">Are you sure you want to delete the history entry for %1$s?</string>
 </resources>

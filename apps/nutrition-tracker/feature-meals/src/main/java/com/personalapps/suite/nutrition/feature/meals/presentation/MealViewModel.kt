@@ -129,24 +129,37 @@ class MealViewModel(
     fun logMixedMeal(name: String, foodPortions: List<Pair<Food, Float>>) {
         if (name.isBlank() || foodPortions.isEmpty()) return
         viewModelScope.launch {
-            val portions = foodPortions.map { (food, amountGrams) ->
+            var totalCalories = 0
+            var totalProtein = 0f
+            var totalCarbs = 0f
+            var totalFat = 0f
+            var totalWeight = 0f
+
+            foodPortions.forEach { (food, amountGrams) ->
                 val factor = amountGrams / food.gramsPerServing
-                com.personalapps.suite.nutrition.feature.api.model.LoggedFoodPortion(
-                    name = food.name,
-                    calories = (food.calories * factor).toInt(),
-                    protein = food.protein * factor,
-                    carbs = food.carbs * factor,
-                    fat = food.fat * factor,
-                    amountGrams = amountGrams,
-                    gramsPerServing = food.gramsPerServing
-                )
+                totalCalories += (food.calories * factor).toInt()
+                totalProtein += food.protein * factor
+                totalCarbs += food.carbs * factor
+                totalFat += food.fat * factor
+                totalWeight += amountGrams
             }
-            when (val result = logMealUseCase(name, portions)) {
+
+            val aggregateFood = Food(
+                name = name,
+                calories = totalCalories,
+                protein = totalProtein,
+                carbs = totalCarbs,
+                fat = totalFat,
+                gramsPerServing = totalWeight
+            )
+
+            when (val result = foodRepository.insertFood(aggregateFood)) {
                 is Result.Success -> {
+                    val newFood = aggregateFood.copy(id = result.data)
                     clearSelection()
-                    sendEffect(MealEffect.MealLogged)
+                    sendEffect(MealEffect.FoodAdded(newFood))
                 }
-                is Result.Error -> sendEffect(MealEffect.ShowError(result.exception.message ?: "Failed to log mixed meal"))
+                is Result.Error -> sendEffect(MealEffect.ShowError(result.exception.message ?: "Failed to save mixed food"))
                 else -> {}
             }
         }

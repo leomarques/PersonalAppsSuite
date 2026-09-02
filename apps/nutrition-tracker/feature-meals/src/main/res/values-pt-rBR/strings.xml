@@ -6,6 +6,7 @@
     <string name="food_updated_success">Alimento atualizado</string>
     <string name="food_deleted_library_success">Alimento excluído da biblioteca</string>
     <string name="add_entry_title">Novo Registro</string>
+    <string name="items_selected">%1$d selecionados</string>
     <string name="new_food">Novo Alimento</string>
     <string name="search_foods">Buscar alimentos…</string>
     <string name="search">Buscar</string>
@@ -16,7 +17,6 @@
     <string name="delete_food">Excluir Alimento</string>
     <string name="delete_food_library_confirm_message">Tem certeza que deseja excluir \'%1$s\' da biblioteca?</string>
     <string name="log_food_title">Registrar %1$s</string>
-    <string name="per_grams_label">(por %1$dg)</string>
     <string name="mix_selected_items">Misturar Itens Selecionados</string>
     <string name="total_mix_nutrients">Nutrientes Totais da Mistura:</string>
     <string name="grams">Gramas</string>

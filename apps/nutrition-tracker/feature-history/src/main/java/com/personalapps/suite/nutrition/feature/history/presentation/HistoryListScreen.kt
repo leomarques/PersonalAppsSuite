@@ -48,7 +48,7 @@ fun HistoryListScreen(
     val state by viewModel.uiState.collectAsState()
 
     PersonalScaffold(
-        title = "History",
+        title = stringResource(R.string.history),
         onBackClick = onBackClick,
         modifier = modifier
     ) { padding ->
@@ -61,7 +61,7 @@ fun HistoryListScreen(
                 verticalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "No history available.",
+                    text = stringResource(R.string.no_history_available),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -87,8 +87,8 @@ fun HistoryListScreen(
                 ) { entry ->
                     SwipeActionContainer(
                         onDelete = { viewModel.deleteHistoryEntry(entry) },
-                        confirmTitle = "Delete History Entry",
-                        confirmMessage = "Are you sure you want to delete the history entry for ${entry.date}?"
+                        confirmTitle = stringResource(R.string.delete_history_entry),
+                        confirmMessage = stringResource(R.string.delete_history_confirm_message, entry.date.toString())
                     ) {
                         HistoryEntryItem(entry = entry)
                     }

@@ -243,31 +243,34 @@ class MealViewModelTest {
     }
 
     @Test
-    fun logMixedMeal_createsMealWithMultiplePortions() = runTest(mainDispatcherRule.testDispatcher) {
+    fun logMixedMeal_createsNewAggregateFood() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
             viewModel.uiState.collect {}
         }
 
-        val apple = Food(id = 1, name = "Apple", calories = 50, protein = 0f, carbs = 10f, fat = 0f, gramsPerServing = 100f)
-        val banana = Food(id = 2, name = "Banana", calories = 100, protein = 1f, carbs = 20f, fat = 0f, gramsPerServing = 100f)
+        val apple = Food(id = 1, name = "Apple", calories = 50, protein = 1f, carbs = 10f, fat = 0f, gramsPerServing = 100f)
+        val banana = Food(id = 2, name = "Banana", calories = 100, protein = 2f, carbs = 20f, fat = 0f, gramsPerServing = 100f)
 
         viewModel.logMixedMeal(
             name = "Mixed Snack",
             foodPortions = listOf(
-                apple to 200f, // 2 servings -> 100 cal, 20c
-                banana to 50f   // 0.5 servings -> 50 cal, 0.5p, 10c
+                apple to 200f, // 2 servings -> 100 cal, 2p, 20c
+                banana to 50f   // 0.5 servings -> 50 cal, 1p, 10c
             )
         )
         runCurrent()
 
+        // Verify it was saved to the food library
+        val foods = foodRepository.getAllFoods().first()
+        val mixedFood = foods.find { it.name == "Mixed Snack" }
+        assert(mixedFood != null)
+        assertEquals(150, mixedFood?.calories)
+        assertEquals(3f, mixedFood?.protein ?: 0f, 0.01f)
+        assertEquals(30f, mixedFood?.carbs ?: 0f, 0.01f)
+        assertEquals(250f, mixedFood?.gramsPerServing ?: 0f, 0.01f)
+
+        // Verify no meal was logged yet (that happens in the next step of the UI flow)
         val loggedMeals = mealRepository.getAllMeals().first()
-        assertEquals(1, loggedMeals.size)
-        val meal = loggedMeals.first()
-        assertEquals("Mixed Snack", meal.name)
-        assertEquals(2, meal.loggedFoods.size)
-        
-        // Total: 100 + 50 = 150 cal
-        val totalCal = meal.loggedFoods.sumOf { it.calories }
-        assertEquals(150, totalCal)
+        assertEquals(0, loggedMeals.size)
     }
 }

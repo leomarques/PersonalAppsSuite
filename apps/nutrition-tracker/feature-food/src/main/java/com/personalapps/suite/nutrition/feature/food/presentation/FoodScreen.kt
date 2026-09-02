@@ -273,6 +273,7 @@ fun FoodListItem(
         carbs = food.carbs,
         fat = food.fat,
         leadingSubtitle = stringResource(com.personalapps.suite.shared.uicomponents.R.string.calories_kcal, food.calories),
+        trailingSubtitle = stringResource(com.personalapps.suite.shared.uicomponents.R.string.per_grams_label, food.gramsPerServing.toInt()),
         modifier = modifier
     )
 }

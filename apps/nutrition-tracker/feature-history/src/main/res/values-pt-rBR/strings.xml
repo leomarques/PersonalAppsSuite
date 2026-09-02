@@ -26,4 +26,7 @@
     <string name="servings_amount">%1$d %2$s</string>
     <string name="grams_amount">%1$dg</string>
     <string name="last_7_days_average">Média dos Últimos %1$d Dias</string>
+    <string name="no_history_available">Nenhum histórico disponível.</string>
+    <string name="delete_history_entry">Excluir Registro do Histórico</string>
+    <string name="delete_history_confirm_message">Tem certeza que deseja excluir o registro do histórico de %1$s?</string>
 </resources>

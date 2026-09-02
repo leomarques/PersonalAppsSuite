@@ -6,6 +6,7 @@
     <string name="food_updated_success">Food updated</string>
     <string name="food_deleted_library_success">Food deleted from library</string>
     <string name="add_entry_title">Add Entry</string>
+    <string name="items_selected">%1$d selected</string>
     <string name="new_food">New Food</string>
     <string name="search_foods">Search foods…</string>
     <string name="search">Search</string>
@@ -16,7 +17,6 @@
     <string name="delete_food">Delete Food</string>
     <string name="delete_food_library_confirm_message">Are you sure you want to delete \'%1$s\' from the library?</string>
     <string name="log_food_title">Log %1$s</string>
-    <string name="per_grams_label">(per %1$dg)</string>
     <string name="mix_selected_items">Mix Selected Items</string>
     <string name="total_mix_nutrients">Total Mix Nutrients:</string>
     <string name="grams">Grams</string>

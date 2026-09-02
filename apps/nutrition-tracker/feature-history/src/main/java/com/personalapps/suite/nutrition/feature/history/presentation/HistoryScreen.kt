@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -283,6 +282,7 @@ fun MealItem(
     val totalProtein = meal.loggedFoods.sumOf { it.protein.toDouble() }.toFloat()
     val totalCarbs = meal.loggedFoods.sumOf { it.carbs.toDouble() }.toFloat()
     val totalFat = meal.loggedFoods.sumOf { it.fat.toDouble() }.toFloat()
+    val totalWeight = meal.loggedFoods.sumOf { it.amountGrams.toDouble() }.toInt()
 
     PersonalCard(
         modifier = modifier.fillMaxWidth(),
@@ -294,11 +294,39 @@ fun MealItem(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.weight(1f)) {
-                    Text(
-                        text = meal.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        Text(
+                            text = meal.name,
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold
+                        )
+                        val amountText = if (meal.loggedFoods.size == 1) {
+                            val portion = meal.loggedFoods[0]
+                            if ((portion.amountGrams % portion.gramsPerServing) == 0f) {
+                                val servings = (portion.amountGrams / portion.gramsPerServing).toInt()
+                                stringResource(
+                                    com.personalapps.suite.nutrition.feature.history.R.string.servings_amount,
+                                    servings,
+                                    if (servings == 1) stringResource(com.personalapps.suite.nutrition.feature.history.R.string.serving) else stringResource(com.personalapps.suite.nutrition.feature.history.R.string.servings_plural)
+                                )
+                            } else {
+                                stringResource(com.personalapps.suite.nutrition.feature.history.R.string.grams_amount, portion.amountGrams.toInt())
+                            }
+                        } else if (totalWeight > 0) {
+                            "${totalWeight}g"
+                        } else null
+
+                        amountText?.let {
+                            Text(
+                                text = "($it)",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.outline
+                            )
+                        }
+                    }
                     Spacer(modifier = Modifier.height(2.dp))
                     Row(
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -328,22 +356,36 @@ fun MealItem(
                     color = MaterialTheme.colorScheme.outlineVariant
                 )
                 meal.loggedFoods.forEach { portion ->
+                    val amountText = if ((portion.amountGrams % portion.gramsPerServing) == 0f) {
+                        val servings = (portion.amountGrams / portion.gramsPerServing).toInt()
+                        stringResource(
+                            com.personalapps.suite.nutrition.feature.history.R.string.servings_amount,
+                            servings,
+                            if (servings == 1) stringResource(com.personalapps.suite.nutrition.feature.history.R.string.serving) else stringResource(com.personalapps.suite.nutrition.feature.history.R.string.servings_plural)
+                        )
+                    } else {
+                        stringResource(com.personalapps.suite.nutrition.feature.history.R.string.grams_amount, portion.amountGrams.toInt())
+                    }
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onPortionClick(portion) }
                             .padding(vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Text(
                             text = portion.name,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.weight(1f)
                         )
                         Text(
-                            text = "${portion.calories} kcal",
+                            text = " • $amountText",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.outline,
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text(
+                            text = stringResource(com.personalapps.suite.shared.uicomponents.R.string.calories_kcal, portion.calories),
                             style = MaterialTheme.typography.bodySmall,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
