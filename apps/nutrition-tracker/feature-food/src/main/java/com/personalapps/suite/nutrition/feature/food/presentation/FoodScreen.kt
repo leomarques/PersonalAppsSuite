@@ -24,7 +24,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.stringResource
 import com.personalapps.suite.nutrition.feature.food.R
 import androidx.compose.ui.text.input.ImeAction
@@ -64,7 +63,6 @@ fun FoodScreen(
 
     var showAddForm by remember { mutableStateOf(false) }
     var editingFood by remember { mutableStateOf<Food?>(null) }
-    val focusRequester = remember { FocusRequester() }
 
     var name by remember { mutableStateOf("") }
     var caloriesStr by remember { mutableStateOf("") }
@@ -86,9 +84,6 @@ fun FoodScreen(
                 .padding(16.dp)
         ) {
             if (showAddForm || editingFood != null) {
-                LaunchedEffect(Unit) {
-                    focusRequester.requestFocus()
-                }
                 androidx.compose.material3.Card(
                     modifier = Modifier.fillMaxWidth(),
                     colors = androidx.compose.material3.CardDefaults.cardColors(
@@ -106,7 +101,6 @@ fun FoodScreen(
                             onValueChange = { name = it },
                             label = stringResource(R.string.food_name),
                             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                            focusRequester = focusRequester,
                             modifier = Modifier.fillMaxWidth()
                         )
                         Row(modifier = Modifier.fillMaxWidth()) {

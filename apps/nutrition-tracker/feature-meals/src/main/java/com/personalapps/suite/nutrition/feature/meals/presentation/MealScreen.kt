@@ -40,7 +40,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -425,12 +424,6 @@ fun AddFoodDialog(
     var carbsStr by remember { mutableStateOf(initialFood?.carbs?.toString() ?: "") }
     var fatStr by remember { mutableStateOf(initialFood?.fat?.toString() ?: "") }
     var gramsPerServingStr by remember { mutableStateOf(initialFood?.gramsPerServing?.toString() ?: "100") }
-    
-    val focusRequester = remember { FocusRequester() }
-
-    LaunchedEffect(Unit) {
-        focusRequester.requestFocus()
-    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -441,8 +434,7 @@ fun AddFoodDialog(
                     value = name,
                     onValueChange = { name = it },
                     label = stringResource(R.string.food_name),
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
-                    focusRequester = focusRequester
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next)
                 )
                 PersonalTextField(
                     value = caloriesStr,
