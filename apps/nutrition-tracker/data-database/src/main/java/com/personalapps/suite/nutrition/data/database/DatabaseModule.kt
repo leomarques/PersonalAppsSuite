@@ -30,7 +30,8 @@ val databaseModule = module {
             NutritionDatabase.MIGRATION_3_4,
             NutritionDatabase.MIGRATION_4_5,
             NutritionDatabase.MIGRATION_5_6,
-            NutritionDatabase.MIGRATION_6_7
+            NutritionDatabase.MIGRATION_6_7,
+            NutritionDatabase.MIGRATION_7_8
         )
         .addCallback(object : RoomDatabase.Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {

@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class MacroGoalEntity(
     @PrimaryKey val id: Int = 1,
     val calories: Int,
-    val protein: Float,
-    val carbs: Float,
-    val fat: Float
+    val protein: Int,
+    val carbs: Int,
+    val fat: Int
 )

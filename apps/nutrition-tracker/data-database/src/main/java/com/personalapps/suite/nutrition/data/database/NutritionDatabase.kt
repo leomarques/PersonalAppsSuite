@@ -22,7 +22,7 @@ import com.personalapps.suite.shared.databaseutils.Converters
         MacroGoalEntity::class,
         HistoryEntryEntity::class
     ],
-    version = 7,
+    version = 8,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -79,6 +79,15 @@ abstract class NutritionDatabase : RoomDatabase() {
                 db.execSQL("INSERT INTO history_entries_new (date, totalCalories, totalProtein, totalCarbs, totalFat) SELECT date, totalCalories, totalProtein, totalCarbs, totalFat FROM history_entries")
                 db.execSQL("DROP TABLE history_entries")
                 db.execSQL("ALTER TABLE history_entries_new RENAME TO history_entries")
+            }
+        }
+
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE TABLE macro_goals_new (id INTEGER PRIMARY KEY NOT NULL, calories INTEGER NOT NULL, protein INTEGER NOT NULL, carbs INTEGER NOT NULL, fat INTEGER NOT NULL)")
+                db.execSQL("INSERT INTO macro_goals_new (id, calories, protein, carbs, fat) SELECT id, calories, CAST(protein AS INTEGER), CAST(carbs AS INTEGER), CAST(fat AS INTEGER) FROM macro_goals")
+                db.execSQL("DROP TABLE macro_goals")
+                db.execSQL("ALTER TABLE macro_goals_new RENAME TO macro_goals")
             }
         }
     }

@@ -138,7 +138,7 @@ class HistoryViewModelTest {
         }
         runCurrent()
 
-        macroGoalRepository.insertMacroGoal(MacroGoal(id = 1, calories = 2000, protein = 120f, carbs = 200f, fat = 70f))
+        macroGoalRepository.insertMacroGoal(MacroGoal(id = 1, calories = 2000, protein = 120, carbs = 200, fat = 70))
         runCurrent()
 
         assertEquals(2000, viewModel.uiState.value.goal?.calories)

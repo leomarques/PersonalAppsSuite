@@ -107,9 +107,9 @@ fun HistoryScreen(
     val totalFat = state.totalFat
 
     val targetCalories = state.goal?.calories ?: 2000
-    val targetProtein = state.goal?.protein ?: 120f
-    val targetCarbs = state.goal?.carbs ?: 200f
-    val targetFat = state.goal?.fat ?: 70f
+    val targetProtein = (state.goal?.protein ?: 120).toFloat()
+    val targetCarbs = (state.goal?.carbs ?: 200).toFloat()
+    val targetFat = (state.goal?.fat ?: 70).toFloat()
 
     PersonalScaffold(
         title = stringResource(com.personalapps.suite.nutrition.feature.history.R.string.title),
@@ -443,8 +443,9 @@ fun MacroProgressRow(
             modifier = Modifier.fillMaxWidth()
         ) {
             Text(text = label, style = MaterialTheme.typography.bodyMedium)
+            val formattedTarget = if ((target % 1) == 0f) target.toInt().toString() else "%.1f".format(target)
             Text(
-                text = "${"%.1f".format(current)} / ${"%.1f".format(target)} $unit",
+                text = "${"%.1f".format(current)} / $formattedTarget $unit",
                 style = MaterialTheme.typography.bodyMedium
             )
         }

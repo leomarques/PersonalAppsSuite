@@ -33,9 +33,9 @@ class MacroViewModel(
     fun saveMacroGoal(caloriesStr: String, proteinStr: String, carbsStr: String, fatStr: String) {
         viewModelScope.launch {
             val calories = caloriesStr.toIntOrNull() ?: 0
-            val protein = proteinStr.toFloatOrNull() ?: 0f
-            val carbs = carbsStr.toFloatOrNull() ?: 0f
-            val fat = fatStr.toFloatOrNull() ?: 0f
+            val protein = proteinStr.toIntOrNull() ?: 0
+            val carbs = carbsStr.toIntOrNull() ?: 0
+            val fat = fatStr.toIntOrNull() ?: 0
 
             val result = saveMacroGoalUseCase(calories, protein, carbs, fat)
             handleResult(
