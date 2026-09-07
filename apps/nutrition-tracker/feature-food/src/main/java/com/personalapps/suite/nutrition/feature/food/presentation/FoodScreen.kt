@@ -1,5 +1,6 @@
 package com.personalapps.suite.nutrition.feature.food.presentation
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.personalapps.suite.nutrition.feature.food.R
 import androidx.compose.ui.text.input.ImeAction
@@ -45,15 +47,17 @@ fun FoodScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
     
     val addFoodSuccess = stringResource(R.string.add_food_success)
     val updateFoodSuccess = stringResource(R.string.update_food_success)
     val deleteFoodSuccess = stringResource(R.string.delete_food_success)
+    val emptyNameError = stringResource(R.string.error_empty_food_name)
 
     LaunchedEffect(key1 = true) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                is FoodEffect.ShowError -> snackbarHostState.showSnackbar(effect.message)
+                is FoodEffect.ShowError -> Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                 is FoodEffect.FoodAdded -> snackbarHostState.showSnackbar(addFoodSuccess)
                 is FoodEffect.FoodUpdated -> snackbarHostState.showSnackbar(updateFoodSuccess)
                 is FoodEffect.FoodDeleted -> snackbarHostState.showSnackbar(deleteFoodSuccess)
@@ -178,6 +182,10 @@ fun FoodScreen(
                             PersonalButton(
                                 text = stringResource(R.string.save),
                                 onClick = {
+                                    if (name.isBlank()) {
+                                        Toast.makeText(context, emptyNameError, Toast.LENGTH_SHORT).show()
+                                        return@PersonalButton
+                                    }
                                     editingFood?.let {
                                         viewModel.updateFood(
                                             it.copy(

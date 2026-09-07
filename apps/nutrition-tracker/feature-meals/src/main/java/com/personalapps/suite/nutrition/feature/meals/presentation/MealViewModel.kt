@@ -47,7 +47,10 @@ class MealViewModel(
     }
 
     fun addCustomFood(name: String, calories: Int, protein: Float, carbs: Float, fat: Float, gramsPerServing: Float) {
-        if (name.isBlank()) return
+        if (name.isBlank()) {
+            sendEffect(MealEffect.ShowError("Food name cannot be empty"))
+            return
+        }
         viewModelScope.launch {
             val food = Food(
                 name = name,
@@ -66,7 +69,10 @@ class MealViewModel(
     }
 
     fun updateFood(food: Food) {
-        if (food.name.isBlank()) return
+        if (food.name.isBlank()) {
+            sendEffect(MealEffect.ShowError("Food name cannot be empty"))
+            return
+        }
         viewModelScope.launch {
             try {
                 foodRepository.updateFood(food)
@@ -127,7 +133,11 @@ class MealViewModel(
     }
 
     fun logMixedMeal(name: String, foodPortions: List<Pair<Food, Float>>) {
-        if (name.isBlank() || foodPortions.isEmpty()) return
+        if (name.isBlank()) {
+            sendEffect(MealEffect.ShowError("Food name cannot be empty"))
+            return
+        }
+        if (foodPortions.isEmpty()) return
         viewModelScope.launch {
             var totalCalories = 0
             var totalProtein = 0f

@@ -34,4 +34,5 @@
     <string name="grams_per_serving_label">Grams per Serving (e.g., 100)</string>
     <string name="save">Save</string>
     <string name="cancel">Cancel</string>
+    <string name="error_empty_food_name">Food name cannot be empty</string>
 </resources>

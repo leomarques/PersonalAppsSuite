@@ -152,6 +152,22 @@ class MealViewModelTest {
     }
 
     @Test
+    fun addCustomFood_withEmptyName_emitsShowError() = runTest(mainDispatcherRule.testDispatcher) {
+        var emittedEffect: MealEffect? = null
+        backgroundScope.launch {
+            viewModel.effect.collect { emittedEffect = it }
+        }
+
+        viewModel.addCustomFood("", 52, 0.3f, 13.8f, 0.2f, 100f)
+        runCurrent()
+
+        val foods = foodRepository.getAllFoods().first()
+        assertEquals(0, foods.size)
+        assert(emittedEffect is MealEffect.ShowError)
+        assertEquals("Food name cannot be empty", (emittedEffect as MealEffect.ShowError).message)
+    }
+
+    @Test
     fun addCustomFood_withSpecificServingSize_insertsIntoFoodRepository() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
             viewModel.uiState.collect {}
@@ -272,5 +288,26 @@ class MealViewModelTest {
         // Verify no meal was logged yet (that happens in the next step of the UI flow)
         val loggedMeals = mealRepository.getAllMeals().first()
         assertEquals(0, loggedMeals.size)
+    }
+
+    @Test
+    fun logMixedMeal_withEmptyName_emitsShowError() = runTest(mainDispatcherRule.testDispatcher) {
+        var emittedEffect: MealEffect? = null
+        backgroundScope.launch {
+            viewModel.effect.collect { emittedEffect = it }
+        }
+
+        val apple = Food(id = 1, name = "Apple", calories = 50, protein = 1f, carbs = 10f, fat = 0f, gramsPerServing = 100f)
+
+        viewModel.logMixedMeal(
+            name = "",
+            foodPortions = listOf(apple to 200f)
+        )
+        runCurrent()
+
+        val foods = foodRepository.getAllFoods().first()
+        assertEquals(0, foods.size)
+        assert(emittedEffect is MealEffect.ShowError)
+        assertEquals("Food name cannot be empty", (emittedEffect as MealEffect.ShowError).message)
     }
 }

@@ -149,6 +149,22 @@ class FoodViewModelTest {
     }
 
     @Test
+    fun addFood_withEmptyName_emitsShowError() = runTest(mainDispatcherRule.testDispatcher) {
+        var emittedEffect: FoodEffect? = null
+        backgroundScope.launch {
+            viewModel.effect.collect { emittedEffect = it }
+        }
+
+        viewModel.addFood("", "89", "1.1", "22.8", "0.3")
+        runCurrent()
+
+        val foods = repository.getAllFoods().first()
+        assertEquals(0, foods.size)
+        assert(emittedEffect is FoodEffect.ShowError)
+        assertEquals("Food name cannot be empty", (emittedEffect as FoodEffect.ShowError).message)
+    }
+
+    @Test
     fun updateFood_preservesMetadata() = runTest(mainDispatcherRule.testDispatcher) {
         backgroundScope.launch {
             viewModel.uiState.collect {}

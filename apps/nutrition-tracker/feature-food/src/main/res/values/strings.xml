@@ -18,4 +18,5 @@
     <string name="delete_food_confirm_message">Are you sure you want to delete \'%1$s\' from the database?</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
+    <string name="error_empty_food_name">Food name cannot be empty</string>
 </resources>

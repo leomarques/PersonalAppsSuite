@@ -1,5 +1,6 @@
 package com.personalapps.suite.nutrition.feature.meals.presentation
 
+import android.widget.Toast
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -40,6 +41,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
@@ -64,6 +66,7 @@ fun MealScreen(
 ) {
     val state by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
     val scope = androidx.compose.runtime.rememberCoroutineScope()
 
     var searchQuery by remember { mutableStateOf("") }
@@ -87,7 +90,7 @@ fun MealScreen(
     LaunchedEffect(key1 = true) {
         viewModel.effect.collect { effect ->
             when (effect) {
-                is MealEffect.ShowError -> scope.launch { snackbarHostState.showSnackbar(effect.message) }
+                is MealEffect.ShowError -> Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
                 is MealEffect.MealLogged -> scope.launch { snackbarHostState.showSnackbar(mealLoggedSuccess) }
                 is MealEffect.MealDeleted -> scope.launch { snackbarHostState.showSnackbar(mealDeleted) }
                 is MealEffect.FoodAdded -> {
@@ -318,6 +321,8 @@ fun MixFoodsDialog(
     onDismiss: () -> Unit,
     onConfirm: (name: String, portions: List<Pair<Food, Float>>) -> Unit
 ) {
+    val context = LocalContext.current
+    val emptyNameError = stringResource(R.string.error_empty_food_name)
     var mealName by remember { mutableStateOf("") }
     val amounts = remember { mutableStateMapOf<Long, String>().apply {
         foods.forEach { put(it.id, it.gramsPerServing.toInt().toString()) }
@@ -393,7 +398,9 @@ fun MixFoodsDialog(
         confirmButton = {
             TextButton(
                 onClick = {
-                    if (mealName.isNotBlank()) {
+                    if (mealName.isBlank()) {
+                        Toast.makeText(context, emptyNameError, Toast.LENGTH_SHORT).show()
+                    } else {
                         val portions = foods.map { food ->
                             food to (amounts[food.id]?.toFloatOrNull() ?: 0f)
                         }
@@ -418,6 +425,8 @@ fun AddFoodDialog(
     onDismiss: () -> Unit,
     onSave: (name: String, calories: Int, protein: Float, carbs: Float, fat: Float, gramsPerServing: Float) -> Unit
 ) {
+    val context = LocalContext.current
+    val emptyNameError = stringResource(R.string.error_empty_food_name)
     var name by remember { mutableStateOf(initialFood?.name ?: "") }
     var caloriesStr by remember { mutableStateOf(initialFood?.calories?.toString() ?: "") }
     var proteinStr by remember { mutableStateOf(initialFood?.protein?.toString() ?: "") }
@@ -491,7 +500,9 @@ fun AddFoodDialog(
                     val carbs = carbsStr.toFloatOrNull() ?: 0f
                     val fat = fatStr.toFloatOrNull() ?: 0f
                     val gramsPerServing = gramsPerServingStr.toFloatOrNull() ?: 100f
-                    if (name.isNotBlank()) {
+                    if (name.isBlank()) {
+                        Toast.makeText(context, emptyNameError, Toast.LENGTH_SHORT).show()
+                    } else {
                         onSave(name, calories, protein, carbs, fat, gramsPerServing)
                     }
                 }

@@ -18,4 +18,5 @@
     <string name="delete_food_confirm_message">Tem certeza que deseja excluir \'%1$s\' do banco de dados?</string>
     <string name="cancel">Cancelar</string>
     <string name="save">Salvar</string>
+    <string name="error_empty_food_name">O nome do alimento não pode estar vazio</string>
 </resources>

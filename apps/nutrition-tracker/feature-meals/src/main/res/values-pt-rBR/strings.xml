@@ -34,4 +34,5 @@
     <string name="grams_per_serving_label">Gramas por Porção (ex: 100)</string>
     <string name="save">Salvar</string>
     <string name="cancel">Cancelar</string>
+    <string name="error_empty_food_name">O nome do alimento não pode estar vazio</string>
 </resources>
