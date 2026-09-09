@@ -14,6 +14,12 @@ import com.personalapps.suite.cannabis.ui.SettingsViewModel
 import com.personalapps.suite.cannabis.ui.StatsScreen
 import com.personalapps.suite.cannabis.ui.TrackerScreen
 import com.personalapps.suite.cannabis.ui.TrackerViewModel
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.personalapps.suite.cannabis.data.ThemePreference
+import com.personalapps.suite.cannabis.ui.theme.CannabisDarkColorScheme
+import com.personalapps.suite.cannabis.ui.theme.CannabisLightColorScheme
 import com.personalapps.suite.shared.designsystem.PersonalAppsSuiteTheme
 
 class MainActivity : ComponentActivity() {
@@ -24,9 +30,20 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             val settingsViewModel: SettingsViewModel = viewModel()
-            
+            val theme by settingsViewModel.theme.collectAsStateWithLifecycle()
+            val darkTheme = when (theme) {
+                ThemePreference.LIGHT -> false
+                ThemePreference.DARK -> true
+                ThemePreference.DYNAMIC -> isSystemInDarkTheme()
+            }
+            val dynamicColor = theme == ThemePreference.DYNAMIC
 
-            PersonalAppsSuiteTheme {
+            PersonalAppsSuiteTheme(
+                darkTheme = darkTheme,
+                dynamicColor = dynamicColor,
+                lightColorScheme = CannabisLightColorScheme,
+                darkColorScheme = CannabisDarkColorScheme
+            ) {
                 LeedApp(settingsViewModel = settingsViewModel)
             }
         }

@@ -21,6 +21,9 @@ import com.personalapps.suite.nutrition.feature.macros.navigation.SetGoalsRoute
 import com.personalapps.suite.nutrition.feature.macros.navigation.macroEntries
 import com.personalapps.suite.nutrition.feature.meals.navigation.LogMealRoute
 import com.personalapps.suite.nutrition.feature.meals.navigation.mealEntries
+import androidx.compose.foundation.isSystemInDarkTheme
+import com.personalapps.suite.nutrition.ui.theme.NutritionDarkColorScheme
+import com.personalapps.suite.nutrition.ui.theme.NutritionLightColorScheme
 import com.personalapps.suite.shared.designsystem.PersonalAppsSuiteTheme
 import com.personalapps.suite.shared.navigation.Destination
 import com.personalapps.suite.shared.uicomponents.AppScaffold
@@ -30,7 +33,11 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            PersonalAppsSuiteTheme {
+            PersonalAppsSuiteTheme(
+                darkTheme = isSystemInDarkTheme(),
+                lightColorScheme = NutritionLightColorScheme,
+                darkColorScheme = NutritionDarkColorScheme
+            ) {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
