@@ -22,16 +22,21 @@ dependencies {
     implementation(project(":shared:preferences"))
     implementation(project(":shared:backup"))
 
-    // Features
-    implementation(project(":apps:cannabis-tracker:feature-api"))
-    implementation(project(":apps:cannabis-tracker:feature-sessions"))
-    implementation(project(":apps:cannabis-tracker:feature-history"))
-    implementation(project(":apps:cannabis-tracker:feature-stats"))
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.navigation.common.ktx)
+    implementation(libs.androidx.navigation.runtime.ktx)
 
-    // Navigation3
-    implementation(libs.androidx.navigation3.runtime)
-    implementation(libs.androidx.navigation3.ui)
-    implementation(libs.androidx.lifecycle.viewmodel.navigation3)
+    // Room
+    implementation(libs.room.runtime)
+    implementation(libs.room.ktx)
+    ksp(libs.room.compiler)
+
+    // DataStore
+    implementation(libs.datastore.preferences)
+
+    // WorkManager
+    implementation(libs.androidx.work.runtime.ktx)
 
     // Koin DI
     implementation(platform(libs.koin.bom))

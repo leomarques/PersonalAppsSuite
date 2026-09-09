@@ -1,0 +1,58 @@
+<resources>
+    <string name="app_name">Leed</string>
+
+    <!-- Actions & Common -->
+    <string name="stats">Estatísticas</string>
+    <string name="settings">Configurações</string>
+    <string name="back">Voltar</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancelar</string>
+    <string name="delete">Excluir</string>
+    <string name="start">Iniciar</string>
+
+    <!-- Tracker Screen -->
+    <string name="log_usage">Registrar uso</string>
+    <string name="no_active_day">Nenhum dia ativo</string>
+    <string name="no_active_day_desc">Inicie um dia para começar a registrar usos.</string>
+    <string name="start_day">Iniciar Dia</string>
+    <string name="start_new_day">Iniciar Novo Dia</string>
+    <string name="current_day">Dia Atual</string>
+    <string name="usage_logged_singular">uso registrado</string>
+    <string name="usage_logged_plural">usos registrados</string>
+    <string name="since_last">%1$s desde o último</string>
+    <string name="since_last_empty">--:-- desde o último</string>
+    <string name="avg_gap">Intervalo médio</string>
+    <string name="next_projected">Próximo projetado</string>
+    <string name="days_log">Registro do Dia</string>
+    <string name="no_usages_logged">Nenhum uso registrado ainda.\nToque em + para registrar um!</string>
+    <string name="edit_time">Editar Horário</string>
+    <string name="min">min</string>
+    <string name="start_new_day_title">Iniciar Novo Dia</string>
+    <string name="start_new_day_confirm">Tem certeza de que deseja iniciar um novo dia?</string>
+    <string name="delete_usage_title">Excluir Uso</string>
+    <string name="delete_usage_confirm">Tem certeza de que deseja excluir este item?</string>
+    <string name="usage_item_logged">Uso registrado</string>
+
+    <!-- Stats Screen -->
+    <string name="daily_average">Média Diária</string>
+    <string name="daily_breakdown">Detalhamento Diário</string>
+    <string name="no_data_yet">Nenhum dado ainda.</string>
+    <string name="delete_day_title">Excluir Dia</string>
+    <string name="delete_day_confirm">Tem certeza de que deseja excluir o registro deste dia?</string>
+
+    <!-- Settings Screen -->
+    <string name="theme">Tema</string>
+    <string name="theme_desc">Escolha o tema de sua preferência</string>
+    <string name="theme_light">Claro</string>
+    <string name="theme_dark">Escuro</string>
+    <string name="theme_dynamic">Dinâmico</string>
+    <string name="projection_interval">Intervalo de projeção</string>
+    <string name="projection_interval_desc">Tempo adicionado ao último uso para o Próximo projetado</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_name">Lembretes de Uso</string>
+    <string name="notification_channel_desc">Lembra você de registrar um uso com base no intervalo configurado</string>
+    <string name="notification_title">Lembrete de Uso</string>
+    <string name="notification_text">Passaram-se %1$s desde o seu último uso. Registrar agora?</string>
+    <string name="notification_action_log">Registrar Uso</string>
+</resources>

@@ -60,7 +60,4 @@ include(":apps:workout-tracker:feature-progress")
 
 // Cannabis Tracker App Modules
 include(":apps:cannabis-tracker:app")
-include(":apps:cannabis-tracker:feature-api")
-include(":apps:cannabis-tracker:feature-sessions")
-include(":apps:cannabis-tracker:feature-history")
-include(":apps:cannabis-tracker:feature-stats")
+
