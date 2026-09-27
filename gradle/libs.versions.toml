@@ -1,8 +1,8 @@
 [versions]
-androidGradlePlugin = "9.4.0"
+androidGradlePlugin = "9.4.1"
 androidxActivity = "1.13.0"
-androidxComposeBom = "2026.08.00"
-androidxCore = "1.19.0"
+androidxComposeBom = "2026.09.00"
+androidxCore = "1.19.1"
 androidxLifecycle = "2.11.0"
 androidxTest = "1.7.0"
 androidxTestEspresso = "3.7.0"
@@ -12,12 +12,12 @@ coroutines = "1.11.0"
 datastore = "1.2.1"
 junit = "4.13.2"
 koinBom = "4.2.2"
-kotlin = "2.4.10"
+kotlin = "2.4.20"
 ksp = "2.3.10"
 lifecycleViewmodelNav3 = "2.11.0"
-nav3Core = "1.1.7"
-room = "2.8.4"
-workRuntimeKtx = "2.11.2"
+nav3Core = "1.2.0"
+room = "2.8.5"
+workRuntimeKtx = "2.12.0"
 
 [libraries]
 # Kotlin
